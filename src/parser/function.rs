@@ -48,6 +48,22 @@ use crate::{
 ///     parse_function("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
 ///     Ok(("", function))
 /// );
+///
+/// // Test function with exports
+/// let function_with_exports = Function {
+///     identifier: Some("multiply".into()),
+///     parameters: vec![],
+///     local_variables: vec![],
+///     exports: vec!["mul".into(), "multiply".into()],
+/// };
+///
+/// assert_eq!(
+///     parse_function(r#"(func $multiply (export "mul") (export "multiply"))"#),
+///     Ok(("", function_with_exports))
+/// );
+///
+/// // Test function with duplicate export names (should fail)
+/// assert!(parse_function(r#"(func $add (export "add") (export "add"))"#).is_err());
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -57,10 +73,24 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
+        // WASM allows more than one `export` instructions
+        // in a function, but they cannot have duplicated names.
         let (rest, exports) = many0(parse_export)(rest)?;
+        
+        // Check for duplicate export names
+        let mut unique_exports = Vec::with_capacity(exports.len());
+        let mut seen_names = std::collections::HashSet::new();
+        
+        for export in exports {
+            if !seen_names.insert(export.clone()) {
+                return Err(nom::Err::Error(nom::error::Error::new(
+                    input,
+                    nom::error::ErrorKind::Custom(1), // Custom error for duplicate export names
+                )));
+            }
+            unique_exports.push(export);
+        }
+        
         let (rest, parameters) = many0(parse_parameter)(rest)?;
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
@@ -68,7 +98,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
             identifier,
             parameters,
             local_variables,
-            exports,
+            exports: unique_exports,
         };
 
         Ok((rest, function))
@@ -78,6 +108,10 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 }
 
 /// Parses an `export` definition.
+///
+/// Note: While this function parses individual export instructions without
+/// checking for duplicates, the `parse_function` function will validate that
+/// all exports within a function have unique names, as per the WASM specification.
 ///
 /// ```
 /// use water::parser::parse_export;
