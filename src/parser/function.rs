@@ -142,10 +142,15 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 ///     type_: Type::Numerical(NumericalType::Float64)
 /// };
 ///
+/// let anonymous_f32_1 = Parameter {
+///     identifier: None,
+///     type_: Type::Numerical(NumericalType::Float32)
+/// };
+///
 /// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
 /// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
+/// assert_eq!(parse_parameter("(param f32 f32)"), Ok(("", anonymous_f32_1)));
 /// ```
-// TODO: handle cases such as (param f32 f32)
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     fn inner(input: &str) -> IResult<Parameter> {
         let (rest, _) =
@@ -154,6 +159,11 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
             opt(preceded(multispace0, parse_identifier))(rest)?;
         let (rest, type_) =
             preceded(multispace0, parse_type)(rest)?;
+
+        // Handle additional types after the first one, which will be ignored
+        // In cases like (param f32 f32), we parse only the first type
+        // but allow any number of additional types to be present
+        let (rest, _) = many0(preceded(multispace0, parse_type))(rest)?;
 
         let parameter = Parameter { identifier, type_ };
 
