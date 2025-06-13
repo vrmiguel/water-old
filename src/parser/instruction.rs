@@ -26,6 +26,7 @@ use crate::{
     },
     parser::utils::parse_parenthesis_enclosed,
 };
+use smallvec::smallvec;
 
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
@@ -35,7 +36,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 
         let instr = Instruction {
             opcode,
-            arguments: Vec::new(),
+            arguments: smallvec![],
         };
 
         Ok((rest, instr))

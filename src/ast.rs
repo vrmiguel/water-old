@@ -1,6 +1,7 @@
 //! The abstract syntax tree `waster` parses to.
 
 use crate::small_string::SmallString;
+use smallvec::{smallvec, SmallVec};
 
 pub struct Program {
     pub modules: Vec<Module>,
@@ -92,8 +93,9 @@ pub struct Instruction {
     /// The list of "inlined" arguments to this instruction, if
     /// any.
     // TODO: transform this into a "generic" Value
-    // TODO: investigate use of SmallVec here
-    pub arguments: Vec<Instruction>,
+    // Using SmallVec with inline capacity of 4 as most instructions have
+    // few or no arguments, avoiding heap allocations in the common case
+    pub arguments: SmallVec<[Instruction; 4]>,
 }
 
 /// Represents an `import` statement for functions.
