@@ -47,10 +47,13 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ) -> IResult<Instruction> {
         let (rest, opcode) = parse_opcode(input)?;
 
-        let (rest, arguments) = many0(preceded(
+        let (rest, args) = many0(preceded(
             multispace0,
             parse_parenthesis_enclosed(parse_instruction),
         ))(rest)?;
+
+        // Convert Vec<Instruction> to SmallVec<[Box<Instruction>; 4]>
+        let arguments = args.into_iter().map(Box::new).collect();
 
         let instr = Instruction { opcode, arguments };
 

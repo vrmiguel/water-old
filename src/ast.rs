@@ -95,7 +95,8 @@ pub struct Instruction {
     // TODO: transform this into a "generic" Value
     // Using SmallVec with inline capacity of 4 as most instructions have
     // few or no arguments, avoiding heap allocations in the common case
-    pub arguments: SmallVec<[Instruction; 4]>,
+    // Using Box<Instruction> to break the recursive type cycle
+    pub arguments: SmallVec<[Box<Instruction>; 4]>,
 }
 
 /// Represents an `import` statement for functions.
