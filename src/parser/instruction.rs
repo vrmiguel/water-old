@@ -32,11 +32,8 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
         input: &str,
     ) -> IResult<Instruction> {
         let (rest, opcode) = parse_opcode(input)?;
-
-        let instr = Instruction {
-            opcode,
-            arguments: Vec::new(),
-        };
+        
+        let instr = Instruction::new(opcode);
 
         Ok((rest, instr))
     }
@@ -51,7 +48,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
             parse_parenthesis_enclosed(parse_instruction),
         ))(rest)?;
 
-        let instr = Instruction { opcode, arguments };
+        let instr = Instruction::with_arguments(opcode, arguments);
 
         Ok((rest, instr))
     }

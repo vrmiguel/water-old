@@ -1,7 +1,7 @@
 use crate::ast::{
     ArithmeticInstruction, ArithmeticOperation,
     ComparisonInstruction, ComparisonOperation, Constant,
-    NumericalType, NumericalValue, Opcode, ScopeKind,
+    Instruction, NumericalType, NumericalValue, Opcode, ScopeKind,
     Unreachable, VariableInstruction, VariableOperation,
 };
 
@@ -285,5 +285,11 @@ impl ToOpcode for VariableOperation {
                 unreachable!("global.tee is not supported")
             }
         }
+    }
+}
+
+impl<T> ToOpcode for Instruction<T> {
+    fn to_opcode(&self) -> u8 {
+        self.opcode.to_opcode()
     }
 }

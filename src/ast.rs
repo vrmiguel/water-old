@@ -86,14 +86,33 @@ pub struct Function {
 #[derive(Clone, Debug, PartialEq)]
 /// Represents an instruction along the possible "inlined"
 /// arguments it may have.
-pub struct Instruction {
+pub struct Instruction<T = Instruction> {
     /// The actual operation this instruction represents
     pub opcode: Opcode,
     /// The list of "inlined" arguments to this instruction, if
     /// any.
-    // TODO: transform this into a "generic" Value
     // TODO: investigate use of SmallVec here
-    pub arguments: Vec<Instruction>,
+    pub arguments: Vec<T>,
+}
+
+impl<T> Instruction<T> {
+    /// Creates a new instruction with the given opcode and no arguments
+    pub fn new(opcode: Opcode) -> Self {
+        Self {
+            opcode,
+            arguments: Vec::new(),
+        }
+    }
+
+    /// Creates a new instruction with the given opcode and arguments
+    pub fn with_arguments(opcode: Opcode, arguments: Vec<T>) -> Self {
+        Self { opcode, arguments }
+    }
+
+    /// Adds an argument to this instruction
+    pub fn add_argument(&mut self, argument: T) {
+        self.arguments.push(argument);
+    }
 }
 
 /// Represents an `import` statement for functions.
