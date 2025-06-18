@@ -9,7 +9,9 @@ use nom::{
     combinator::value,
     error::context,
     multi::many0,
-    number::complete::{double as parse_f64, float as parse_f32},
+    number::complete::{
+        double as parse_f64, float as parse_f32,
+    },
     sequence::preceded,
     Parser,
 };
