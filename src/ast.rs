@@ -201,8 +201,8 @@ pub struct ComparisonOperation {
 ///
 /// # Examples
 ///
-/// * `call $function` (function is an identifier in an indexing
-///   position)
+/// * `call $function` (function is an identifier in an
+///   indexing position)
 /// * ` local.get 0` (0 is a numerical index)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Index {
