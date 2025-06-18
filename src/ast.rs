@@ -86,13 +86,22 @@ pub struct Function {
 #[derive(Clone, Debug, PartialEq)]
 /// Represents an instruction along the possible "inlined"
 /// arguments it may have.
-pub struct Instruction<T = Instruction> {
+pub struct Instruction<T = Value> {
     /// The actual operation this instruction represents
     pub opcode: Opcode,
     /// The list of "inlined" arguments to this instruction, if
     /// any.
     // TODO: investigate use of SmallVec here
     pub arguments: Vec<T>,
+}
+
+/// Represents a value that can be used as an argument to an instruction.
+#[derive(Clone, Debug, PartialEq)]
+pub struct Value {
+    /// The actual operation this value represents
+    pub opcode: Opcode,
+    /// The list of "inlined" arguments to this value, if any.
+    pub arguments: Vec<Value>,
 }
 
 /// Represents an `import` statement for functions.
@@ -195,7 +204,7 @@ pub struct ComparisonOperation {
 /// # Examples
 ///
 /// * `call $function` (function is an identifier in an
-/// indexing position)
+///   indexing position)
 /// * ` local.get 0` (0 is a numerical index)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Index {

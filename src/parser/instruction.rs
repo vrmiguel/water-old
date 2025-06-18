@@ -21,7 +21,7 @@ use super::{
 use crate::{
     ast::{
         Constant, Index, Instruction, NumericalType,
-        NumericalValue, Opcode, ScopeKind, Unreachable,
+        NumericalValue, Opcode, ScopeKind, Unreachable, Value,
         VariableInstruction, VariableOperation,
     },
     parser::utils::parse_parenthesis_enclosed,
@@ -48,7 +48,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 
         let (rest, arguments) = many0(preceded(
             multispace0,
-            parse_parenthesis_enclosed(parse_instruction),
+            parse_parenthesis_enclosed(parse_value),
         ))(rest)?;
 
         let instr = Instruction { opcode, arguments };
@@ -61,6 +61,39 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
         parse_parenthesis_enclosed(
             parse_instruction_with_arguments,
         ),
+    ))(input)
+}
+
+pub fn parse_value(input: &str) -> IResult<Value> {
+    fn parse_plain_value(input: &str) -> IResult<Value> {
+        let (rest, opcode) = parse_opcode(input)?;
+
+        let value = Value {
+            opcode,
+            arguments: Vec::new(),
+        };
+
+        Ok((rest, value))
+    }
+
+    fn parse_value_with_arguments(
+        input: &str,
+    ) -> IResult<Value> {
+        let (rest, opcode) = parse_opcode(input)?;
+
+        let (rest, arguments) = many0(preceded(
+            multispace0,
+            parse_parenthesis_enclosed(parse_value),
+        ))(rest)?;
+
+        let value = Value { opcode, arguments };
+
+        Ok((rest, value))
+    }
+
+    alt((
+        parse_plain_value,
+        parse_parenthesis_enclosed(parse_value_with_arguments),
     ))(input)
 }
 
