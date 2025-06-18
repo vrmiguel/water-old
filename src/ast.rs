@@ -86,14 +86,13 @@ pub struct Function {
 #[derive(Clone, Debug, PartialEq)]
 /// Represents an instruction along the possible "inlined"
 /// arguments it may have.
-pub struct Instruction {
+pub struct Instruction<T = Instruction> {
     /// The actual operation this instruction represents
     pub opcode: Opcode,
     /// The list of "inlined" arguments to this instruction, if
     /// any.
-    // TODO: transform this into a "generic" Value
     // TODO: investigate use of SmallVec here
-    pub arguments: Vec<Instruction>,
+    pub arguments: Vec<T>,
 }
 
 /// Represents an `import` statement for functions.
