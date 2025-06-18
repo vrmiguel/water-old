@@ -1,8 +1,9 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
     combinator::opt, error::context, multi::many0,
-    sequence::preceded,
+    sequence::preceded, Err, error::ErrorKind,
 };
+use std::collections::HashSet;
 
 use super::IResult;
 use crate::{
@@ -48,6 +49,22 @@ use crate::{
 ///     parse_function("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
 ///     Ok(("", function))
 /// );
+///
+/// // Test with exports
+/// let function_with_exports = Function {
+///     identifier: Some("add".into()),
+///     parameters: vec![],
+///     local_variables: vec![],
+///     exports: vec!["add".into(), "sum".into()],
+/// };
+///
+/// assert_eq!(
+///     parse_function(r#"(func $add (export "add") (export "sum"))"#),
+///     Ok(("", function_with_exports))
+/// );
+///
+/// // Test that duplicate exports fail
+/// assert!(parse_function(r#"(func $add (export "add") (export "add"))"#).is_err());
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -57,10 +74,20 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
+        // WASM allows more than one `export` instructions in a function,
+        // but they cannot have duplicated names.
         let (rest, exports) = many0(parse_export)(rest)?;
+        
+        // Check for duplicate export names
+        let mut seen_exports = HashSet::new();
+        for export in &exports {
+            if !seen_exports.insert(export) {
+                return Err(Err::Error(nom::error::VerboseError::from_error_kind(
+                    input,
+                    ErrorKind::Verify,
+                )));
+            }
+        }
         let (rest, parameters) = many0(parse_parameter)(rest)?;
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
