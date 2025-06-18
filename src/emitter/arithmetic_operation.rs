@@ -144,7 +144,7 @@ mod tests {
 
         let op = ArithmeticOperation {
             type_: NumericalType::Int32,
-            instr: ArithmeticInstruction::UnsignedDisivion,
+            instr: ArithmeticInstruction::UnsignedDivision,
         };
 
         emitter.emit_element(op).unwrap();
