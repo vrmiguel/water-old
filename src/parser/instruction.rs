@@ -208,3 +208,55 @@ pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
 
     Ok((rest, Unreachable))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::NumericalValue;
+
+    #[test]
+    fn test_parse_f32_const() {
+        // Test regular float values
+        assert_eq!(
+            parse_const("f32.const 5.0"),
+            Ok(("", NumericalValue::Float32(5.0)))
+        );
+        
+        // Test scientific notation
+        assert_eq!(
+            parse_const("f32.const 2E-3"),
+            Ok(("", NumericalValue::Float32(0.002)))
+        );
+        
+        // Test with integers (should still be parsed as float)
+        assert_eq!(
+            parse_const("f32.const 42"),
+            Ok(("", NumericalValue::Float32(42.0)))
+        );
+        
+        // Test negative value
+        assert_eq!(
+            parse_const("f32.const -3.14"),
+            Ok(("", NumericalValue::Float32(-3.14)))
+        );
+        
+        // The following test checks that a value is parsed directly as f32,
+        // not as f64 and then cast to f32 (which would lose precision)
+        let large_f32 = 16777216.0; // 2^24, a value that can be represented exactly in f32
+        let large_f32_plus_1 = 16777217.0; // 2^24 + 1, cannot be represented exactly in f32
+        
+        // When parsed as f32, these should be equal because f32 doesn't have enough precision
+        assert_eq!(large_f32 as f32, large_f32_plus_1 as f32);
+        
+        // Verify that parsing directly as f32 maintains the correct precision
+        assert_eq!(
+            parse_const(&format!("f32.const {}", large_f32)),
+            Ok(("", NumericalValue::Float32(large_f32 as f32)))
+        );
+        
+        assert_eq!(
+            parse_const(&format!("f32.const {}", large_f32_plus_1)),
+            Ok(("", NumericalValue::Float32(large_f32_plus_1 as f32)))
+        );
+    }
+}
