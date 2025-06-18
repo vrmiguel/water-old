@@ -86,6 +86,9 @@ pub struct Function {
 #[derive(Clone, Debug, PartialEq)]
 /// Represents an instruction along the possible "inlined"
 /// arguments it may have.
+/// 
+/// The generic parameter `T` defaults to `Value` and determines the type
+/// of arguments this instruction can have.
 pub struct Instruction<T = Value> {
     /// The actual operation this instruction represents
     pub opcode: Opcode,
