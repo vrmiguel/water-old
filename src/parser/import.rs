@@ -1,6 +1,7 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
+    error::{context, VerboseError}, sequence::preceded,
+    Err, error::ParseError,
 };
 
 use super::IResult;
@@ -44,9 +45,21 @@ pub fn parse_function_import(
         let (rest, function) =
             preceded(multispace0, parse_function)(rest)?;
 
-        // TODO: transform into nom errors
-        assert!(function.exports.is_empty());
-        assert!(function.local_variables.is_empty());
+        // Create a validation error with context
+        fn validation_error<'a>(input: &'a str, message: &'static str) -> nom::Err<VerboseError<&'a str>> {
+            let mut err = VerboseError { errors: vec![] };
+            err.errors.push((input, nom::error::ErrorKind::Verify));
+            Err::Error(ParseError::add_context(input, message, err))
+        }
+        
+        // Validate that the function doesn't have exports or local variables
+        if !function.exports.is_empty() {
+            return validation_error(rest, "imported functions cannot have exports");
+        }
+        
+        if !function.local_variables.is_empty() {
+            return validation_error(rest, "imported functions cannot have local variables");
+        }
 
         let fn_import = FunctionImport {
             namespace: namespace.into(),
