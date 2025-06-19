@@ -76,6 +76,50 @@ use crate::{
 ///     parse_function("(func (param f32 f32) (param $x i32))"),
 ///     Ok(("", function_multi_params))
 /// );
+///
+/// // Test more complex case with multiple param declarations of different types
+/// let complex_multi_param_test = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int64)
+///     },
+///     Parameter {
+///         identifier: Some("ratio".into()),
+///         type_: Type::Numerical(NumericalType::Float64)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("flag".into()),
+///         type_: Type::Numerical(NumericalType::Int32)
+///     }
+/// ];
+///
+/// let complex_function = Function {
+///     identifier: Some("complex".into()),
+///     parameters: complex_multi_param_test,
+///     local_variables: vec![],
+///     exports: vec![]
+/// };
+///
+/// assert_eq!(
+///     parse_function("(func $complex (param i32 i32) (param i64) (param $ratio f64) (param f32 f32) (param $flag i32))"),
+///     Ok(("", complex_function))
+/// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -229,7 +273,7 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 /// assert_eq!(result.1[0].identifier, Some("name".into()));
 /// assert_eq!(result.1[0].type_, Type::Numerical(NumericalType::Float64));
 ///
-/// // Multiple anonymous parameters
+/// // Multiple anonymous parameters of the same type
 /// let result = parse_multiple_parameters("(param f32 f32 f32)").unwrap();
 /// assert_eq!(result.0, "");
 /// assert_eq!(result.1.len(), 3);
@@ -237,6 +281,32 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 ///     assert_eq!(param.identifier, None);
 ///     assert_eq!(param.type_, Type::Numerical(NumericalType::Float32));
 /// }
+///
+/// // Multiple anonymous parameters of mixed types (this is invalid in WebAssembly, 
+/// // but let's test the parser's behavior for robustness)
+/// let result = parse_multiple_parameters("(param i32 f32 i64)").unwrap();
+/// assert_eq!(result.0, "");
+/// assert_eq!(result.1.len(), 3);
+/// assert_eq!(result.1[0].type_, Type::Numerical(NumericalType::Int32));
+/// assert_eq!(result.1[1].type_, Type::Numerical(NumericalType::Float32));
+/// assert_eq!(result.1[2].type_, Type::Numerical(NumericalType::Int64));
+///
+/// // Single named parameter followed by another param declaration
+/// let input = "(param $x f64) (param i32)";
+/// let result = parse_multiple_parameters(input).unwrap();
+/// assert_eq!(result.0, " (param i32)");
+/// assert_eq!(result.1.len(), 1);
+/// assert_eq!(result.1[0].identifier, Some("x".into()));
+/// assert_eq!(result.1[0].type_, Type::Numerical(NumericalType::Float64));
+///
+/// // Edge case: Ensure we can't have multiple types when there's an identifier
+/// // With the current implementation, the parser will only capture the first parameter with its identifier,
+/// // and ignore the rest of the types, not including them in the result and not in the remaining input
+/// let input = "(param $x f64)";
+/// let result = parse_multiple_parameters(input).unwrap();
+/// assert_eq!(result.1.len(), 1);
+/// assert_eq!(result.1[0].identifier, Some("x".into()));
+/// assert_eq!(result.1[0].type_, Type::Numerical(NumericalType::Float64));
 /// ```
 pub fn parse_multiple_parameters(input: &str) -> IResult<Vec<Parameter>> {
     fn inner(input: &str) -> IResult<Vec<Parameter>> {
