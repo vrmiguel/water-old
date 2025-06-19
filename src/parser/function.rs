@@ -3,6 +3,7 @@ use nom::{
     combinator::opt, error::{context, ParseError}, multi::many0,
     sequence::preceded,
 };
+use std::ops::Not;
 
 use super::IResult;
 use crate::{
@@ -436,7 +437,7 @@ pub fn parse_multiple_parameters(input: &str) -> IResult<Vec<Parameter>> {
         let mut parameters = vec![Parameter { identifier, type_: type_.clone() }];
         
         // If there's an identifier, we can only have one parameter in this declaration
-        if !has_identifier {
+        if has_identifier.not() {
             // Look for additional types (all without identifiers)
             while let Ok((new_rest, additional_type)) = preceded(multispace0, parse_type)(rest) {
                 parameters.push(Parameter {
