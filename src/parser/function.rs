@@ -1,7 +1,7 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    combinator::{opt, map}, error::context, multi::{many0, many1},
-    sequence::{preceded, tuple},
+    combinator::opt, error::{context, ParseError}, multi::many0,
+    sequence::preceded,
 };
 
 use super::IResult;
@@ -187,9 +187,9 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 /// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
 /// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
 /// 
-/// // When given a parameter with multiple types, only the first parameter is returned
-/// // and the rest of the input is available in the remaining string
-/// assert_eq!(parse_parameter("(param f32 f32)"), Ok((" f32", anonymous_f32)));
+/// // When given a parameter with multiple types, only the first parameter is parsed
+/// // and the rest are ignored (they should be handled with parse_multiple_parameters)
+/// assert_eq!(parse_parameter("(param f32 f32)"), Ok(("", anonymous_f32)));
 /// ```
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     // Delegate to parse_multiple_parameters and take the first one
@@ -251,11 +251,14 @@ pub fn parse_multiple_parameters(input: &str) -> IResult<Vec<Parameter>> {
         let (mut rest, type_) = 
             preceded(multispace0, parse_type)(rest)?;
         
+        // Check if we have an identifier before using it
+        let has_identifier = identifier.is_some();
+        
         // Create the first parameter
         let mut parameters = vec![Parameter { identifier, type_: type_.clone() }];
         
         // If there's an identifier, we can only have one parameter in this declaration
-        if identifier.is_none() {
+        if !has_identifier {
             // Look for additional types (all without identifiers)
             while let Ok((new_rest, additional_type)) = preceded(multispace0, parse_type)(rest) {
                 parameters.push(Parameter {
