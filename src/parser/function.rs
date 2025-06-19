@@ -120,6 +120,34 @@ use crate::{
 ///     parse_function("(func $complex (param i32 i32) (param i64) (param $ratio f64) (param f32 f32) (param $flag i32))"),
 ///     Ok(("", complex_function))
 /// );
+///
+/// // Test a more complex function with mixed parameters from single and multiple parameter declarations
+/// let advanced_param_test = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("z".into()),
+///         type_: Type::Numerical(NumericalType::Int64)
+///     }
+/// ];
+///
+/// let advanced_function = Function {
+///     identifier: None,
+///     parameters: advanced_param_test,
+///     local_variables: vec![],
+///     exports: vec![]
+/// };
+///
+/// assert_eq!(
+///     parse_function("(func (param i32 f32) (param $z i64))"),
+///     Ok(("", advanced_function))
+/// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -290,6 +318,14 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 /// assert_eq!(result.1[0].type_, Type::Numerical(NumericalType::Int32));
 /// assert_eq!(result.1[1].type_, Type::Numerical(NumericalType::Float32));
 /// assert_eq!(result.1[2].type_, Type::Numerical(NumericalType::Int64));
+///
+/// // Test with a more complex case of multiple parameters with different types
+/// let result = parse_multiple_parameters("(param f32 i32 f64)").unwrap();
+/// assert_eq!(result.0, "");
+/// assert_eq!(result.1.len(), 3);
+/// assert_eq!(result.1[0].type_, Type::Numerical(NumericalType::Float32));
+/// assert_eq!(result.1[1].type_, Type::Numerical(NumericalType::Int32));
+/// assert_eq!(result.1[2].type_, Type::Numerical(NumericalType::Float64));
 ///
 /// // Single named parameter followed by another param declaration
 /// let input = "(param $x f64) (param i32)";
