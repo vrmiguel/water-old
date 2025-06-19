@@ -1,10 +1,11 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    combinator::opt, error::context, multi::many0,
+    combinator::{opt, verify}, error::context, multi::many0,
     sequence::preceded,
 };
 
 use super::IResult;
+use std::collections::HashSet;
 use crate::{
     ast::{Function, Local, Parameter},
     parser::utils::{
@@ -57,10 +58,18 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
-        let (rest, exports) = many0(parse_export)(rest)?;
+        // WASM allows more than one `export` instructions
+        // in a function, but they cannot have duplicated names.
+        let (rest, exports) = verify(many0(parse_export), |exports: &Vec<SmallString>| {
+            let mut seen = HashSet::new();
+            for export_name in exports {
+                if !seen.insert(export_name) {
+                    // Found a duplicate
+                    return false;
+                }
+            }
+            true
+        })(rest)?;
         let (rest, parameters) = many0(parse_parameter)(rest)?;
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
