@@ -1,6 +1,8 @@
 use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    error::{context, VerboseError, ContextError}, sequence::preceded,
+    bytes::complete::tag,
+    character::complete::multispace0,
+    error::{context, ContextError, VerboseError},
+    sequence::preceded,
     Err,
 };
 
@@ -48,15 +50,33 @@ pub fn parse_function_import(
         // Validate that the function doesn't have exports or local variables
         if !function.exports.is_empty() {
             let mut err = VerboseError { errors: vec![] };
-            err.errors.push((rest, nom::error::VerboseErrorKind::Nom(nom::error::ErrorKind::Verify)));
-            let err = ContextError::add_context(rest, "imported functions cannot have exports", err);
+            err.errors.push((
+                rest,
+                nom::error::VerboseErrorKind::Nom(
+                    nom::error::ErrorKind::Verify,
+                ),
+            ));
+            let err = ContextError::add_context(
+                rest,
+                "imported functions cannot have exports",
+                err,
+            );
             return Err(Err::Error(err));
         }
-        
+
         if !function.local_variables.is_empty() {
             let mut err = VerboseError { errors: vec![] };
-            err.errors.push((rest, nom::error::VerboseErrorKind::Nom(nom::error::ErrorKind::Verify)));
-            let err = ContextError::add_context(rest, "imported functions cannot have local variables", err);
+            err.errors.push((
+                rest,
+                nom::error::VerboseErrorKind::Nom(
+                    nom::error::ErrorKind::Verify,
+                ),
+            ));
+            let err = ContextError::add_context(
+                rest,
+                "imported functions cannot have local variables",
+                err,
+            );
             return Err(Err::Error(err));
         }
 
