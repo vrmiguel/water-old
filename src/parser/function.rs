@@ -5,7 +5,7 @@ use nom::{
 };
 
 use super::IResult;
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 use crate::{
     ast::{Function, Local, Parameter},
     parser::utils::{
@@ -61,7 +61,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         // WASM allows more than one `export` instructions
         // in a function, but they cannot have duplicated names.
         let (rest, exports) = verify(many0(parse_export), |exports: &Vec<SmallString>| {
-            let mut seen = HashSet::new();
+            let mut seen = BTreeSet::new();
             for export_name in exports {
                 if !seen.insert(export_name) {
                     // Found a duplicate
