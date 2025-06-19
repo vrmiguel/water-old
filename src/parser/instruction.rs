@@ -70,7 +70,7 @@ pub fn parse_value(input: &str) -> IResult<Value> {
 
         let value = Value {
             opcode,
-            arguments: Vec::new(),
+            arguments: Vec::with_capacity(1),
         };
 
         Ok((rest, value))
