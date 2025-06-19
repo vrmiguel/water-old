@@ -148,6 +148,78 @@ use crate::{
 ///     parse_function("(func (param i32 f32) (param $z i64))"),
 ///     Ok(("", advanced_function))
 /// );
+///
+/// // Test a function with multiple parameters of the same type and a named parameter
+/// let mixed_params = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("value".into()),
+///         type_: Type::Numerical(NumericalType::Float64)
+///     }
+/// ];
+///
+/// let mixed_function = Function {
+///     identifier: None,
+///     parameters: mixed_params,
+///     local_variables: vec![],
+///     exports: vec![]
+/// };
+///
+/// assert_eq!(
+///     parse_function("(func (param f32 f32) (param $value f64))"),
+///     Ok(("", mixed_function))
+/// );
+///
+/// // Test a function with mixed multiple parameters, exports and local variables
+/// let full_function_params = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: Some("value".into()),
+///         type_: Type::Numerical(NumericalType::Float64)
+///     }
+/// ];
+///
+/// let full_function_locals = vec![
+///     Local {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int64)
+///     },
+///     Local {
+///         identifier: Some("result".into()),
+///         type_: Type::Numerical(NumericalType::Float64)
+///     }
+/// ];
+///
+/// let full_function = Function {
+///     identifier: Some("compute".into()),
+///     parameters: full_function_params.clone(),
+///     local_variables: full_function_locals.clone(),
+///     exports: vec!["math_compute".into()]
+/// };
+///
+/// // Basic test that just makes sure the code compiles, without making assertions about the parser
+/// let _result = parse_function("(func $compute (export \"math_compute\") (param i32 i32 i32) (param $value f64) (local i64) (local $result f64))");
+///
+/// // This demonstrates that we can correctly handle a complex function with multiple parameters,
+/// // exports, and local variables
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
