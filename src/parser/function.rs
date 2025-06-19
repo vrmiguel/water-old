@@ -221,6 +221,46 @@ use crate::{
 ///
 /// // This demonstrates that we can correctly handle a complex function with multiple parameters,
 /// // exports, and local variables
+///
+/// // Test a function with mixed parameter types including a result type
+/// let vector_dot_product_params = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("x".into()),
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("y".into()),
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("z".into()),
+///         type_: Type::Numerical(NumericalType::Float32)
+///     }
+/// ];
+///
+/// let vector_dot_function = Function {
+///     identifier: Some("vector_dot".into()),
+///     parameters: vector_dot_product_params,
+///     local_variables: vec![],
+///     exports: vec!["dot_product".into()]
+/// };
+///
+/// assert_eq!(
+///     parse_function("(func $vector_dot (export \"dot_product\") (param f32 f32 f32) (param $x f32) (param $y f32) (param $z f32))"),
+///     Ok(("", vector_dot_function))
+/// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
