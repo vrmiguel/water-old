@@ -113,8 +113,7 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
             Ok((rest, NumericalValue::Int64(int64)))
         }
         NumericalType::Float32 => {
-            let (rest, float32) =
-                preceded(multispace0, parse_f32)(rest)?;
+            let (rest, float32) = preceded(multispace0, parse_f32)(rest)?;
 
             Ok((rest, NumericalValue::Float32(float32)))
         }
