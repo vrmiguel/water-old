@@ -261,6 +261,46 @@ use crate::{
 ///     parse_function("(func $vector_dot (export \"dot_product\") (param f32 f32 f32) (param $x f32) (param $y f32) (param $z f32))"),
 ///     Ok(("", vector_dot_function))
 /// );
+///
+/// // Test function with multiple parameter types and whitespace variations
+/// let matrix_mul_params = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: Some("a".into()),
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+///     Parameter {
+///         identifier: Some("b".into()),
+///         type_: Type::Numerical(NumericalType::Int32)
+///     }
+/// ];
+///
+/// let matrix_function = Function {
+///     identifier: Some("matrix_multiply".into()),
+///     parameters: matrix_mul_params,
+///     local_variables: vec![],
+///     exports: vec![]
+/// };
+///
+/// assert_eq!(
+///     parse_function("(func $matrix_multiply (param  f32  f32   f32 f32) (param $a i32) (param   $b   i32))"),
+///     Ok(("", matrix_function))
+/// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
