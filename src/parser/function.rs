@@ -3,7 +3,6 @@ use nom::{
     combinator::opt, error::{context, ParseError}, multi::many0,
     sequence::preceded,
 };
-use std::ops::Not;
 
 use super::IResult;
 use crate::{
@@ -310,18 +309,44 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
-        let (rest, exports) = many0(parse_export)(rest)?;
+        // We need to handle exports, parameters, and locals in any order
+        // We'll parse them in a loop and collect them into separate vectors
+        let mut exports = Vec::new();
+        let mut param_groups = Vec::new();
+        let mut local_variables = Vec::new();
         
-        // Parse parameters - need to handle both single and multi-param declarations
-        let (rest, param_groups) = many0(parse_multiple_parameters)(rest)?;
+        let mut current_rest = rest;
+        
+        // Loop to parse all components in any order
+        loop {
+            // Try to parse an export
+            if let Ok((new_rest, export)) = parse_export(current_rest) {
+                exports.push(export);
+                current_rest = new_rest;
+                continue;
+            }
+            
+            // Try to parse parameters
+            if let Ok((new_rest, params)) = parse_multiple_parameters(current_rest) {
+                param_groups.push(params);
+                current_rest = new_rest;
+                continue;
+            }
+            
+            // Try to parse a local variable
+            if let Ok((new_rest, local)) = parse_local(current_rest) {
+                local_variables.push(local);
+                current_rest = new_rest;
+                continue;
+            }
+            
+            // If we couldn't parse any of them, we're done
+            break;
+        }
+        
         // Flatten the nested vectors of parameters
         let parameters = param_groups.into_iter().flatten().collect();
         
-        let (rest, local_variables) = many0(parse_local)(rest)?;
-
         let function = Function {
             identifier,
             parameters,
@@ -329,7 +354,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
             exports,
         };
 
-        Ok((rest, function))
+        Ok((current_rest, function))
     }
 
     parse_parenthesis_enclosed(context("function", inner))(input)
@@ -517,7 +542,7 @@ pub fn parse_multiple_parameters(input: &str) -> IResult<Vec<Parameter>> {
         let mut parameters = vec![Parameter { identifier, type_: type_.clone() }];
         
         // If there's an identifier, we can only have one parameter in this declaration
-        if has_identifier.not() {
+        if !has_identifier {
             // Look for additional types (all without identifiers)
             while let Ok((new_rest, additional_type)) = preceded(multispace0, parse_type)(rest) {
                 parameters.push(Parameter {
