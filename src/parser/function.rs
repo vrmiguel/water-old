@@ -61,7 +61,8 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         // in a function, but they cannot have duplicated
         // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
-        let (rest, parameters) = many0(parse_parameter)(rest)?;
+        let (rest, parameter_groups) = many0(parse_parameter)(rest)?;
+        let parameters = parameter_groups.into_iter().flatten().collect();
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
         let function = Function {
@@ -142,22 +143,70 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 ///     type_: Type::Numerical(NumericalType::Float64)
 /// };
 ///
-/// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
-/// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
+/// let multiple_f32 = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     }
+/// ];
+///
+/// assert_eq!(parse_parameter("(param i32)"), Ok(("", vec![anonymous_i32])));
+/// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", vec![named_f64])));
+/// assert_eq!(parse_parameter("(param f32 f32)"), Ok(("", multiple_f32)));
 /// ```
-// TODO: handle cases such as (param f32 f32)
-pub fn parse_parameter(input: &str) -> IResult<Parameter> {
-    fn inner(input: &str) -> IResult<Parameter> {
+pub fn parse_parameter(input: &str) -> IResult<Vec<Parameter>> {
+    fn inner(input: &str) -> IResult<Vec<Parameter>> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
         let (rest, identifier) =
             opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+        
+        // If we have an identifier, we can only have one type
+        if identifier.is_some() {
+            let (rest, type_) =
+                preceded(multispace0, parse_type)(rest)?;
 
-        let parameter = Parameter { identifier, type_ };
+            let parameter = Parameter { identifier, type_ };
 
-        Ok((rest, parameter))
+            Ok((rest, vec![parameter]))
+        } else {
+            // No identifier, we can have multiple types
+            let mut parameters = Vec::new();
+            let mut current_rest = rest;
+            
+            // Parse at least one type (required)
+            let (rest, type_) =
+                preceded(multispace0, parse_type)(current_rest)?;
+            
+            parameters.push(Parameter {
+                identifier: None,
+                type_,
+            });
+            
+            current_rest = rest;
+            
+            // Parse additional types if they exist
+            loop {
+                let result = preceded(multispace0, parse_type)(current_rest);
+                
+                match result {
+                    Ok((rest, type_)) => {
+                        parameters.push(Parameter {
+                            identifier: None,
+                            type_,
+                        });
+                        current_rest = rest;
+                    }
+                    Err(_) => break,
+                }
+            }
+            
+            Ok((current_rest, parameters))
+        }
     }
 
     preceded(
