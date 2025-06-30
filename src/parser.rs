@@ -11,7 +11,11 @@ mod utils;
 use nom::error::VerboseError;
 
 pub use self::{
-    function::*, import::*, instruction::*, module::*, utils::*,
+    function::*, import::*, instruction::*, module::*,
+};
+pub use self::utils::{
+    parse_identifier, parse_index, parse_numerical_type, 
+    parse_parenthesis_enclosed, parse_string, parse_type,
 };
 
 /// The result of a parsing operation with added error context
