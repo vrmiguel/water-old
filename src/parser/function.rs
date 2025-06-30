@@ -1,6 +1,6 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    combinator::opt, error::{context, ParseError, VerboseError}, multi::many0,
+    combinator::opt, error::{context, ParseError, VerboseError}, multi::{many0, many1},
     sequence::preceded,
 };
 
@@ -305,27 +305,18 @@ pub fn parse_multiple_parameters(input: &str) -> IResult<Vec<Parameter>> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
         
-        // For (param f32 f32), we need to parse multiple types
-        let mut result = Vec::with_capacity(2);
-        let mut current_rest = rest;
+        // Use many1 to parse one or more types
+        let (rest, types) = many1(preceded(multispace0, parse_type))(rest)?;
         
-        // Keep parsing types until there are no more
-        while let Ok((new_rest, type_)) = preceded(multispace0, parse_type)(current_rest) {
-            result.push(Parameter {
+        // Convert types to parameters
+        let params = types.into_iter()
+            .map(|type_| Parameter {
                 identifier: None,
                 type_,
-            });
-            current_rest = new_rest;
-        }
+            })
+            .collect();
         
-        // We need at least one type
-        if result.is_empty() {
-            return Err(nom::Err::Error(
-                VerboseError::from_error_kind(rest, nom::error::ErrorKind::Alt)
-            ));
-        }
-        
-        Ok((current_rest, result))
+        Ok((rest, params))
     }
 
     preceded(
@@ -401,27 +392,18 @@ pub fn parse_multiple_locals(input: &str) -> IResult<Vec<Local>> {
         let (rest, _) =
             preceded(multispace0, tag("local"))(input)?;
         
-        // For (local f32 f32), we need to parse multiple types
-        let mut result = Vec::with_capacity(2);
-        let mut current_rest = rest;
+        // Use many1 to parse one or more types
+        let (rest, types) = many1(preceded(multispace0, parse_type))(rest)?;
         
-        // Keep parsing types until there are no more
-        while let Ok((new_rest, type_)) = preceded(multispace0, parse_type)(current_rest) {
-            result.push(Local {
+        // Convert types to locals
+        let locals = types.into_iter()
+            .map(|type_| Local {
                 identifier: None,
                 type_,
-            });
-            current_rest = new_rest;
-        }
+            })
+            .collect();
         
-        // We need at least one type
-        if result.is_empty() {
-            return Err(nom::Err::Error(
-                VerboseError::from_error_kind(rest, nom::error::ErrorKind::Alt)
-            ));
-        }
-        
-        Ok((current_rest, result))
+        Ok((rest, locals))
     }
 
     preceded(
