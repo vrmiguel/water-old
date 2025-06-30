@@ -10,7 +10,7 @@ use nom::{
     error::context,
     multi::many0,
     number::complete::{
-        double as parse_f64, float as parse_f32,
+        double as parse_double, float as parse_float,
     },
     sequence::preceded,
     Parser,
@@ -114,13 +114,13 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
         }
         NumericalType::Float32 => {
             let (rest, float32) =
-                preceded(multispace0, parse_f32)(rest)?;
+                preceded(multispace0, parse_float)(rest)?;
 
             Ok((rest, NumericalValue::Float32(float32)))
         }
         NumericalType::Float64 => {
             let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+                preceded(multispace0, parse_double)(rest)?;
 
             Ok((rest, NumericalValue::Float64(float64)))
         }
