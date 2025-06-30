@@ -3,7 +3,7 @@ use nom::{
     combinator::opt, error::context, multi::many0,
     sequence::preceded,
 };
-// No need to import HashSet, using std::collections::HashSet directly
+// No need to import BTreeSet, using std::collections::BTreeSet directly
 
 use super::IResult;
 use crate::{
@@ -62,7 +62,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, exports) = many0(parse_export)(rest)?;
         
         // Check for duplicate export names
-        let mut seen_names = std::collections::HashSet::new();
+        let mut seen_names = std::collections::BTreeSet::new();
         for export_name in exports.iter() {
             if !seen_names.insert(export_name.clone()) {
                 return Err(nom::Err::Error(nom::error::VerboseError { errors: vec![(input, nom::error::VerboseErrorKind::Nom(nom::error::ErrorKind::Fail))] }));
