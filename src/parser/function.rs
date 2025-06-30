@@ -160,7 +160,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 
         // Try to parse parameters - first try multi-parameters,
         // then fall back to single parameters
-        let mut parameters = Vec::new();
+        let mut parameters = Vec::with_capacity(2);
         let mut current_input = rest;
 
         loop {
