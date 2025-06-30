@@ -91,10 +91,9 @@ pub fn parse_index(input: &str) -> IResult<Index> {
 }
 
 // Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
-#[allow(elided_named_lifetimes)]
 pub fn parse_parenthesis_enclosed<'a, T, F>(
     inner: F,
-) -> impl FnMut(&'a str) -> IResult<T>
+) -> impl FnMut(&'a str) -> IResult<'a, T>
 where
     F: Parser<&'a str, T, VerboseError<&'a str>>,
 {
