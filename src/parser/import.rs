@@ -1,6 +1,6 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
+    error::{context, VerboseError}, sequence::preceded, Err as NomErr,
 };
 
 use super::IResult;
@@ -44,9 +44,26 @@ pub fn parse_function_import(
         let (rest, function) =
             preceded(multispace0, parse_function)(rest)?;
 
-        // TODO: transform into nom errors
-        assert!(function.exports.is_empty());
-        assert!(function.local_variables.is_empty());
+        // Validate function imports don't have exports or local variables
+        if !function.exports.is_empty() {
+            return Err(NomErr::Failure(VerboseError {
+                errors: vec![
+                    (rest, nom::error::ErrorKind::Verify),
+                    (rest, nom::error::ErrorKind::Tag),
+                    (input, nom::error::ErrorKind::Context("function imports cannot have exports")),
+                ],
+            }));
+        }
+        
+        if !function.local_variables.is_empty() {
+            return Err(NomErr::Failure(VerboseError {
+                errors: vec![
+                    (rest, nom::error::ErrorKind::Verify),
+                    (rest, nom::error::ErrorKind::Tag),
+                    (input, nom::error::ErrorKind::Context("function imports cannot have local variables")),
+                ],
+            }));
+        }
 
         let fn_import = FunctionImport {
             namespace: namespace.into(),
