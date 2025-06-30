@@ -3,7 +3,7 @@ use nom::{
     combinator::opt, error::context, multi::many0,
     sequence::preceded,
 };
-use std::collections::HashSet;
+// No need to import HashSet, using std::collections::HashSet directly
 
 use super::IResult;
 use crate::{
@@ -65,10 +65,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let mut seen_names = std::collections::HashSet::new();
         for export_name in exports.iter() {
             if !seen_names.insert(export_name.clone()) {
-                return Err(nom::Err::Error(nom::error::Error::new(
-                    input,
-                    nom::error::ErrorKind::Custom(1), // Using a custom error code
-                )));
+                return Err(nom::Err::Error(nom::error::VerboseError { errors: vec![(input, nom::error::VerboseErrorKind::Nom(nom::error::ErrorKind::Fail))] }));
             }
         }
         
