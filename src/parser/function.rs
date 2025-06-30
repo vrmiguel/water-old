@@ -121,7 +121,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         
         // Parse parameters - both single parameter and multiple parameters forms
         let (rest, parameters) = {
-            let mut params = Vec::new();
+            let mut params = Vec::with_capacity(2);
             let mut current_rest = rest;
             
             // Keep parsing until we can't find any more parameters
@@ -148,7 +148,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         };
         
         let (rest, local_variables) = {
-            let mut locals = Vec::new();
+            let mut locals = Vec::with_capacity(2);
             let mut current_rest = rest;
             
             // Keep parsing until we can't find any more locals
@@ -306,7 +306,7 @@ pub fn parse_multiple_parameters(input: &str) -> IResult<Vec<Parameter>> {
             preceded(multispace0, tag("param"))(input)?;
         
         // For (param f32 f32), we need to parse multiple types
-        let mut result = Vec::new();
+        let mut result = Vec::with_capacity(2);
         let mut current_rest = rest;
         
         // Keep parsing types until there are no more
@@ -402,7 +402,7 @@ pub fn parse_multiple_locals(input: &str) -> IResult<Vec<Local>> {
             preceded(multispace0, tag("local"))(input)?;
         
         // For (local f32 f32), we need to parse multiple types
-        let mut result = Vec::new();
+        let mut result = Vec::with_capacity(2);
         let mut current_rest = rest;
         
         // Keep parsing types until there are no more
