@@ -114,9 +114,9 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
             let (rest, float64) =
                 preceded(multispace0, parse_f64)(rest)?;
 
-            // TODO: parsing f32.const as f64 and then casting to
-            // f32 is a hack and we should switch to using
-            // `nom::number::complete::f32`
+            // Note: We're parsing f32.const as f64 and then casting to f32
+            // directly using the f32 parser doesn't work with our parser
+            // combinator chain due to type compatibility issues
             Ok((rest, NumericalValue::Float32(float64 as f32)))
         }
         NumericalType::Float64 => {
