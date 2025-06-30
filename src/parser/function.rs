@@ -3,6 +3,7 @@ use nom::{
     combinator::opt, error::context, multi::many0,
     sequence::preceded,
 };
+use std::collections::HashSet;
 
 use super::IResult;
 use crate::{
@@ -57,10 +58,20 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
+        // WASM allows more than one `export` instructions in a function
         let (rest, exports) = many0(parse_export)(rest)?;
+        
+        // Check for duplicate export names
+        let mut seen_names = std::collections::HashSet::new();
+        for export_name in exports.iter() {
+            if !seen_names.insert(export_name.clone()) {
+                return Err(nom::Err::Error(nom::error::Error::new(
+                    input,
+                    nom::error::ErrorKind::Custom(1), // Using a custom error code
+                )));
+            }
+        }
+        
         let (rest, parameters) = many0(parse_parameter)(rest)?;
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
