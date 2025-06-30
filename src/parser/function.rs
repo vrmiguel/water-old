@@ -75,55 +75,73 @@ use crate::{
 ///     Ok(("", multi_param_function))
 /// );
 /// ```
-/// Parse a multi-parameter declaration like `(param f32 f32 f32)`.
-/// This function handles the case where multiple types are specified in a single param instruction.
-/// It parses each type and creates a parameter for each, with all parameters having no identifier.
-fn parse_multi_parameter(input: &str) -> IResult<Vec<Parameter>> {
+/// Parse a multi-parameter declaration like `(param f32 f32
+/// f32)`. This function handles the case where multiple types
+/// are specified in a single param instruction. It parses each
+/// type and creates a parameter for each, with all parameters
+/// having no identifier.
+fn parse_multi_parameter(
+    input: &str,
+) -> IResult<Vec<Parameter>> {
     fn inner(input: &str) -> IResult<Vec<Parameter>> {
-        let (rest, _) = preceded(multispace0, tag("param"))(input)?;
-        
+        let (rest, _) =
+            preceded(multispace0, tag("param"))(input)?;
+
         // Parse multiple types
         let current_input = rest;
         let mut parameters = Vec::new();
-        
+
         // Check for an identifier
-        let (current_input, maybe_id) = opt(preceded(multispace0, parse_identifier))(current_input)?;
-        
+        let (current_input, maybe_id) =
+            opt(preceded(multispace0, parse_identifier))(
+                current_input,
+            )?;
+
         // Parse the first type
-        let (mut current_input, first_type) = preceded(multispace0, parse_type)(current_input)?;
-        
-        parameters.push(Parameter { 
-            identifier: maybe_id, 
-            type_: first_type
+        let (mut current_input, first_type) =
+            preceded(multispace0, parse_type)(current_input)?;
+
+        parameters.push(Parameter {
+            identifier: maybe_id,
+            type_: first_type,
         });
-        
-        // Try to parse additional types (which will all be anonymous parameters)
+
+        // Try to parse additional types (which will all be
+        // anonymous parameters)
         let mut had_additional_types = false;
-        
-        while let Ok((new_input, type_)) = preceded(multispace0, parse_type)(current_input) {
-            parameters.push(Parameter { 
-                identifier: None, 
-                type_
+
+        while let Ok((new_input, type_)) =
+            preceded(multispace0, parse_type)(current_input)
+        {
+            parameters.push(Parameter {
+                identifier: None,
+                type_,
             });
             current_input = new_input;
             had_additional_types = true;
         }
-        
-        // If we didn't find any additional types, this isn't a multi-parameter declaration
-        // and should be handled by the regular parameter parser
+
+        // If we didn't find any additional types, this isn't a
+        // multi-parameter declaration and should be
+        // handled by the regular parameter parser
         if !had_additional_types {
-            return Err(nom::Err::Error(nom::error::make_error(
-                input,
-                nom::error::ErrorKind::Tag,
-            )));
+            return Err(nom::Err::Error(
+                nom::error::make_error(
+                    input,
+                    nom::error::ErrorKind::Tag,
+                ),
+            ));
         }
-        
+
         Ok((current_input, parameters))
     }
-    
+
     preceded(
         multispace0,
-        parse_parenthesis_enclosed(context("multi-parameter", inner)),
+        parse_parenthesis_enclosed(context(
+            "multi-parameter",
+            inner,
+        )),
     )(input)
 }
 
@@ -139,19 +157,25 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         // in a function, but they cannot have duplicated
         // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
-        
-        // Try to parse parameters - first try multi-parameters, then fall back to single parameters
+
+        // Try to parse parameters - first try multi-parameters,
+        // then fall back to single parameters
         let mut parameters = Vec::new();
         let mut current_input = rest;
-        
+
         loop {
-            // Try multi-parameter first (it handles the case with multiple types)
-            if let Ok((new_input, mut multi_params)) = parse_multi_parameter(current_input) {
+            // Try multi-parameter first (it handles the case
+            // with multiple types)
+            if let Ok((new_input, mut multi_params)) =
+                parse_multi_parameter(current_input)
+            {
                 parameters.append(&mut multi_params);
                 current_input = new_input;
-            } 
+            }
             // If not a multi-parameter, try a regular parameter
-            else if let Ok((new_input, param)) = parse_parameter(current_input) {
+            else if let Ok((new_input, param)) =
+                parse_parameter(current_input)
+            {
                 parameters.push(param);
                 current_input = new_input;
             }
@@ -160,8 +184,9 @@ pub fn parse_function(input: &str) -> IResult<Function> {
                 break;
             }
         }
-        
-        let (rest, local_variables) = many0(parse_local)(current_input)?;
+
+        let (rest, local_variables) =
+            many0(parse_local)(current_input)?;
 
         let function = Function {
             identifier,
