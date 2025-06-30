@@ -48,6 +48,45 @@ use crate::{
 ///     parse_function("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
 ///     Ok(("", function))
 /// );
+///
+/// // Test for multiple parameters of the same type in a single param declaration
+/// let multi_params = vec![
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int32)
+///     },
+/// ];
+///
+/// let multi_locals = vec![
+///     Local {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int64)
+///     },
+///     Local {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int64)
+///     },
+/// ];
+///
+/// let func_with_multi = Function { 
+///     identifier: None, 
+///     parameters: multi_params, 
+///     local_variables: multi_locals, 
+///     exports: vec![] 
+/// };
+///
+/// assert_eq!(
+///     parse_function("(func (param f32 f32) (param i32) (local i64 i64))"),
+///     Ok(("", func_with_multi))
+/// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -61,8 +100,14 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         // in a function, but they cannot have duplicated
         // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
-        let (rest, parameters) = many0(parse_parameter)(rest)?;
-        let (rest, local_variables) = many0(parse_local)(rest)?;
+        
+        // Parse all parameter instructions and flatten them into a single vector
+        let (rest, parameter_groups) = many0(parse_parameter)(rest)?;
+        let parameters = parameter_groups.into_iter().flatten().collect();
+        
+        // Parse all local variable instructions and flatten them into a single vector
+        let (rest, local_groups) = many0(parse_local)(rest)?;
+        let local_variables = local_groups.into_iter().flatten().collect();
 
         let function = Function {
             identifier,
@@ -142,22 +187,54 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 ///     type_: Type::Numerical(NumericalType::Float64)
 /// };
 ///
-/// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
-/// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
+/// assert_eq!(parse_parameter("(param i32)"), Ok(("", vec![anonymous_i32])));
+/// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", vec![named_f64])));
+/// assert_eq!(parse_parameter("(param f32 f32)"), Ok(("", vec![
+///     Parameter { identifier: None, type_: Type::Numerical(NumericalType::Float32) },
+///     Parameter { identifier: None, type_: Type::Numerical(NumericalType::Float32) }
+/// ])));
 /// ```
-// TODO: handle cases such as (param f32 f32)
-pub fn parse_parameter(input: &str) -> IResult<Parameter> {
-    fn inner(input: &str) -> IResult<Parameter> {
+pub fn parse_parameter(input: &str) -> IResult<Vec<Parameter>> {
+    fn inner(input: &str) -> IResult<Vec<Parameter>> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
+        
+        // Try to parse an identifier (optional)
         let (rest, identifier) =
             opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
+        
+        // Parse the first type (required)
+        let (mut rest, first_type) =
             preceded(multispace0, parse_type)(rest)?;
+        
+        // Create the first parameter
+        let mut parameters = vec![Parameter { identifier, type_: first_type }];
+        
+        // If we have an identifier, we can only have one type
+        if identifier.is_some() {
+            return Ok((rest, parameters));
+        }
+        
+        // Otherwise, try to parse additional types (for case like "param f32 f32")
+        loop {
+            // Try to parse another type with whitespace before it
+            match preceded(multispace0, parse_type)(rest) {
+                Ok((new_rest, next_type)) => {
+                    // Add a new parameter with no identifier and this type
+                    parameters.push(Parameter {
+                        identifier: None,
+                        type_: next_type,
+                    });
+                    rest = new_rest;
+                }
+                Err(_) => {
+                    // No more types to parse
+                    break;
+                }
+            }
+        }
 
-        let parameter = Parameter { identifier, type_ };
-
-        Ok((rest, parameter))
+        Ok((rest, parameters))
     }
 
     preceded(
@@ -183,21 +260,54 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 ///     type_: Type::Numerical(NumericalType::Int64)
 /// };
 ///
-/// assert_eq!(parse_local("(local f32)"), Ok(("", anonymous_f32)));
-/// assert_eq!(parse_local("( local $number i64)"), Ok(("", named_i64)));
+/// assert_eq!(parse_local("(local f32)"), Ok(("", vec![anonymous_f32])));
+/// assert_eq!(parse_local("( local $number i64)"), Ok(("", vec![named_i64])));
+/// assert_eq!(parse_local("(local i32 i32)"), Ok(("", vec![
+///     Local { identifier: None, type_: Type::Numerical(NumericalType::Int32) },
+///     Local { identifier: None, type_: Type::Numerical(NumericalType::Int32) }
+/// ])));
 /// ```
-pub fn parse_local(input: &str) -> IResult<Local> {
-    fn inner(input: &str) -> IResult<Local> {
+pub fn parse_local(input: &str) -> IResult<Vec<Local>> {
+    fn inner(input: &str) -> IResult<Vec<Local>> {
         let (rest, _) =
             preceded(multispace0, tag("local"))(input)?;
+        
+        // Try to parse an identifier (optional)
         let (rest, identifier) =
             opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
+        
+        // Parse the first type (required)
+        let (mut rest, first_type) =
             preceded(multispace0, parse_type)(rest)?;
+        
+        // Create the first local variable
+        let mut locals = vec![Local { identifier, type_: first_type }];
+        
+        // If we have an identifier, we can only have one type
+        if identifier.is_some() {
+            return Ok((rest, locals));
+        }
+        
+        // Otherwise, try to parse additional types (for case like "local i32 i32")
+        loop {
+            // Try to parse another type with whitespace before it
+            match preceded(multispace0, parse_type)(rest) {
+                Ok((new_rest, next_type)) => {
+                    // Add a new local with no identifier and this type
+                    locals.push(Local {
+                        identifier: None,
+                        type_: next_type,
+                    });
+                    rest = new_rest;
+                }
+                Err(_) => {
+                    // No more types to parse
+                    break;
+                }
+            }
+        }
 
-        let local = Local { identifier, type_ };
-
-        Ok((rest, local))
+        Ok((rest, locals))
     }
 
     preceded(
