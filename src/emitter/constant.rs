@@ -14,7 +14,8 @@ impl<W: Write> Emittable<Constant> for Emitter<W> {
         self.emit_byte(opcode)?;
 
         // .. and then the actual literal
-        self.emit_element(element.value)?
+        let result = self.emit_element(element.value)?;
+        Ok(1 + result)
     }
 }
 
