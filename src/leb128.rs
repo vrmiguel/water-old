@@ -34,7 +34,7 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
             // Backup the current value
             let bkp = value;
 
-            value >>= 6;
+            value >>= 7;
 
             is_done = matches!(value, 0 | -1);
             let byte = if is_done {
@@ -69,7 +69,7 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
 //             // Backup the current value
 //             let bkp = value;
 
-//             value >>= 6;
+//             value >>= 7;
 
 //             is_done = matches!(value, 0 | -1);
 //             let byte = if is_done {
