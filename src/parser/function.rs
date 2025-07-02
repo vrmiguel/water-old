@@ -14,6 +14,53 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses an `export` definition.
+///
+/// ```
+/// use water::parser::parse_export;
+/// use water::small_string::SmallString;
+///
+/// assert_eq!(parse_export(r#"(export "add")"#), Ok(("", "add".into())));
+/// assert_eq!(parse_export(r#"(  export  "doSomethingUseful")"#), Ok(("", "doSomethingUseful".into())));
+/// // WASM allows "" as a valid export name
+/// assert_eq!(parse_export(r#"(export"")"#), Ok(("", "".into())));
+///
+/// // Wrong: missing name
+/// assert!(parse_export(r#"(export)"#).is_err());
+///
+/// // Wrong: unclosed quoted string
+/// assert!(parse_export(r#"(export ")"#).is_err());
+///
+/// // Wrong: missing terminating parenthesis
+/// assert!(parse_export(r#"(export "valid""#).is_err());
+///
+/// // Wrong: missing first parenthesis
+/// assert!(parse_export(r#"export "valid")"#).is_err());
+///
+/// // Wrong: missing both parenthesis
+/// assert!(parse_export(r#"export "valid""#).is_err());
+///
+/// // Wrong: incorrect keyword
+/// assert!(parse_export(r#"(expor "valid""))"#).is_err());
+/// assert!(parse_export(r#"(exporT "valid""))"#).is_err());
+///
+/// // Wrong: extra string quote
+/// assert!(parse_export(r#"(export "valid"")"#).is_err());
+/// ```
+pub fn parse_export(input: &str) -> IResult<SmallString> {
+    fn inner(input: &str) -> IResult<SmallString> {
+        let (rest, _) =
+            preceded(multispace0, tag("export"))(input)?;
+
+        let (rest, name) =
+            preceded(multispace0, parse_string)(rest)?;
+
+        Ok((rest, name.into()))
+    }
+
+    parse_parenthesis_enclosed(context("export", inner))(input)
+}
+
 /// Parses a function definition.
 ///
 /// ```
@@ -75,53 +122,6 @@ pub fn parse_function(input: &str) -> IResult<Function> {
     }
 
     parse_parenthesis_enclosed(context("function", inner))(input)
-}
-
-/// Parses an `export` definition.
-///
-/// ```
-/// use water::parser::parse_export;
-/// use water::small_string::SmallString;
-///
-/// assert_eq!(parse_export(r#"(export "add")"#), Ok(("", "add".into())));
-/// assert_eq!(parse_export(r#"(  export  "doSomethingUseful")"#), Ok(("", "doSomethingUseful".into())));
-/// // WASM allows "" as a valid export name
-/// assert_eq!(parse_export(r#"(export"")"#), Ok(("", "".into())));
-///
-/// // Wrong: missing name
-/// assert!(parse_export(r#"(export)"#).is_err());
-///
-/// // Wrong: unclosed quoted string
-/// assert!(parse_export(r#"(export ")"#).is_err());
-///
-/// // Wrong: missing terminating parenthesis
-/// assert!(parse_export(r#"(export "valid""#).is_err());
-///
-/// // Wrong: missing first parenthesis
-/// assert!(parse_export(r#"export "valid")"#).is_err());
-///
-/// // Wrong: missing both parenthesis
-/// assert!(parse_export(r#"export "valid""#).is_err());
-///
-/// // Wrong: incorrect keyword
-/// assert!(parse_export(r#"(expor "valid""))"#).is_err());
-/// assert!(parse_export(r#"(exporT "valid""))"#).is_err());
-///
-/// // Wrong: extra string quote
-/// assert!(parse_export(r#"(export "valid"")"#).is_err());
-/// ```
-pub fn parse_export(input: &str) -> IResult<SmallString> {
-    fn inner(input: &str) -> IResult<SmallString> {
-        let (rest, _) =
-            preceded(multispace0, tag("export"))(input)?;
-
-        let (rest, name) =
-            preceded(multispace0, parse_string)(rest)?;
-
-        Ok((rest, name.into()))
-    }
-
-    parse_parenthesis_enclosed(context("export", inner))(input)
 }
 
 /// Parses a function parameter.
