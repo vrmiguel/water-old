@@ -6,7 +6,7 @@ use nom::{
 use super::IResult;
 use crate::{
     ast::Module, parser::utils::{parse_parenthesis_enclosed, parse_identifier},
-    small_string::SmallString, parser::{parse_function, parse_function_import},
+    parser::{parse_function, parse_function_import},
 };
 
 /// Parses a WebAssembly Text Format module.
@@ -24,7 +24,7 @@ use crate::{
 ///     imports: vec![],
 ///     identifier: None,
 /// };
-/// assert_eq!(parse_module("(module)"), Ok(("", empty_module)));
+/// assert_eq!(parse_module("(module)"), Ok(("", empty_module.clone())));
 /// assert_eq!(parse_module("\n  (module)"), Ok(("", empty_module)));
 ///
 /// // These should fail
