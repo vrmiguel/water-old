@@ -84,6 +84,17 @@ pub struct Function {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+/// Represents a generic value that can be used as an argument to instructions.
+pub enum Value {
+    /// A numerical value (i32, i64, f32, f64)
+    Numerical(NumericalValue),
+    /// An instruction value
+    Instruction(Box<Instruction>),
+    /// An index value (identifier or numerical)
+    Index(Index),
+}
+
+#[derive(Clone, Debug, PartialEq)]
 /// Represents an instruction along the possible "inlined"
 /// arguments it may have.
 pub struct Instruction {
@@ -91,9 +102,8 @@ pub struct Instruction {
     pub opcode: Opcode,
     /// The list of "inlined" arguments to this instruction, if
     /// any.
-    // TODO: transform this into a "generic" Value
     // TODO: investigate use of SmallVec here
-    pub arguments: Vec<Instruction>,
+    pub arguments: Vec<Value>,
 }
 
 /// Represents an `import` statement for functions.

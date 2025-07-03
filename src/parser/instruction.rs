@@ -22,7 +22,7 @@ use crate::{
     ast::{
         Constant, Index, Instruction, NumericalType,
         NumericalValue, Opcode, ScopeKind, Unreachable,
-        VariableInstruction, VariableOperation,
+        Value, VariableInstruction, VariableOperation,
     },
     parser::utils::parse_parenthesis_enclosed,
 };
@@ -46,10 +46,15 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ) -> IResult<Instruction> {
         let (rest, opcode) = parse_opcode(input)?;
 
-        let (rest, arguments) = many0(preceded(
+        let (rest, instructions) = many0(preceded(
             multispace0,
             parse_parenthesis_enclosed(parse_instruction),
         ))(rest)?;
+
+        // Convert Instructions to Values
+        let arguments = instructions.into_iter()
+            .map(|instr| Value::Instruction(Box::new(instr)))
+            .collect();
 
         let instr = Instruction { opcode, arguments };
 
