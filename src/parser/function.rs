@@ -1,7 +1,7 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
     combinator::opt, error::context, multi::{many0, many1},
-    sequence::preceded,
+    sequence::preceded, branch::alt,
 };
 
 use super::IResult;
@@ -87,9 +87,8 @@ use crate::{
 ///     parse_function("(func $multi (param i32 i64 f32) (local i32 f64))"),
 ///     Ok(("", multi_type_function))
 /// );
-/// ```
-pub fn parse_function(input: &str) -> IResult<Function> {
-    fn inner(input: &str) -> IResult<Function> {
+pub fn parse_function(input: &str) -> IResult<'_, Function> {
+    fn inner(input: &str) -> IResult<'_, Function> {
         let (rest, _) =
             preceded(multispace0, tag("func"))(input)?;
 
@@ -101,23 +100,23 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
         
-        // Parse parameters, including multi-type parameters
-        let (rest, mut parameters) = many0(parse_parameter)(rest)?;
+        // Parse all parameters (single-type and multi-type)
+        let (rest, all_params) = many0(alt((
+            parse_multi_type_parameter.map(|params| params),
+            parse_parameter.map(|param| vec![param])
+        )))(rest)?;
         
-        // Parse multi-type parameters and extend the parameters list
-        let (rest, multi_type_params) = many0(parse_multi_type_parameter)(rest)?;
-        for param_group in multi_type_params {
-            parameters.extend(param_group);
-        }
+        // Flatten the list of parameter vectors
+        let parameters = all_params.into_iter().flatten().collect();
         
-        // Parse locals, including multi-type locals
-        let (rest, mut local_variables) = many0(parse_local)(rest)?;
+        // Parse all locals (single-type and multi-type)
+        let (rest, all_locals) = many0(alt((
+            parse_multi_type_local.map(|locals| locals),
+            parse_local.map(|local| vec![local])
+        )))(rest)?;
         
-        // Parse multi-type locals and extend the locals list
-        let (rest, multi_type_locals) = many0(parse_multi_type_local)(rest)?;
-        for local_group in multi_type_locals {
-            local_variables.extend(local_group);
-        }
+        // Flatten the list of local vectors
+        let local_variables = all_locals.into_iter().flatten().collect();
 
         let function = Function {
             identifier,
@@ -165,8 +164,8 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 /// // Wrong: extra string quote
 /// assert!(parse_export(r#"(export "valid"")"#).is_err());
 /// ```
-pub fn parse_export(input: &str) -> IResult<SmallString> {
-    fn inner(input: &str) -> IResult<SmallString> {
+pub fn parse_export(input: &str) -> IResult<'_, SmallString> {
+    fn inner(input: &str) -> IResult<'_, SmallString> {
         let (rest, _) =
             preceded(multispace0, tag("export"))(input)?;
 
@@ -200,8 +199,8 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 /// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
 /// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
 /// ```
-pub fn parse_parameter(input: &str) -> IResult<Parameter> {
-    fn inner(input: &str) -> IResult<Parameter> {
+pub fn parse_parameter(input: &str) -> IResult<'_, Parameter> {
+    fn inner(input: &str) -> IResult<'_, Parameter> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
         let (rest, identifier) =
@@ -240,8 +239,8 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 ///
 /// assert_eq!(parse_multi_type_parameter("(param i32 f64)"), Ok(("", expected)));
 /// ```
-pub fn parse_multi_type_parameter(input: &str) -> IResult<Vec<Parameter>> {
-    fn inner(input: &str) -> IResult<Vec<Parameter>> {
+pub fn parse_multi_type_parameter(input: &str) -> IResult<'_, Vec<Parameter>> {
+    fn inner(input: &str) -> IResult<'_, Vec<Parameter>> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
         
@@ -282,8 +281,8 @@ pub fn parse_multi_type_parameter(input: &str) -> IResult<Vec<Parameter>> {
 /// assert_eq!(parse_local("(local f32)"), Ok(("", anonymous_f32)));
 /// assert_eq!(parse_local("( local $number i64)"), Ok(("", named_i64)));
 /// ```
-pub fn parse_local(input: &str) -> IResult<Local> {
-    fn inner(input: &str) -> IResult<Local> {
+pub fn parse_local(input: &str) -> IResult<'_, Local> {
+    fn inner(input: &str) -> IResult<'_, Local> {
         let (rest, _) =
             preceded(multispace0, tag("local"))(input)?;
         let (rest, identifier) =
@@ -322,8 +321,8 @@ pub fn parse_local(input: &str) -> IResult<Local> {
 ///
 /// assert_eq!(parse_multi_type_local("(local i32 f64)"), Ok(("", expected)));
 /// ```
-pub fn parse_multi_type_local(input: &str) -> IResult<Vec<Local>> {
-    fn inner(input: &str) -> IResult<Vec<Local>> {
+pub fn parse_multi_type_local(input: &str) -> IResult<'_, Vec<Local>> {
+    fn inner(input: &str) -> IResult<'_, Vec<Local>> {
         let (rest, _) =
             preceded(multispace0, tag("local"))(input)?;
         
