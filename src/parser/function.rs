@@ -3,6 +3,7 @@ use nom::{
     combinator::opt, error::context, multi::many0,
     sequence::preceded,
 };
+use std::collections::HashSet;
 
 use super::IResult;
 use crate::{
@@ -48,6 +49,18 @@ use crate::{
 ///     parse_function("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
 ///     Ok(("", function))
 /// );
+/// 
+/// // Function with multiple valid exports
+/// let mut function_with_exports = function.clone();
+/// function_with_exports.exports = vec!["add".into(), "add2".into()];
+/// 
+/// assert_eq!(
+///     parse_function("(func $add (export \"add\") (export \"add2\") (param $number f64) (param i64) (local $l1 i32) (local f32))"),
+///     Ok(("", function_with_exports))
+/// );
+/// 
+/// // Function with duplicate exports should fail
+/// assert!(parse_function("(func $add (export \"add\") (export \"add\") (param $number f64) (param i64))").is_err());
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -57,10 +70,19 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
+        
+        // Check for duplicate export names
+        let mut seen_exports = std::collections::HashSet::new();
+        for export in &exports {
+            if !seen_exports.insert(export) {
+                return Err(nom::Err::Error(nom::error::Error::new(
+                    input,
+                    nom::error::ErrorKind::Verify,
+                )));
+            }
+        }
+        
         let (rest, parameters) = many0(parse_parameter)(rest)?;
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
