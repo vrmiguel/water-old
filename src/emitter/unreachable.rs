@@ -4,8 +4,11 @@ use super::{Emittable, Emitter};
 use crate::{ast::Unreachable, opcode::ToOpcode};
 
 impl<W: Write> Emittable<Unreachable> for Emitter<W> {
-    /// Does not type-check or check arity since unreachable
-    /// doesn't really check for anything.
+    /// Emits the WebAssembly opcode for the `unreachable` instruction.
+    ///
+    /// The `unreachable` instruction is unconditional and doesn't require
+    /// any validation since it's designed to trap regardless of context.
+    /// It accepts any arity and doesn't perform any type checking.
     fn emit_element(
         &mut self,
         unreachable: Unreachable,
