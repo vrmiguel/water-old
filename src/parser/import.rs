@@ -1,6 +1,6 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    error::{context, VerboseError, make_error, ErrorKind}, sequence::preceded,
+    error::{context, VerboseError, VerboseErrorKind, ErrorKind}, sequence::preceded,
 };
 
 use super::IResult;
@@ -48,9 +48,9 @@ pub fn parse_function_import(
         if !function.exports.is_empty() {
             return Err(nom::Err::Failure(VerboseError {
                 errors: vec![
-                    (rest, ErrorKind::Verify),
-                    (rest, ErrorKind::Tag),
-                    (input, ErrorKind::Context("imported function cannot have exports")),
+                    (rest, VerboseErrorKind::Nom(ErrorKind::Verify)),
+                    (rest, VerboseErrorKind::Nom(ErrorKind::Tag)),
+                    (input, VerboseErrorKind::Context("imported function cannot have exports")),
                 ],
             }));
         }
@@ -59,9 +59,9 @@ pub fn parse_function_import(
         if !function.local_variables.is_empty() {
             return Err(nom::Err::Failure(VerboseError {
                 errors: vec![
-                    (rest, ErrorKind::Verify),
-                    (rest, ErrorKind::Tag),
-                    (input, ErrorKind::Context("imported function cannot have local variables")),
+                    (rest, VerboseErrorKind::Nom(ErrorKind::Verify)),
+                    (rest, VerboseErrorKind::Nom(ErrorKind::Tag)),
+                    (input, VerboseErrorKind::Context("imported function cannot have local variables")),
                 ],
             }));
         }
