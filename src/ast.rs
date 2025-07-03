@@ -8,7 +8,12 @@ pub struct Program {
 
 /// Represents a WebAssembly Text Format module
 pub struct Module {
-    // TODO
+    /// The functions defined in this module
+    pub functions: Vec<Function>,
+    /// The function imports defined in this module
+    pub imports: Vec<FunctionImport>,
+    /// The module name identifier, if any
+    pub identifier: Option<SmallString>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -196,7 +201,7 @@ pub struct ComparisonOperation {
 /// # Examples
 ///
 /// * `call $function` (function is an identifier in an
-/// indexing position)
+///   indexing position)
 /// * ` local.get 0` (0 is a numerical index)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Index {
