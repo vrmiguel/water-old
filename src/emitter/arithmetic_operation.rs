@@ -4,11 +4,12 @@ use super::{Emittable, Emitter};
 use crate::{ast::ArithmeticOperation, opcode::ToOpcode};
 
 impl<W: Write> Emittable<ArithmeticOperation> for Emitter<W> {
-    // Does not type check or see if there are enough operands
-    // for the operation.
-    //
-    // This method may only be called within a larger `Emittable`
-    // implementation that checks for this stuff.
+    /// Emits the WebAssembly opcode for the given arithmetic operation.
+    ///
+    /// This implementation assumes that the operation is valid for the given numerical
+    /// type, as type checking is performed at the `to_opcode()` level. Invalid combinations
+    /// will trigger a panic in `to_opcode()` when it encounters an impossible operation,
+    /// such as `f32.div_s` (since float division doesn't have signed/unsigned variants).
     fn emit_element(
         &mut self,
         element: ArithmeticOperation,
@@ -21,5 +22,23 @@ impl<W: Write> Emittable<ArithmeticOperation> for Emitter<W> {
 
 #[cfg(test)]
 mod tests {
-    // TODO: tests for Emittable<ArithmeticOperation>
+    use crate::{
+        ast::{ArithmeticInstruction, ArithmeticOperation, NumericalType},
+        emitter::{Emittable, Emitter},
+    };
+
+    #[test]
+    fn emits_arithmetic_operation_opcode() {
+        let mut emitter = Emitter::new_cursored([0_u8; 1]);
+        
+        let op = ArithmeticOperation {
+            type_: NumericalType::Int32,
+            instr: ArithmeticInstruction::Addition,
+        };
+        
+        emitter.emit_element(op).unwrap();
+        
+        // 0x6a is the opcode for i32.add
+        assert_eq!(&emitter.into_inner().into_inner(), &[0x6a]);
+    }
 }
