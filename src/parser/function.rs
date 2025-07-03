@@ -1,4 +1,5 @@
 use nom::{
+    branch::alt,
     bytes::complete::tag, character::complete::multispace0,
     combinator::opt, error::context, multi::many0,
     sequence::preceded,
@@ -48,6 +49,38 @@ use crate::{
 ///     parse_function("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
 ///     Ok(("", function))
 /// );
+/// 
+/// // Test with multi-parameter syntax
+/// let multi_params = vec![
+///     Parameter {
+///         identifier: Some("number".into()),
+///         type_: Type::Numerical(NumericalType::Float64)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Int64)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+///     Parameter {
+///         identifier: None,
+///         type_: Type::Numerical(NumericalType::Float32)
+///     },
+/// ];
+/// 
+/// let multi_param_function = Function { 
+///     identifier: Some("multi".into()), 
+///     parameters: multi_params, 
+///     local_variables: vec![], 
+///     exports: vec![] 
+/// };
+/// 
+/// assert_eq!(
+///     parse_function("(func $multi (param $number f64) (param i64) (param f32 f32))"),
+///     Ok(("", multi_param_function))
+/// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
@@ -61,7 +94,17 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         // in a function, but they cannot have duplicated
         // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
-        let (rest, parameters) = many0(parse_parameter)(rest)?;
+        
+        // Parse parameters from both regular (param type) and multi-parameter (param type1 type2) forms
+        let (rest, single_parameters) = many0(parse_parameter)(rest)?;
+        let (rest, multi_parameters_list) = many0(parse_multi_parameter)(rest)?;
+        
+        // Flatten the list of parameter lists
+        let multi_parameters: Vec<Parameter> = multi_parameters_list.into_iter().flatten().collect();
+        
+        // Combine all parameters
+        let parameters = [single_parameters, multi_parameters].concat();
+        
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
         let function = Function {
@@ -145,7 +188,6 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 /// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
 /// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
 /// ```
-// TODO: handle cases such as (param f32 f32)
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     fn inner(input: &str) -> IResult<Parameter> {
         let (rest, _) =
@@ -163,6 +205,75 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     preceded(
         multispace0,
         parse_parenthesis_enclosed(context("parameter", inner)),
+    )(input)
+}
+
+/// Parses a parameter declaration that may contain multiple types.
+/// 
+/// Handles cases like `(param f32 f32)` where multiple parameters of 
+/// the same type are defined at once.
+///
+/// ```
+/// use water::parser::parse_multi_parameter;
+/// use water::ast::{Parameter, Type, NumericalType};
+///
+/// let anonymous_f32_1 = Parameter {
+///     identifier: None,
+///     type_: Type::Numerical(NumericalType::Float32)
+/// };
+///
+/// let anonymous_f32_2 = Parameter {
+///     identifier: None,
+///     type_: Type::Numerical(NumericalType::Float32)
+/// };
+/// 
+/// let anonymous_i64 = Parameter {
+///     identifier: None,
+///     type_: Type::Numerical(NumericalType::Int64)
+/// };
+///
+/// // Multiple parameters of the same type
+/// assert_eq!(
+///     parse_multi_parameter("(param f32 f32)"), 
+///     Ok(("", vec![anonymous_f32_1, anonymous_f32_2]))
+/// );
+/// 
+/// // Different types
+/// assert_eq!(
+///     parse_multi_parameter("(param f32 i64)"), 
+///     Ok(("", vec![anonymous_f32_1, anonymous_i64]))
+/// );
+/// ```
+pub fn parse_multi_parameter(input: &str) -> IResult<Vec<Parameter>> {
+    fn inner(input: &str) -> IResult<Vec<Parameter>> {
+        let (rest, _) = preceded(multispace0, tag("param"))(input)?;
+        
+        // Handle case with named parameter: (param $id type)
+        if let Ok((remaining, identifier)) = opt(preceded(multispace0, parse_identifier))(rest) {
+            if let Ok((remaining, type_)) = preceded(multispace0, parse_type)(remaining) {
+                // Single named parameter
+                let parameter = Parameter { identifier, type_ };
+                return Ok((remaining, vec![parameter]));
+            }
+        }
+        
+        // Handle case with multiple types: (param type1 type2 ...)
+        let (rest, types) = nom::multi::many1(preceded(multispace0, parse_type))(rest)?;
+        
+        let parameters = types
+            .into_iter()
+            .map(|type_| Parameter {
+                identifier: None,
+                type_,
+            })
+            .collect();
+        
+        Ok((rest, parameters))
+    }
+
+    preceded(
+        multispace0,
+        parse_parenthesis_enclosed(context("parameters", inner)),
     )(input)
 }
 
