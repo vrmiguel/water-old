@@ -21,7 +21,7 @@ pub struct Emitter<W> {
 impl<W: Write> Emitter<W> {
     /// Emit a single byte to the writer
     pub fn emit_byte(&mut self, byte: u8) -> io::Result<usize> {
-        self.emit_bytes(&[byte]).map(|()| 1)
+        self.writer.write(&[byte])
     }
 
     /// Emit a sequence of bytes to the writer
