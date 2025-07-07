@@ -22,7 +22,10 @@ fn main() {
         error: nom::Err<nom::error::VerboseError<&str>>,
     ) -> String {
         match error {
-            nom::Err::Incomplete(_) => unreachable!(),
+            nom::Err::Incomplete(_) => {
+                // Instead of unreachable, provide a meaningful error message
+                "Incomplete input: the parser needs more data".to_string()
+            },
             nom::Err::Error(error)
             | nom::Err::Failure(error) => {
                 nom::error::convert_error(input, error)

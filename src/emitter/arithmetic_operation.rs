@@ -1,4 +1,4 @@
-use std::io::Write;
+use std::io::{self, Write};
 
 use super::{Emittable, Emitter};
 use crate::{ast::ArithmeticOperation, opcode::ToOpcode};
@@ -12,8 +12,9 @@ impl<W: Write> Emittable<ArithmeticOperation> for Emitter<W> {
     fn emit_element(
         &mut self,
         element: ArithmeticOperation,
-    ) -> std::io::Result<usize> {
-        let opcode = element.to_opcode();
+    ) -> io::Result<usize> {
+        let opcode = element.to_opcode()
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
         self.emit_byte(opcode)
     }

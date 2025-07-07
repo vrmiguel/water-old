@@ -10,7 +10,8 @@ impl<W: Write> Emittable<Unreachable> for Emitter<W> {
         &mut self,
         unreachable: Unreachable,
     ) -> io::Result<usize> {
-        let opcode = unreachable.to_opcode();
+        let opcode = unreachable.to_opcode()
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
         self.emit_byte(opcode)
     }
