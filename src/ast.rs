@@ -8,7 +8,10 @@ pub struct Program {
 
 /// Represents a WebAssembly Text Format module
 pub struct Module {
-    // TODO
+    /// Functions defined within this module
+    pub functions: Vec<Function>,
+    /// Function imports from external modules
+    pub imports: Vec<FunctionImport>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
