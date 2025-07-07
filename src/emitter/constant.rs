@@ -8,7 +8,8 @@ impl<W: Write> Emittable<Constant> for Emitter<W> {
         &mut self,
         element: Constant,
     ) -> io::Result<usize> {
-        let opcode = element.value.to_opcode();
+        let opcode = element.value.to_opcode()
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
 
         // Emit the `const` opcode for the given value
         self.emit_byte(opcode)?;
