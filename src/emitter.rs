@@ -42,7 +42,32 @@ impl<W: Write> Emitter<W> {
         self.emit_bytes(VERSION)
     }
 
-    /// Builds a new emitter with the given writer
+    /// Creates a new WebAssembly emitter with the specified writer.
+    ///
+    /// This function initializes a new Emitter that will write WebAssembly 
+    /// binary format data to the provided writer. The Emitter is responsible
+    /// for encoding various WebAssembly structures into their binary representation.
+    ///
+    /// # Arguments
+    ///
+    /// * `writer` - Any type that implements the `Write` trait, which will receive
+    ///   the encoded WebAssembly binary data. Common writers include `Vec<u8>`,
+    ///   `File`, and other IO streams.
+    ///
+    /// # Returns
+    ///
+    /// A new Emitter instance that wraps the provided writer.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // Create an emitter that writes to a Vec<u8>
+    /// let mut emitter = Emitter::new(Vec::new());
+    ///
+    /// // Create an emitter that writes to a file
+    /// let file = std::fs::File::create("output.wasm").unwrap();
+    /// let mut emitter = Emitter::new(file);
+    /// ```
     pub fn new(writer: W) -> Self {
         Self { writer }
     }
