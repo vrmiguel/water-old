@@ -134,11 +134,11 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
 }
 
 fn low_bits(value: u64) -> u8 {
-    // This mask has all the lower 8 bits set
-    const MASK: u64 = 0xFF;
-    let lower_eight_bits = value & MASK;
-
-    (lower_eight_bits & !CONTINUATION_BIT) as u8
+    // This mask has only the lower 7 bits set
+    const MASK: u64 = 0x7F;
+    
+    // Extract only the 7 data bits (excluding the continuation bit)
+    (value & MASK) as u8
 }
 
 #[cfg(test)]
