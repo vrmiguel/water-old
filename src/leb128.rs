@@ -103,6 +103,26 @@ impl From<u64> for UnsignedLeb128 {
 }
 
 impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
+    /// Encodes and emits an unsigned integer using the LEB128 variable-length encoding.
+    ///
+    /// This implementation follows the LEB128 specification for unsigned integers:
+    /// - Values are encoded in 7-bit chunks
+    /// - The high bit (continuation bit) of each byte indicates if more bytes follow
+    /// - The continuation bit is set for all bytes except the last one
+    /// - The value 0 is encoded as a single byte 0x00
+    ///
+    /// # Arguments
+    ///
+    /// * `self` - The emitter to write the encoded bytes to
+    /// * `element` - The UnsignedLeb128 wrapper containing the value to encode
+    ///
+    /// # Returns
+    ///
+    /// The number of bytes written to encode the value
+    ///
+    /// # Errors
+    ///
+    /// Returns any I/O errors encountered during writing
     fn emit_element(
         &mut self,
         element: UnsignedLeb128,
@@ -133,6 +153,20 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
     }
 }
 
+/// Extracts the lowest 7 bits from a u64 value for LEB128 encoding.
+///
+/// This function:
+/// 1. Masks the input value to get only the lower 8 bits
+/// 2. Clears the highest bit (continuation bit) as defined by LEB128 spec
+/// 3. Returns the resulting 7-bit value as a u8
+///
+/// # Arguments
+///
+/// * `value` - The u64 value to extract bits from
+///
+/// # Returns
+///
+/// A u8 containing the lowest 7 bits (with the continuation bit cleared)
 fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;

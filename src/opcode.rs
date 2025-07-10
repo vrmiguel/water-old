@@ -16,6 +16,26 @@ impl ToOpcode for Unreachable {
 }
 
 impl ToOpcode for NumericalValue {
+    /// Converts a NumericalValue to its corresponding WebAssembly opcode.
+    ///
+    /// This function maps each NumericalValue variant to the appropriate
+    /// WebAssembly constant instruction opcode, according to the WebAssembly
+    /// binary format specification.
+    ///
+    /// # Returns
+    ///
+    /// The WebAssembly opcode byte that corresponds to the numerical type:
+    /// - 0x41 for i32.const (Int32)
+    /// - 0x42 for i64.const (Int64)
+    /// - 0x43 for f32.const (Float32)
+    /// - 0x44 for f64.const (Float64)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let val = NumericalValue::Int32(42);
+    /// assert_eq!(val.to_opcode(), 0x41);
+    /// ```
     fn to_opcode(&self) -> u8 {
         match self {
             NumericalValue::Int32(_) => 0x41,

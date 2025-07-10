@@ -63,6 +63,26 @@ impl SmallString {
         }
     }
 
+    /// Checks if this SmallString is stored on the heap rather than inline.
+    ///
+    /// SmallString uses a small string optimization that stores strings up to
+    /// INLINE_CAP (22) bytes directly in the struct (inline storage).
+    /// Longer strings are stored on the heap using Rc<str>.
+    ///
+    /// # Returns
+    ///
+    /// `true` if the string is stored on the heap (longer than INLINE_CAP),
+    /// `false` if it's stored inline
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let short = SmallString::new("hello");
+    /// assert_eq!(short.is_in_heap(), false);
+    ///
+    /// let long = SmallString::new("this string is longer than 22 characters");
+    /// assert_eq!(long.is_in_heap(), true);
+    /// ```
     pub fn is_in_heap(&self) -> bool {
         matches!(self, Self::Heap(_))
     }
