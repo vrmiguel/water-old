@@ -47,7 +47,26 @@ impl<W: Write> Emitter<W> {
         Self { writer }
     }
 
-    /// Emit the given program to WASM
+    /// Converts an AST Program structure into WebAssembly binary format.
+    /// 
+    /// This function is responsible for emitting the complete WebAssembly module binary.
+    /// Currently, it only emits the WebAssembly magic number and version tag, serving
+    /// as a placeholder for the full implementation. In its complete form, it will
+    /// process all components of the AST and convert them to their binary representation.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `_program` - The AST Program structure to convert (currently unused)
+    /// 
+    /// # Returns
+    /// 
+    /// A Result that indicates success or an IO error
+    /// 
+    /// # Note
+    /// 
+    /// This function is a work in progress. The underscore prefix on the parameter
+    /// indicates it's currently unused, but will be used in future implementations
+    /// to emit the actual program contents.
     pub fn emit_program(
         &mut self,
         _program: Program,

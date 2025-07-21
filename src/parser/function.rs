@@ -50,20 +50,50 @@ use crate::{
 /// );
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
+    /// Inner implementation of the function parser.
+    /// 
+    /// This function handles the actual parsing logic for WebAssembly functions,
+    /// extracting the components of a function definition in the following order:
+    /// 
+    /// 1. The "func" keyword tag
+    /// 2. An optional function identifier (e.g., `$add`)
+    /// 3. Any export declarations that make the function available to the host environment
+    /// 4. Parameter declarations that define the function's input arguments
+    /// 5. Local variable declarations for internal function state
+    /// 
+    /// The parsed components are then used to construct a Function AST node.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `input` - The input string to parse
+    /// 
+    /// # Returns
+    /// 
+    /// A result containing the remaining unparsed input and the parsed Function AST node,
+    /// or an error if parsing fails
     fn inner(input: &str) -> IResult<Function> {
+        // Parse the "func" keyword
         let (rest, _) =
             preceded(multispace0, tag("func"))(input)?;
 
+        // Parse the optional function identifier (e.g., "$add")
         let (rest, identifier) =
             preceded(multispace0, opt(parse_identifier))(rest)?;
 
         // TODO: WASM allows more than one `export` instructions
         // in a function, but they cannot have duplicated
         // names. Check for this either here or at a later step.
+        
+        // Parse any export declarations
         let (rest, exports) = many0(parse_export)(rest)?;
+        
+        // Parse all parameter declarations
         let (rest, parameters) = many0(parse_parameter)(rest)?;
+        
+        // Parse all local variable declarations
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
+        // Construct the Function AST node from the parsed components
         let function = Function {
             identifier,
             parameters,

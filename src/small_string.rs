@@ -63,6 +63,30 @@ impl SmallString {
         }
     }
 
+    /// Checks whether this `SmallString` instance is stored on the heap.
+    /// 
+    /// `SmallString` is an optimization that can store short strings (up to 22 bytes)
+    /// directly in the struct itself, avoiding heap allocation for better performance.
+    /// For longer strings, it falls back to heap allocation using the `Heap` variant.
+    /// 
+    /// This function returns `true` if the string is stored on the heap, which happens
+    /// when the string exceeds the inline capacity (22 bytes).
+    /// 
+    /// # Returns
+    /// 
+    /// `true` if the string is stored on the heap, `false` if it's inlined
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use water::small_string::SmallString;
+    /// 
+    /// let short = SmallString::new("hello");
+    /// assert_eq!(short.is_in_heap(), false);
+    /// 
+    /// let long = SmallString::new("this string is definitely longer than 22 bytes");
+    /// assert_eq!(long.is_in_heap(), true);
+    /// ```
     pub fn is_in_heap(&self) -> bool {
         matches!(self, Self::Heap(_))
     }

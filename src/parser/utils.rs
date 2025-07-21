@@ -107,6 +107,23 @@ where
     )
 }
 
+/// Determines whether a character is valid for use in a WebAssembly Text Format (WAT) identifier.
+/// 
+/// This function checks if a character is allowed in WebAssembly identifiers according to 
+/// the WebAssembly Text Format specification. Valid characters include:
+/// - ASCII alphanumeric characters (a-z, A-Z, 0-9)
+/// - A specific set of special characters: ! # $ % & ´ * + - . / : < = > ? @ \ ^ _ ` | ~
+/// 
+/// This function is used by the parser to validate identifiers in the WAT format,
+/// ensuring they conform to the format's specifications.
+/// 
+/// # Arguments
+/// 
+/// * `ch` - The character to check
+/// 
+/// # Returns
+/// 
+/// `true` if the character is allowed in a WebAssembly identifier, `false` otherwise
 fn is_acceptable_identifier_character(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(
