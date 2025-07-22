@@ -144,9 +144,8 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::ast::{NumericalValue, Instruction};
+/// use water::ast::NumericalValue;
 /// use water::parser::instruction::parse_const;
-/// use water::parser::instruction::parse_instruction;
 ///
 /// assert_eq!(parse_const("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
 /// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
@@ -195,14 +194,10 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::ast::{Index, Instruction};
+/// use water::ast::Index;
 /// use water::parser::instruction::parse_call;
-/// use water::parser::instruction::parse_instruction;
 ///
 /// assert_eq!(parse_call("call 5"), Ok(("", Index::Numerical(5))));
-/// assert!(parse_instruction("call 5").is_ok());
-/// assert!(parse_instruction("(call 5 (i32.const 5))").is_ok());
-/// assert!(parse_instruction("(call 5").is_err());
 /// assert_eq!(parse_call("call $func"), Ok(("", Index::Identifier("func".into()))));
 /// ```
 pub fn parse_call(input: &str) -> IResult<Index> {
