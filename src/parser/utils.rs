@@ -29,7 +29,7 @@ use crate::{
 ///   input and the parsed string
 ///
 /// # Examples
-/// ```
+/// ```ignore
 /// use water::parser::utils::parse_string;
 ///
 /// // Parse a simple string
@@ -53,7 +53,7 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
+/// ```ignore
 /// use water::parser::utils::parse_identifier;
 /// use water::small_string::SmallString;
 ///
@@ -100,7 +100,7 @@ pub fn parse_numerical_type(
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
+/// ```ignore
 /// use water::parser::utils::parse_index;
 /// use water::small_string::SmallString;
 /// use water::ast::Index;

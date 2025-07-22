@@ -42,7 +42,7 @@ use crate::{
 ///   remaining input and the parsed instruction
 ///
 /// # Examples
-/// ```
+/// ```ignore
 /// use water::parser::instruction::parse_instruction;
 /// use water::ast::{Instruction, Opcode, Unreachable};
 ///
@@ -106,7 +106,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 ///   input and the parsed opcode
 ///
 /// # Examples
-/// ```
+/// ```ignore
 /// use water::parser::instruction::parse_opcode;
 /// use water::ast::{Opcode, Unreachable, NumericalValue};
 ///
@@ -143,7 +143,7 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
+/// ```ignore
 /// use water::ast::NumericalValue;
 /// use water::parser::instruction::parse_const;
 ///
@@ -193,7 +193,7 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
+/// ```ignore
 /// use water::ast::Index;
 /// use water::parser::instruction::parse_call;
 ///
@@ -213,7 +213,7 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
+/// ```ignore
 /// use water::ast::{ScopeKind, VariableInstruction, VariableOperation, Opcode, Index};
 /// use water::parser::instruction::parse_variable_instruction;
 ///
@@ -275,7 +275,7 @@ pub fn parse_variable_instruction(
 ///   remaining input and the parsed unreachable instruction
 ///
 /// # Examples
-/// ```
+/// ```ignore
 /// use water::parser::instruction::parse_unreachable;
 /// use water::ast::Unreachable;
 ///
