@@ -27,6 +27,30 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from the text format.
+///
+/// This function handles both plain instructions (like `i32.const 42` or `unreachable`)
+/// and nested instructions with arguments enclosed in parentheses (like `(call 5 (i32.const 42))`).
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Instruction>` - A nom result containing the remaining input and the parsed instruction
+///
+/// # Examples
+/// ```
+/// use water::parser::parse_instruction;
+/// use water::ast::{Instruction, Opcode, Unreachable};
+///
+/// // Parse a simple instruction
+/// let result = parse_instruction("unreachable");
+/// assert!(result.is_ok());
+/// 
+/// // Parse a nested instruction with arguments
+/// let result = parse_instruction("(call 5 (i32.const 42))");
+/// assert!(result.is_ok());
+/// ```
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +88,39 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from the text format.
+///
+/// This function acts as the entry point for parsing different types of WebAssembly 
+/// opcodes, including variable instructions (local/global get/set/tee), constants,
+/// unreachable instructions, and function calls.
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Opcode>` - A nom result containing the remaining input and the parsed opcode
+///
+/// # Examples
+/// ```
+/// use water::parser::parse_opcode;
+/// use water::ast::{Opcode, Unreachable, NumericalValue};
+///
+/// // Parse a constant opcode
+/// let result = parse_opcode("i32.const 42");
+/// assert!(result.is_ok());
+///
+/// // Parse a variable instruction
+/// let result = parse_opcode("local.get $var");
+/// assert!(result.is_ok());
+///
+/// // Parse an unreachable opcode
+/// let result = parse_opcode("unreachable");
+/// assert!(result.is_ok());
+///
+/// // Parse a call opcode
+/// let result = parse_opcode("call 5");
+/// assert!(result.is_ok());
+/// ```
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction

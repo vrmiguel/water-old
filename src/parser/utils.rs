@@ -14,6 +14,31 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a string literal from the WebAssembly Text Format.
+///
+/// This function handles double-quoted string literals with proper escape sequence
+/// handling. It supports both empty strings and strings with content, including
+/// escaped double quotes.
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<&str>` - A nom result containing the remaining input and the parsed string
+///
+/// # Examples
+/// ```
+/// use water::parser::parse_string;
+///
+/// // Parse a simple string
+/// assert_eq!(parse_string("\"hello\""), Ok(("", "hello")));
+///
+/// // Parse an empty string
+/// assert_eq!(parse_string("\"\""), Ok(("", "")));
+///
+/// // Parse a string with escaped quotes
+/// assert_eq!(parse_string("\"hello \\\"world\\\"\""), Ok(("", "hello \\\"world\\\"")));
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
