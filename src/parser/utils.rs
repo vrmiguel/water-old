@@ -39,7 +39,7 @@ use crate::{
 /// assert_eq!(parse_string("\"\""), Ok(("", "")));
 ///
 /// // Parse a string with escaped quotes
-/// assert_eq!(parse_string("\"hello \\\"world\\\"\""), Ok(("", "hello \\\"world\\\"")));
+/// assert_eq!(parse_string("\"hello \\\"world\\\"\""), Ok(("", "hello \"world\"")));
 /// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
