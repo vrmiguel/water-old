@@ -30,7 +30,7 @@ use crate::{
 ///
 /// # Examples
 /// ```
-/// use water::parser::parse_string;
+/// use water::parser::utils::parse_string;
 ///
 /// // Parse a simple string
 /// assert_eq!(parse_string(r#""hello""#), Ok(("", "hello")));

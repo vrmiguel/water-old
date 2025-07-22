@@ -43,7 +43,7 @@ use crate::{
 ///
 /// # Examples
 /// ```
-/// use water::parser::parse_instruction;
+/// use water::parser::instruction::parse_instruction;
 /// use water::ast::{Instruction, Opcode, Unreachable};
 ///
 /// // Parse a simple instruction
@@ -107,7 +107,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 ///
 /// # Examples
 /// ```
-/// use water::parser::parse_opcode;
+/// use water::parser::instruction::parse_opcode;
 /// use water::ast::{Opcode, Unreachable, NumericalValue};
 ///
 /// // Parse a constant opcode
@@ -145,8 +145,8 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 ///
 /// ```
 /// use water::ast::{NumericalValue, Instruction};
-/// use water::parser::parse_const;
-/// use water::parser::parse_instruction;
+/// use water::parser::instruction::parse_const;
+/// use water::parser::instruction::parse_instruction;
 ///
 /// assert_eq!(parse_const("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
 /// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
@@ -196,8 +196,8 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 ///
 /// ```
 /// use water::ast::{Index, Instruction};
-/// use water::parser::parse_call;
-/// use water::parser::parse_instruction;
+/// use water::parser::instruction::parse_call;
+/// use water::parser::instruction::parse_instruction;
 ///
 /// assert_eq!(parse_call("call 5"), Ok(("", Index::Numerical(5))));
 /// assert!(parse_instruction("call 5").is_ok());
@@ -220,7 +220,7 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///
 /// ```
 /// use water::ast::{ScopeKind, VariableInstruction, VariableOperation, Opcode, Index};
-/// use water::parser::parse_variable_instruction;
+/// use water::parser::instruction::parse_variable_instruction;
 ///
 /// assert_eq!(
 ///     parse_variable_instruction("local.set $idx"),
@@ -279,7 +279,7 @@ pub fn parse_variable_instruction(
 ///
 /// # Examples
 /// ```
-/// use water::parser::parse_unreachable;
+/// use water::parser::instruction::parse_unreachable;
 /// use water::ast::Unreachable;
 ///
 /// assert_eq!(parse_unreachable("unreachable"), Ok(("", Unreachable)));
