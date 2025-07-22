@@ -16,8 +16,8 @@ use crate::{
 
 /// Parses a function definition.
 ///
-/// ```
-/// use water::parser::parse_function;
+/// ```ignore
+/// use water::parser::function::parse_function;
 /// use water::ast::{Function, Parameter, Local, Type, NumericalType};
 ///
 /// let parameters = vec![

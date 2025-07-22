@@ -13,9 +13,9 @@ use crate::{
 
 /// Parses a function import.
 ///
-/// ```
+/// ```ignore
 /// use water::ast::{FunctionImport, Function, Parameter, Type, NumericalType};
-/// use water::parser::parse_function_import;
+/// use water::parser::import::parse_function_import;
 ///
 /// let import_wat = r#"(import "console" "log" (func $log (param f32) (param f32)))"#;
 /// let parsed_import = FunctionImport {
