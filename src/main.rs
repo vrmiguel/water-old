@@ -1,4 +1,7 @@
-use water::parser::{import::parse_function_import, instruction::parse_instruction};
+use water::parser::{
+    import::parse_function_import,
+    instruction::parse_instruction,
+};
 
 fn main() {
     dbg!(parse_instruction("i32.const 5").unwrap());
