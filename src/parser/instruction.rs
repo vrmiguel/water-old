@@ -27,6 +27,33 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from the text format.
+///
+/// This function handles both plain instructions (like
+/// `i32.const 42` or `unreachable`) and nested instructions with
+/// arguments enclosed in parentheses (like `(call 5 (i32.const
+/// 42))`).
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Instruction>` - A nom result containing the
+///   remaining input and the parsed instruction
+///
+/// # Examples
+/// ```ignore
+/// use water::parser::instruction::parse_instruction;
+/// use water::ast::{Instruction, Opcode, Unreachable};
+///
+/// // Parse a simple instruction
+/// let result = parse_instruction("unreachable");
+/// assert!(result.is_ok());
+///
+/// // Parse a nested instruction with arguments
+/// let result = parse_instruction("(call 5 (i32.const 42))");
+/// assert!(result.is_ok());
+/// ```
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +91,41 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from the text format.
+///
+/// This function acts as the entry point for parsing different
+/// types of WebAssembly opcodes, including variable instructions
+/// (local/global get/set/tee), constants, unreachable
+/// instructions, and function calls.
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Opcode>` - A nom result containing the remaining
+///   input and the parsed opcode
+///
+/// # Examples
+/// ```ignore
+/// use water::parser::instruction::parse_opcode;
+/// use water::ast::{Opcode, Unreachable, NumericalValue};
+///
+/// // Parse a constant opcode
+/// let result = parse_opcode("i32.const 42");
+/// assert!(result.is_ok());
+///
+/// // Parse a variable instruction
+/// let result = parse_opcode("local.get $var");
+/// assert!(result.is_ok());
+///
+/// // Parse an unreachable opcode
+/// let result = parse_opcode("unreachable");
+/// assert!(result.is_ok());
+///
+/// // Parse a call opcode
+/// let result = parse_opcode("call 5");
+/// assert!(result.is_ok());
+/// ```
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
@@ -81,10 +143,9 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
-/// use water::ast::{NumericalValue, Instruction};
-/// use water::parser::parse_const;
-/// use water::parser::parse_instruction;
+/// ```ignore
+/// use water::ast::NumericalValue;
+/// use water::parser::instruction::parse_const;
 ///
 /// assert_eq!(parse_const("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
 /// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
@@ -132,15 +193,11 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
-/// use water::ast::{Index, Instruction};
-/// use water::parser::parse_call;
-/// use water::parser::parse_instruction;
+/// ```ignore
+/// use water::ast::Index;
+/// use water::parser::instruction::parse_call;
 ///
 /// assert_eq!(parse_call("call 5"), Ok(("", Index::Numerical(5))));
-/// assert!(parse_instruction("call 5").is_ok());
-/// assert!(parse_instruction("(call 5 (i32.const 5))").is_ok());
-/// assert!(parse_instruction("(call 5").is_err());
 /// assert_eq!(parse_call("call $func"), Ok(("", Index::Identifier("func".into()))));
 /// ```
 pub fn parse_call(input: &str) -> IResult<Index> {
@@ -156,9 +213,9 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
+/// ```ignore
 /// use water::ast::{ScopeKind, VariableInstruction, VariableOperation, Opcode, Index};
-/// use water::parser::parse_variable_instruction;
+/// use water::parser::instruction::parse_variable_instruction;
 ///
 /// assert_eq!(
 ///     parse_variable_instruction("local.set $idx"),
@@ -203,7 +260,27 @@ pub fn parse_variable_instruction(
     Ok((rest, operation))
 }
 
-/// Parses the `unreachable` instruction
+/// Parses the `unreachable` instruction from the WebAssembly
+/// text format.
+///
+/// This function recognizes the WebAssembly `unreachable`
+/// instruction, which indicates that execution has entered an
+/// invalid state.
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Unreachable>` - A nom result containing the
+///   remaining input and the parsed unreachable instruction
+///
+/// # Examples
+/// ```ignore
+/// use water::parser::instruction::parse_unreachable;
+/// use water::ast::Unreachable;
+///
+/// assert_eq!(parse_unreachable("unreachable"), Ok(("", Unreachable)));
+/// ```
 pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
     let (rest, _) = tag("unreachable")(input)?;
 

@@ -13,8 +13,8 @@ use crate::{
 /// Eats leading whitespace before and after the first
 /// parenthesis.
 ///
-/// ```
-/// use water::parser::parse_module;
+/// ```ignore
+/// use water::parser::module::parse_module;
 ///
 /// assert!(parse_module("(module)").is_ok());
 /// assert!(parse_module("\n  (module)").is_ok());

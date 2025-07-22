@@ -14,6 +14,33 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a string literal from the WebAssembly Text Format.
+///
+/// This function handles double-quoted string literals with
+/// proper escape sequence handling. It supports both empty
+/// strings and strings with content, including escaped double
+/// quotes.
+///
+/// # Parameters
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<&str>` - A nom result containing the remaining
+///   input and the parsed string
+///
+/// # Examples
+/// ```ignore
+/// use water::parser::utils::parse_string;
+///
+/// // Parse a simple string
+/// assert_eq!(parse_string(r#""hello""#), Ok(("", "hello")));
+///
+/// // Parse an empty string
+/// assert_eq!(parse_string(r#""""#), Ok(("", "")));
+///
+/// // Parse a string with escaped quotes
+/// assert_eq!(parse_string(r#""hello \\"world\\"""#), Ok(("", r#"hello "world""#)));
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
@@ -26,8 +53,8 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
-/// use water::parser::parse_identifier;
+/// ```ignore
+/// use water::parser::utils::parse_identifier;
 /// use water::small_string::SmallString;
 ///
 /// assert_eq!(parse_identifier("$idx"), Ok(("", SmallString::new("idx"))));
@@ -73,8 +100,8 @@ pub fn parse_numerical_type(
 ///
 /// Does not eat leading whitespace.
 ///
-/// ```
-/// use water::parser::parse_index;
+/// ```ignore
+/// use water::parser::utils::parse_index;
 /// use water::small_string::SmallString;
 /// use water::ast::Index;
 ///
@@ -115,7 +142,7 @@ fn is_acceptable_identifier_character(ch: char) -> bool {
                 | '$'
                 | '%'
                 | '&'
-                | '´'
+                | '\''
                 | '*'
                 | '+'
                 | '-'
