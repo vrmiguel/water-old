@@ -142,7 +142,7 @@ fn is_acceptable_identifier_character(ch: char) -> bool {
                 | '$'
                 | '%'
                 | '&'
-                | '´'
+                | '\''
                 | '*'
                 | '+'
                 | '-'
