@@ -33,13 +33,13 @@ use crate::{
 /// use water::parser::parse_string;
 ///
 /// // Parse a simple string
-/// assert_eq!(parse_string("\"hello\""), Ok(("", "hello")));
+/// assert_eq!(parse_string(r#""hello""#), Ok(("", "hello")));
 ///
 /// // Parse an empty string
-/// assert_eq!(parse_string("\"\""), Ok(("", "")));
+/// assert_eq!(parse_string(r#""""#), Ok(("", "")));
 ///
 /// // Parse a string with escaped quotes
-/// assert_eq!(parse_string("\"hello \\\"world\\\"\""), Ok(("", "hello \"world\"")));
+/// assert_eq!(parse_string(r#""hello \"world\"""#), Ok(("", r#"hello "world""#)));
 /// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
