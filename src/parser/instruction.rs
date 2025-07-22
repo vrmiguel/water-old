@@ -29,14 +29,17 @@ use crate::{
 
 /// Parses a WebAssembly instruction from the text format.
 ///
-/// This function handles both plain instructions (like `i32.const 42` or `unreachable`)
-/// and nested instructions with arguments enclosed in parentheses (like `(call 5 (i32.const 42))`).
+/// This function handles both plain instructions (like
+/// `i32.const 42` or `unreachable`) and nested instructions with
+/// arguments enclosed in parentheses (like `(call 5 (i32.const
+/// 42))`).
 ///
 /// # Parameters
 /// * `input` - The input string to parse
 ///
 /// # Returns
-/// * `IResult<Instruction>` - A nom result containing the remaining input and the parsed instruction
+/// * `IResult<Instruction>` - A nom result containing the
+///   remaining input and the parsed instruction
 ///
 /// # Examples
 /// ```
@@ -46,7 +49,7 @@ use crate::{
 /// // Parse a simple instruction
 /// let result = parse_instruction("unreachable");
 /// assert!(result.is_ok());
-/// 
+///
 /// // Parse a nested instruction with arguments
 /// let result = parse_instruction("(call 5 (i32.const 42))");
 /// assert!(result.is_ok());
@@ -90,15 +93,17 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 
 /// Parses a WebAssembly opcode from the text format.
 ///
-/// This function acts as the entry point for parsing different types of WebAssembly 
-/// opcodes, including variable instructions (local/global get/set/tee), constants,
-/// unreachable instructions, and function calls.
+/// This function acts as the entry point for parsing different
+/// types of WebAssembly opcodes, including variable instructions
+/// (local/global get/set/tee), constants, unreachable
+/// instructions, and function calls.
 ///
 /// # Parameters
 /// * `input` - The input string to parse
 ///
 /// # Returns
-/// * `IResult<Opcode>` - A nom result containing the remaining input and the parsed opcode
+/// * `IResult<Opcode>` - A nom result containing the remaining
+///   input and the parsed opcode
 ///
 /// # Examples
 /// ```

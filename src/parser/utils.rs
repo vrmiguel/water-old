@@ -16,15 +16,17 @@ use crate::{
 
 /// Parses a string literal from the WebAssembly Text Format.
 ///
-/// This function handles double-quoted string literals with proper escape sequence
-/// handling. It supports both empty strings and strings with content, including
-/// escaped double quotes.
+/// This function handles double-quoted string literals with
+/// proper escape sequence handling. It supports both empty
+/// strings and strings with content, including escaped double
+/// quotes.
 ///
 /// # Parameters
 /// * `input` - The input string to parse
 ///
 /// # Returns
-/// * `IResult<&str>` - A nom result containing the remaining input and the parsed string
+/// * `IResult<&str>` - A nom result containing the remaining
+///   input and the parsed string
 ///
 /// # Examples
 /// ```
