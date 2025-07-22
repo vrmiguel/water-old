@@ -54,7 +54,7 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::parser::parse_identifier;
+/// use water::parser::utils::parse_identifier;
 /// use water::small_string::SmallString;
 ///
 /// assert_eq!(parse_identifier("$idx"), Ok(("", SmallString::new("idx"))));
@@ -101,7 +101,7 @@ pub fn parse_numerical_type(
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::parser::parse_index;
+/// use water::parser::utils::parse_index;
 /// use water::small_string::SmallString;
 /// use water::ast::Index;
 ///
