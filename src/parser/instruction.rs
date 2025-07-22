@@ -265,17 +265,19 @@ pub fn parse_variable_instruction(
     Ok((rest, operation))
 }
 
-/// Parses the `unreachable` instruction from the WebAssembly text format.
+/// Parses the `unreachable` instruction from the WebAssembly
+/// text format.
 ///
-/// This function recognizes the WebAssembly `unreachable` instruction, which
-/// indicates that execution has entered an invalid state.
+/// This function recognizes the WebAssembly `unreachable`
+/// instruction, which indicates that execution has entered an
+/// invalid state.
 ///
 /// # Parameters
 /// * `input` - The input string to parse
 ///
 /// # Returns
-/// * `IResult<Unreachable>` - A nom result containing the remaining
-///   input and the parsed unreachable instruction
+/// * `IResult<Unreachable>` - A nom result containing the
+///   remaining input and the parsed unreachable instruction
 ///
 /// # Examples
 /// ```
