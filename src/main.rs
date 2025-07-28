@@ -35,6 +35,7 @@ fn main() {
         println!("{}", stringify_error(import_wat, err));
     }
 
+    /// Convert nom parsing error to readable string
     fn stringify_error(
         input: &str,
         error: nom::Err<nom::error::VerboseError<&str>>,

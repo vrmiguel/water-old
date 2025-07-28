@@ -1,5 +1,5 @@
 //! Water WebAssembly library
-//! 
+//!
 //! This library provides functionality for parsing and emitting WebAssembly text format.
 
 /// Abstract syntax tree definitions for WebAssembly
