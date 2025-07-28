@@ -1,4 +1,4 @@
-use std::io::{self};
+use std::io;
 
 pub trait Emittable<T> {
     /// Emit `element` to WebAssembly.

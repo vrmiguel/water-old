@@ -106,7 +106,6 @@ pub fn parse_numerical_type(
 pub fn parse_index(input: &str) -> IResult<Index> {
     alt((
         parse_identifier
-            .map(SmallString::new)
             .map(Index::Identifier),
         nom::character::complete::i64.map(Index::Numerical),
     ))(input)
