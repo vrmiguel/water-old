@@ -6,7 +6,7 @@ fn stringify_error(
 ) -> String {
     match error {
         nom::Err::Incomplete(_) => {
-            "Incomplete input".to_string()
+            "Incomplete input".into()
         }
         nom::Err::Error(error) | nom::Err::Failure(error) => {
             nom::error::convert_error(input, error)
@@ -20,7 +20,6 @@ fn main() {
             "Error parsing 'i32.const 5': {}",
             stringify_error("i32.const 5", err)
         );
-        return;
     }
 
     if let Err(err) = parse_instruction("(i32.const 5)") {
@@ -28,7 +27,6 @@ fn main() {
             "Error parsing '(i32.const 5)': {}",
             stringify_error("(i32.const 5)", err)
         );
-        return;
     }
 
     if let Err(err) = parse_instruction("(local.set $idx)") {
@@ -36,7 +34,6 @@ fn main() {
             "Error parsing '(local.set $idx)': {}",
             stringify_error("(local.set $idx)", err)
         );
-        return;
     }
 
     if let Err(err) = parse_instruction("(local.set $idx (i32.const 5))") {
@@ -44,7 +41,6 @@ fn main() {
             "Error parsing '(local.set $idx (i32.const 5))': {}",
             stringify_error("(local.set $idx (i32.const 5))", err)
         );
-        return;
     }
 
     let import_wat = r#"(import "console" "log"

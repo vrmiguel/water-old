@@ -10,6 +10,7 @@ use std::{io, io::Write};
 
 use crate::emitter::{Emittable, Emitter};
 
+/// The continuation bit used in LEB128 encoding to indicate more bytes follow
 const CONTINUATION_BIT: u64 = 1 << 7;
 
 /// LEB128 encoder for signed integers

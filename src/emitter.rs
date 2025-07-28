@@ -51,7 +51,7 @@ impl<W: Write> Emitter<W> {
     /// Emit the given program to WASM
     pub fn emit_program(
         &mut self,
-        _: Program,
+        _program: Program,
     ) -> io::Result<()> {
         self.emit_magic()?;
         self.emit_version()?;
