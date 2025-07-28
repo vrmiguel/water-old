@@ -49,7 +49,7 @@ pub fn parse_function_import(
             use nom::error::{VerboseError, VerboseErrorKind};
             return Err(nom::Err::Error(VerboseError {
                 errors: vec![(
-                    input, 
+                    input,
                     VerboseErrorKind::Context(
                         "function imports cannot have exports"
                     )

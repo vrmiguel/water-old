@@ -106,7 +106,7 @@ pub struct Instruction {
 ///
 /// ```not-rust
 ///               function name
-///                    ↓↓↓  
+///                    ↓↓↓
 /// (import "console" "log" (func $log (param i32 i32)))
 ///          ↑↑↑↑↑↑↑         ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 ///         namespace           WAT function signature

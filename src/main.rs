@@ -15,10 +15,10 @@ fn stringify_error(
 }
 
 fn main() {
-    let _ = parse_instruction("i32.const 5").unwrap();
-    let _ = parse_instruction("(i32.const 5)").unwrap();
-    let _ = parse_instruction("(local.set $idx)").unwrap();
-    let _ = parse_instruction("(local.set $idx (i32.const 5))")
+    parse_instruction("i32.const 5").unwrap();
+    parse_instruction("(i32.const 5)").unwrap();
+    parse_instruction("(local.set $idx)").unwrap();
+    parse_instruction("(local.set $idx (i32.const 5))")
         .unwrap();
 
     let import_wat = r#"(import "console" "log"

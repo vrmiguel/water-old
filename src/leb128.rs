@@ -53,7 +53,6 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
     }
 }
 
-
 /// LEB128 encoder for unsigned integers
 pub struct UnsignedLeb128 {
     value: u64,
@@ -146,7 +145,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
@@ -188,7 +186,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
