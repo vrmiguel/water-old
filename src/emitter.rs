@@ -50,7 +50,7 @@ impl<W: Write> Emitter<W> {
     /// Emit the given program to WASM
     pub fn emit_program(
         &mut self,
-        _program: Program,
+        _: Program,
     ) -> io::Result<()> {
         self.emit_magic()?;
         self.emit_version()?;

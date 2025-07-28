@@ -61,11 +61,21 @@ impl ToOpcode for ArithmeticOperation {
             (Int32 | Int64, FloatDivision) => {
                 unreachable!("no float division for integers")
             }
-            (Float32 | Float64, UnsignedDivision | SignedDivision) => {
-                unreachable!("no signed/unsigned division for floats")
+            (
+                Float32 | Float64,
+                UnsignedDivision | SignedDivision,
+            ) => {
+                unreachable!(
+                    "no signed/unsigned division for floats"
+                )
             }
-            (Float32 | Float64, SignedRemainder | UnsignedRemainder) => {
-                unreachable!("no remainder instruction for floats")
+            (
+                Float32 | Float64,
+                SignedRemainder | UnsignedRemainder,
+            ) => {
+                unreachable!(
+                    "no remainder instruction for floats"
+                )
             }
         }
     }

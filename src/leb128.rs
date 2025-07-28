@@ -2,7 +2,9 @@
 //! integer encoding, which is how WebAssembly stores integer
 //! literals.
 //!
-//! The code in this file is heavily based in the [leb128](https://github.com/gimli-rs/leb128) crate by gimli-rs.
+//! The code in this file is heavily based in the
+//! [leb128](https://github.com/gimli-rs/leb128) crate by
+//! gimli-rs.
 
 use std::{io, io::Write};
 
@@ -51,40 +53,6 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
     }
 }
 
-// impl Emittable for SignedLeb128 {
-//     fn emit_to<W: Write>(
-//         &self,
-//         writer: &mut W,
-//     ) -> io::Result<usize> {
-//         let mut bytes_written = 0;
-//         let mut value = self.value;
-//         let mut is_done = false;
-
-//         while is_done.not() {
-//             // Backup the current value
-//             let bkp = value;
-
-//             value >>= 6;
-
-//             is_done = matches!(value, 0 | -1);
-//             let byte = if is_done {
-//                 bkp & !(CONTINUATION_BIT as i64)
-//             } else {
-//                 // Remove the sign bit
-//                 value >>= 1;
-
-//                 // More bytes to come, so set the continuation
-//                 // bit.
-//                 bkp | (CONTINUATION_BIT as i64)
-//             } as u8;
-
-//             writer.write_all(&[byte])?;
-//             bytes_written += 1;
-//         }
-
-//         Ok(bytes_written)
-//     }
-// }
 
 /// LEB128 encoder for unsigned integers
 pub struct UnsignedLeb128 {
