@@ -8,7 +8,6 @@ use crate::ast::{
 /// Trait for converting WebAssembly instructions to their corresponding opcodes
 pub trait ToOpcode {
     /// Convert this instruction to its WebAssembly opcode byte value
-    #[must_use]
     fn to_opcode(&self) -> u8;
 }
 
