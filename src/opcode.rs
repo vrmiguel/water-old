@@ -133,11 +133,16 @@ impl ToOpcode for ArithmeticOperation {
                 | NumericalType::Float64,
                 ArithmeticInstruction::UnsignedDivision
                 | ArithmeticInstruction::SignedDivision,
-            ) => unreachable!("no signed or unsigned division for floating numbers"),
+            ) => unreachable!(
+                "no signed or unsigned division for floating numbers"
+            ),
             (
                 NumericalType::Float32 | NumericalType::Float64,
-                ArithmeticInstruction::SignedRemainder | ArithmeticInstruction::UnsignedRemainder,
-            ) => unreachable!("no remainder instruction for floating numbers"),
+                ArithmeticInstruction::SignedRemainder 
+                | ArithmeticInstruction::UnsignedRemainder,
+            ) => unreachable!(
+                "no remainder instruction for floating numbers"
+            ),
         }
     }
 }

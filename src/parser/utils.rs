@@ -195,7 +195,7 @@ where
 /// assert!(!is_acceptable_identifier_character('('));
 /// ```
 #[must_use]
-fn is_acceptable_identifier_character(ch: char) -> bool {
+pub fn is_acceptable_identifier_character(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(
             ch,

@@ -17,8 +17,9 @@ impl Hash for SmallString {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         match self {
             SmallString::Inlined { len, buf } => {
-                // Safety: len is guaranteed to be <= INLINE_CAP when creating SmallString::Inlined,
-                // and INLINE_CAP equals buf.len(), so 0..*len as usize is always within bounds
+                // Safety: len is guaranteed to be <= INLINE_CAP when
+                // creating SmallString::Inlined, and INLINE_CAP equals
+                // buf.len(), so 0..*len as usize is always within bounds
                 unsafe { buf.get_unchecked(0..*len as usize) }
                     .hash(state);
             }
@@ -74,9 +75,10 @@ impl SmallString {
         debug_assert!(bytes.len() <= INLINE_CAP);
         let mut buf = [0u8; INLINE_CAP];
 
-        // Safety: This function is internal and only called after verifying that 
-        // bytes.len() <= INLINE_CAP, and INLINE_CAP equals buf.len().
-        // Therefore, 0..bytes.len() is guaranteed to be within bounds of buf.
+        // Safety: This function is internal and only called after
+        // verifying that bytes.len() <= INLINE_CAP, and INLINE_CAP
+        // equals buf.len(). Therefore, 0..bytes.len() is guaranteed
+        // to be within bounds of buf.
         unsafe { buf.get_unchecked_mut(0..bytes.len()) }
             .copy_from_slice(bytes);
         Self::Inlined {
@@ -105,10 +107,12 @@ impl SmallString {
     #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            // Safety: SmallString::Inlined can only be created from valid UTF-8 strings
-            // via `AsRef<str>`, and len is guaranteed to be <= INLINE_CAP during construction.
-            // The slice &buf[..*len as usize] represents the exact bytes that were validated
-            // as UTF-8 when the SmallString was created.
+            // Safety: SmallString::Inlined can only be created from
+            // valid UTF-8 strings via `AsRef<str>`, and len is
+            // guaranteed to be <= INLINE_CAP during construction.
+            // The slice &buf[..*len as usize] represents the exact
+            // bytes that were validated as UTF-8 when the SmallString
+            // was created.
             SmallString::Inlined { buf, len } => unsafe {
                 std::str::from_utf8_unchecked(
                     &buf[..*len as usize],
