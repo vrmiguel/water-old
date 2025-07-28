@@ -44,9 +44,10 @@ pub fn parse_function_import(
         let (rest, function) =
             preceded(multispace0, parse_function)(rest)?;
 
+        use nom::error::{VerboseError, VerboseErrorKind};
+        
         // Function imports should not have exports or locals
         if !function.exports.is_empty() {
-            use nom::error::{VerboseError, VerboseErrorKind};
             return Err(nom::Err::Error(VerboseError {
                 errors: vec![(
                     input,
@@ -57,7 +58,6 @@ pub fn parse_function_import(
             }));
         }
         if !function.local_variables.is_empty() {
-            use nom::error::{VerboseError, VerboseErrorKind};
             return Err(nom::Err::Error(VerboseError {
                 errors: vec![(
                     input,

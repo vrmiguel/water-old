@@ -66,8 +66,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
-        parse_variable_instruction
-            .map(Opcode::VariableInstruction),
+        parse_variable_instruction.map(Opcode::VariableInstruction),
         parse_const
             .map(|value| Constant { value })
             .map(Opcode::Constant),

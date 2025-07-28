@@ -5,9 +5,7 @@ fn stringify_error(
     error: nom::Err<nom::error::VerboseError<&str>>,
 ) -> String {
     match error {
-        nom::Err::Incomplete(_) => {
-            "Incomplete input".into()
-        }
+        nom::Err::Incomplete(_) => "Incomplete input".to_string(),
         nom::Err::Error(error) | nom::Err::Failure(error) => {
             nom::error::convert_error(input, error)
         }
