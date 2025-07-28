@@ -16,22 +16,34 @@ fn stringify_error(
 
 fn main() {
     if let Err(err) = parse_instruction("i32.const 5") {
-        eprintln!("Error parsing 'i32.const 5': {}", stringify_error("i32.const 5", err));
+        eprintln!(
+            "Error parsing 'i32.const 5': {}",
+            stringify_error("i32.const 5", err)
+        );
         return;
     }
-    
+
     if let Err(err) = parse_instruction("(i32.const 5)") {
-        eprintln!("Error parsing '(i32.const 5)': {}", stringify_error("(i32.const 5)", err));
+        eprintln!(
+            "Error parsing '(i32.const 5)': {}",
+            stringify_error("(i32.const 5)", err)
+        );
         return;
     }
-    
+
     if let Err(err) = parse_instruction("(local.set $idx)") {
-        eprintln!("Error parsing '(local.set $idx)': {}", stringify_error("(local.set $idx)", err));
+        eprintln!(
+            "Error parsing '(local.set $idx)': {}",
+            stringify_error("(local.set $idx)", err)
+        );
         return;
     }
-    
+
     if let Err(err) = parse_instruction("(local.set $idx (i32.const 5))") {
-        eprintln!("Error parsing '(local.set $idx (i32.const 5))': {}", stringify_error("(local.set $idx (i32.const 5))", err));
+        eprintln!(
+            "Error parsing '(local.set $idx (i32.const 5))': {}",
+            stringify_error("(local.set $idx (i32.const 5))", err)
+        );
         return;
     }
 
