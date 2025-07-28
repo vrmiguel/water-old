@@ -22,7 +22,8 @@ impl<W: Write> Emitter<W> {
     /// Emit a single byte to the writer
     #[must_use]
     pub fn emit_byte(&mut self, byte: u8) -> io::Result<usize> {
-        self.emit_bytes(&[byte]).map(|()| 1)
+        self.emit_bytes(&[byte])?;
+        Ok(1)
     }
 
     /// Emit a sequence of bytes to the writer

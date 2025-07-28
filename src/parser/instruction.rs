@@ -27,6 +27,13 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from text format
+///
+/// # Arguments  
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Instruction>` - The parsed instruction or error
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +71,13 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from text format
+///
+/// # Arguments
+/// * `input` - The input string to parse  
+///
+/// # Returns
+/// * `IResult<Opcode>` - The parsed opcode or error
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction

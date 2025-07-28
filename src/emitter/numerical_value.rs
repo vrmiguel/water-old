@@ -18,13 +18,13 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
             }
             NumericalValue::Float32(f32) => {
                 let bytes = f32_to_bytes(f32);
-
-                self.emit_bytes(&bytes).map(|()| 4)
+                self.emit_bytes(&bytes)?;
+                Ok(4)
             }
             NumericalValue::Float64(f64) => {
                 let bytes = f64_to_bytes(f64);
-
-                self.emit_bytes(&bytes).map(|()| 8)
+                self.emit_bytes(&bytes)?;
+                Ok(8)
             }
         }
     }

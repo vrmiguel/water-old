@@ -2,24 +2,32 @@ use water::parser::{parse_function_import, parse_instruction};
 
 fn main() {
     match parse_instruction("i32.const 5") {
-        Ok(result) => dbg!(result),
+        Ok(result) => {
+            dbg!(result);
+        }
         Err(err) => eprintln!("Error parsing 'i32.const 5': {:?}", err),
-    };
+    }
 
     match parse_instruction("(i32.const 5)") {
-        Ok(result) => dbg!(result),
+        Ok(result) => {
+            dbg!(result);
+        }
         Err(err) => eprintln!("Error parsing '(i32.const 5)': {:?}", err),
-    };
+    }
 
     match parse_instruction("(local.set $idx)") {
-        Ok(result) => dbg!(result),
+        Ok(result) => {
+            dbg!(result);
+        }
         Err(err) => eprintln!("Error parsing '(local.set $idx)': {:?}", err),
-    };
+    }
     
     match parse_instruction("(local.set $idx (i32.const 5))") {
-        Ok(result) => dbg!(result),
+        Ok(result) => {
+            dbg!(result);
+        }
         Err(err) => eprintln!("Error parsing '(local.set $idx (i32.const 5))': {:?}", err),
-    };
+    }
 
     let import_wat = r#"(import "console" "log" (func $log (param i32) (param i32)))"#;
 
