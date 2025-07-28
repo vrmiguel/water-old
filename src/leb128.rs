@@ -176,7 +176,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
@@ -218,7 +217,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }

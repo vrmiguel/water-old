@@ -93,8 +93,8 @@ impl ToOpcode for ArithmeticOperation {
                 NumericalType::Int32
                 | NumericalType::Int64,
                 ArithmeticInstruction::FloatDivision,
-            ) => unreachable!(
-                "no float division for integers"
+            ) => panic!(
+                "Invalid operation: float division cannot be applied to integer types"
             ),
             (
                 NumericalType::Float32,
@@ -133,15 +133,15 @@ impl ToOpcode for ArithmeticOperation {
                 | NumericalType::Float64,
                 ArithmeticInstruction::UnsignedDivision
                 | ArithmeticInstruction::SignedDivision,
-            ) => unreachable!(
-                "no signed or unsigned division for floating numbers"
+            ) => panic!(
+                "Invalid operation: signed/unsigned division cannot be applied to floating point types"
             ),
             (
                 NumericalType::Float32 | NumericalType::Float64,
                 ArithmeticInstruction::SignedRemainder
                 | ArithmeticInstruction::UnsignedRemainder,
-            ) => unreachable!(
-                "no remainder instruction for floating numbers"
+            ) => panic!(
+                "Invalid operation: remainder operations cannot be applied to floating point types"
             ),
         }
     }
@@ -275,7 +275,7 @@ impl ToOpcode for VariableOperation {
         use VariableInstruction as Instr;
 
         let Self {
-            scope, instruction, index: _
+            scope, instruction, index: _index
         } = self;
 
         match (scope, instruction) {
