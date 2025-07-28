@@ -47,6 +47,26 @@ impl fmt::Display for SmallString {
 }
 
 impl SmallString {
+    /// Creates an inlined variant of SmallString for strings that fit within the inline capacity.
+    ///
+    /// This function constructs a `SmallString::Inlined` variant by copying the provided
+    /// bytes into a fixed-size buffer. It's used internally when the string length is
+    /// less than or equal to `INLINE_CAP` (22 bytes), allowing the string data to be
+    /// stored directly within the enum variant without heap allocation.
+    ///
+    /// # Arguments
+    /// * `bytes` - A byte slice containing the string data to be inlined
+    ///
+    /// # Returns
+    /// * `Self` - A `SmallString::Inlined` variant containing the copied string data
+    ///
+    /// # Safety
+    /// This function assumes that:
+    /// - The input bytes represent valid UTF-8 (verified by caller)
+    /// - The byte slice length is <= `INLINE_CAP` (asserted in debug builds)
+    ///
+    /// # Panics
+    /// In debug builds, panics if `bytes.len() > INLINE_CAP`.
     #[inline(always)]
     fn inlined(bytes: &[u8]) -> Self {
         debug_assert!(bytes.len() <= INLINE_CAP);
