@@ -15,17 +15,13 @@ fn stringify_error(
 }
 
 fn main() {
-    dbg!(parse_instruction("i32.const 5").unwrap());
+    let _ = parse_instruction("i32.const 5").unwrap();
+    let _ = parse_instruction("(i32.const 5)").unwrap();
+    let _ = parse_instruction("(local.set $idx)").unwrap();
+    let _ = parse_instruction("(local.set $idx (i32.const 5))")
+        .unwrap();
 
-    dbg!(parse_instruction("(i32.const 5)").unwrap());
-
-    dbg!(parse_instruction("(local.set $idx)").unwrap());
-    dbg!(
-        parse_instruction("(local.set $idx (i32.const 5))")
-            .unwrap()
-    );
-
-    let import_wat = r#"(import "console" "log" 
+    let import_wat = r#"(import "console" "log"
         (func $log (param i32) (param i32)))"#;
 
     if let Err(err) = parse_function_import(import_wat) {

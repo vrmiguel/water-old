@@ -46,7 +46,7 @@ impl ToOpcode for ArithmeticOperation {
             (Int64, UnsignedDivision) => 0x80,
             (Int64, SignedRemainder) => 0x81,
             (Int64, UnsignedRemainder) => 0x82,
-            
+
             // Float operations
             (Float32, Addition) => 0x92,
             (Float32, Subtraction) => 0x93,
@@ -56,7 +56,7 @@ impl ToOpcode for ArithmeticOperation {
             (Float64, Subtraction) => 0xa1,
             (Float64, Multiplication) => 0xa2,
             (Float64, FloatDivision) => 0xa3,
-            
+
             // Invalid combinations
             (Int32 | Int64, FloatDivision) => {
                 unreachable!("no float division for integers")
