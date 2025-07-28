@@ -14,6 +14,28 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a quoted string literal with escape sequence support.
+///
+/// This function parses strings enclosed in double quotes, handling escaped
+/// characters within the string content. It supports standard escape sequences
+/// like `\"` for literal quote characters within the string.
+///
+/// Does not eat leading whitespace.
+///
+/// # Arguments
+/// * `input` - The input string slice to parse
+///
+/// # Returns
+/// * `IResult<&str>` - On success, returns the remaining input and the parsed string content
+///
+/// # Examples
+/// ```
+/// use water::parser::parse_string;
+///
+/// assert_eq!(parse_string("\"hello\""), Ok(("", "hello")));
+/// assert_eq!(parse_string("\"hello \\\"world\\\"\""), Ok(("", "hello \"world\"")));
+/// assert_eq!(parse_string("\"\""), Ok(("", "")));
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
@@ -84,13 +106,43 @@ pub fn parse_numerical_type(
 pub fn parse_index(input: &str) -> IResult<Index> {
     alt((
         parse_identifier
-            .map(SmallString::new)
             .map(Index::Identifier),
         nom::character::complete::i64.map(Index::Numerical),
     ))(input)
 }
 
-// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+/// Creates a parser combinator for parsing content enclosed in parentheses.
+///
+/// This higher-order function takes an inner parser and returns a new parser
+/// that expects the inner content to be wrapped in parentheses `(...)`. It
+/// automatically handles whitespace before the inner content and after it,
+/// and provides meaningful error messages for missing closing parentheses.
+///
+/// The function uses `cut` to provide better error recovery - once an opening
+/// parenthesis is found, a missing closing parenthesis will generate a specific
+/// error message rather than trying alternative parsers.
+///
+/// # Type Parameters
+/// * `T` - The type that the inner parser produces
+/// * `F` - The type of the inner parser function
+///
+/// # Arguments
+/// * `inner` - A parser that will be applied to the content inside the parentheses
+///
+/// # Returns
+/// * A new parser that parses parenthesis-enclosed content using the inner parser
+///
+/// # Examples
+/// ```
+/// use nom::character::complete::alpha1;
+/// use water::parser::parse_parenthesis_enclosed;
+///
+/// let mut parser = parse_parenthesis_enclosed(alpha1);
+/// assert_eq!(parser("(hello)"), Ok(("", "hello")));
+/// assert_eq!(parser("( world )"), Ok(("", "world")));
+/// ```
+///
+/// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
 pub fn parse_parenthesis_enclosed<'a, T, F>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<T>
@@ -107,7 +159,36 @@ where
     )
 }
 
-fn is_acceptable_identifier_character(ch: char) -> bool {
+/// Determines whether a character is valid in a WebAssembly Text Format identifier.
+///
+/// According to the WebAssembly Text Format specification, identifiers can contain
+/// ASCII alphanumeric characters plus a specific set of special characters. This
+/// function is used by the identifier parser to validate character sequences.
+///
+/// # Arguments
+/// * `ch` - The character to test for validity in an identifier
+///
+/// # Returns
+/// * `bool` - `true` if the character is acceptable in a WASM identifier, `false` otherwise
+///
+/// # Valid Characters
+/// * ASCII letters (a-z, A-Z)
+/// * ASCII digits (0-9)  
+/// * Special characters: `! # $ % & ´ * + - . / : < = > ? @ \ ^ _ ` | ~`
+///
+/// # Examples
+/// ```
+/// use water::parser::utils::is_acceptable_identifier_character;
+///
+/// assert!(is_acceptable_identifier_character('a'));
+/// assert!(is_acceptable_identifier_character('Z'));
+/// assert!(is_acceptable_identifier_character('5'));
+/// assert!(is_acceptable_identifier_character('_'));
+/// assert!(is_acceptable_identifier_character('$'));
+/// assert!(!is_acceptable_identifier_character(' '));
+/// assert!(!is_acceptable_identifier_character('('));
+/// ```
+pub fn is_acceptable_identifier_character(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(
             ch,

@@ -21,7 +21,8 @@ pub struct Emitter<W> {
 impl<W: Write> Emitter<W> {
     /// Emit a single byte to the writer
     pub fn emit_byte(&mut self, byte: u8) -> io::Result<usize> {
-        self.emit_bytes(&[byte]).map(|()| 1)
+        self.emit_bytes(&[byte])?;
+        Ok(1)
     }
 
     /// Emit a sequence of bytes to the writer
@@ -43,11 +44,13 @@ impl<W: Write> Emitter<W> {
     }
 
     /// Builds a new emitter with the given writer
+    #[must_use]
     pub fn new(writer: W) -> Self {
         Self { writer }
     }
 
     /// Emit the given program to WASM
+    #[allow(unused_variables)]
     pub fn emit_program(
         &mut self,
         _program: Program,
@@ -59,6 +62,7 @@ impl<W: Write> Emitter<W> {
     }
 
     #[cfg(test)]
+    #[must_use]
     pub fn into_inner(self) -> W {
         self.writer
     }
@@ -66,6 +70,7 @@ impl<W: Write> Emitter<W> {
 
 impl<W> Emitter<std::io::Cursor<W>> {
     #[cfg(test)]
+    #[must_use]
     pub fn new_cursored(writer: W) -> Self {
         use std::io::Cursor;
 

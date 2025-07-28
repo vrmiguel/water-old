@@ -2,13 +2,19 @@
 
 use crate::small_string::SmallString;
 
+/// Represents a complete WebAssembly program consisting of modules
+#[derive(Debug)]
 pub struct Program {
     pub modules: Vec<Module>,
 }
 
 /// Represents a WebAssembly Text Format module
+#[derive(Debug)]
 pub struct Module {
-    // TODO
+    /// Functions defined in this module
+    pub functions: Vec<Function>,
+    /// Function imports for this module
+    pub imports: Vec<FunctionImport>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -241,7 +247,7 @@ pub enum ArithmeticInstruction {
     /// i32.div_s, i64.div_s
     SignedDivision,
     /// i32.div_u, i64.div_u
-    UnsignedDisivion,
+    UnsignedDivision,
     /// i32.rem_s or i64.rem_s
     SignedRemainder,
     /// i32.rem_u or i64.rem_u

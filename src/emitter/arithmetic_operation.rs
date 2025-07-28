@@ -19,7 +19,3 @@ impl<W: Write> Emittable<ArithmeticOperation> for Emitter<W> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    // TODO: tests for Emittable<ArithmeticOperation>
-}

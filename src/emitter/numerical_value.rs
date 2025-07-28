@@ -18,13 +18,13 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
             }
             NumericalValue::Float32(f32) => {
                 let bytes = f32_to_bytes(f32);
-
-                self.emit_bytes(&bytes).map(|()| 4)
+                self.emit_bytes(&bytes)?;
+                Ok(4)
             }
             NumericalValue::Float64(f64) => {
                 let bytes = f64_to_bytes(f64);
-
-                self.emit_bytes(&bytes).map(|()| 8)
+                self.emit_bytes(&bytes)?;
+                Ok(8)
             }
         }
     }
@@ -41,11 +41,13 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
 /// IEEE 754 to be sure.
 mod floating_point_converters {
     #[inline(always)]
+    #[must_use]
     pub fn f32_to_bytes(n: f32) -> [u8; 4] {
         n.to_le_bytes()
     }
 
     #[inline(always)]
+    #[must_use]
     pub fn f64_to_bytes(n: f64) -> [u8; 8] {
         n.to_le_bytes()
     }

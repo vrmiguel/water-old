@@ -4,7 +4,7 @@
 //!
 //! The code in this file is heavily based in the [leb128](https://github.com/gimli-rs/leb128) crate by gimli-rs.
 
-use std::{io, io::Write, ops::Not};
+use std::{io, io::Write};
 
 use crate::emitter::{Emittable, Emitter};
 
@@ -16,6 +16,7 @@ pub struct SignedLeb128 {
 }
 
 impl From<i64> for SignedLeb128 {
+    #[must_use]
     fn from(value: i64) -> Self {
         Self { value }
     }
@@ -30,7 +31,7 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
         let SignedLeb128 { mut value } = element;
         let mut is_done = false;
 
-        while is_done.not() {
+        while !is_done {
             // Backup the current value
             let bkp = value;
 
@@ -56,40 +57,6 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
     }
 }
 
-// impl Emittable for SignedLeb128 {
-//     fn emit_to<W: Write>(
-//         &self,
-//         writer: &mut W,
-//     ) -> io::Result<usize> {
-//         let mut bytes_written = 0;
-//         let mut value = self.value;
-//         let mut is_done = false;
-
-//         while is_done.not() {
-//             // Backup the current value
-//             let bkp = value;
-
-//             value >>= 6;
-
-//             is_done = matches!(value, 0 | -1);
-//             let byte = if is_done {
-//                 bkp & !(CONTINUATION_BIT as i64)
-//             } else {
-//                 // Remove the sign bit
-//                 value >>= 1;
-
-//                 // More bytes to come, so set the continuation
-//                 // bit.
-//                 bkp | (CONTINUATION_BIT as i64)
-//             } as u8;
-
-//             writer.write_all(&[byte])?;
-//             bytes_written += 1;
-//         }
-
-//         Ok(bytes_written)
-//     }
-// }
 
 /// LEB128 encoder for unsigned integers
 pub struct UnsignedLeb128 {
@@ -97,6 +64,7 @@ pub struct UnsignedLeb128 {
 }
 
 impl From<u64> for UnsignedLeb128 {
+    #[must_use]
     fn from(value: u64) -> Self {
         Self { value }
     }
@@ -133,7 +101,28 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
     }
 }
 
-fn low_bits(value: u64) -> u8 {
+/// Extracts the lower 7 bits from a 64-bit unsigned integer, masking out the continuation bit.
+///
+/// This utility function is used in LEB128 encoding to extract the payload bits
+/// from a value while ensuring the continuation bit (bit 7) is cleared. LEB128
+/// encoding uses the most significant bit of each byte as a continuation flag,
+/// leaving 7 bits for actual data in each encoded byte.
+///
+/// # Arguments
+/// * `value` - The 64-bit unsigned integer to extract bits from
+///
+/// # Returns
+/// * `u8` - The lower 7 bits of the input value as a byte, with bit 7 cleared
+///
+/// # Examples
+/// ```
+/// // Extract lower 7 bits from various values
+/// assert_eq!(low_bits(0b11111111), 0b01111111); // 255 -> 127
+/// assert_eq!(low_bits(0b10000000), 0b00000000); // 128 -> 0  
+/// assert_eq!(low_bits(0b01010101), 0b01010101); // 85 -> 85 (unchanged)
+/// ```
+#[must_use]
+const fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;
     let lower_eight_bits = value & MASK;
@@ -187,7 +176,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
@@ -229,7 +217,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }

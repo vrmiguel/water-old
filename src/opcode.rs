@@ -5,7 +5,9 @@ use crate::ast::{
     Unreachable, VariableInstruction, VariableOperation,
 };
 
+/// Trait for converting WebAssembly instructions to their corresponding opcodes
 pub trait ToOpcode {
+    /// Convert this instruction to its WebAssembly opcode byte value
     fn to_opcode(&self) -> u8;
 }
 
@@ -48,7 +50,7 @@ impl ToOpcode for ArithmeticOperation {
             ) => 0x6d,
             (
                 NumericalType::Int32,
-                ArithmeticInstruction::UnsignedDisivion,
+                ArithmeticInstruction::UnsignedDivision,
             ) => 0x6e,
             (
                 NumericalType::Int32,
@@ -76,7 +78,7 @@ impl ToOpcode for ArithmeticOperation {
             ) => 0x7f,
             (
                 NumericalType::Int64,
-                ArithmeticInstruction::UnsignedDisivion,
+                ArithmeticInstruction::UnsignedDivision,
             ) => 0x80,
             (
                 NumericalType::Int64,
@@ -90,8 +92,8 @@ impl ToOpcode for ArithmeticOperation {
                 NumericalType::Int32
                 | NumericalType::Int64,
                 ArithmeticInstruction::FloatDivision,
-            ) => unreachable!(
-                "no float division for integers"
+            ) => panic!(
+                "Invalid operation: float division cannot be applied to integer types"
             ),
             (
                 NumericalType::Float32,
@@ -128,13 +130,18 @@ impl ToOpcode for ArithmeticOperation {
             (
                 NumericalType::Float32
                 | NumericalType::Float64,
-                ArithmeticInstruction::UnsignedDisivion
+                ArithmeticInstruction::UnsignedDivision
                 | ArithmeticInstruction::SignedDivision,
-            ) => unreachable!("no signed or unsigned division for floating numbers"),
+            ) => panic!(
+                "Invalid operation: signed/unsigned division cannot be applied to floating point types"
+            ),
             (
                 NumericalType::Float32 | NumericalType::Float64,
-                ArithmeticInstruction::SignedRemainder | ArithmeticInstruction::UnsignedRemainder,
-            ) => unreachable!("no remainder instruction for floating numbers"),
+                ArithmeticInstruction::SignedRemainder
+                | ArithmeticInstruction::UnsignedRemainder,
+            ) => panic!(
+                "Invalid operation: remainder operations cannot be applied to floating point types"
+            ),
         }
     }
 }
@@ -154,19 +161,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x4a, // i32.gt_s
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x48, // i32.lt_s
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x4e, // i32.ge_s
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x4c, // i32.le_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::Equal,
@@ -178,19 +185,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x56, // i64.gt_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x54, // i64.lt_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x5a, // i64.ge_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x58, // i64.le_s
             (
                 NumericalType::Float32,
                 ComparisonInstruction::Equal,
@@ -202,19 +209,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x5e, // f32.gt
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x5d, // f32.lt
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x60, // f32.ge
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x5f, // f32.le
             (
                 NumericalType::Float64,
                 ComparisonInstruction::Equal,
@@ -226,19 +233,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x64, // f64.gt
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x63, // f64.lt
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x66, // f64.ge
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x65, // f64.le
         }
     }
 }
@@ -267,7 +274,7 @@ impl ToOpcode for VariableOperation {
         use VariableInstruction as Instr;
 
         let Self {
-            scope, instruction, ..
+            scope, instruction, index: _index
         } = self;
 
         match (scope, instruction) {

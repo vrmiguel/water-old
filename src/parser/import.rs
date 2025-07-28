@@ -1,6 +1,6 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
+    error::{context, make_error}, sequence::preceded, ErrorKind,
 };
 
 use super::IResult;
@@ -44,9 +44,13 @@ pub fn parse_function_import(
         let (rest, function) =
             preceded(multispace0, parse_function)(rest)?;
 
-        // TODO: transform into nom errors
-        assert!(function.exports.is_empty());
-        assert!(function.local_variables.is_empty());
+        // Function imports should not have exports or local variables
+        if !function.exports.is_empty() {
+            return Err(nom::Err::Error(make_error(rest, ErrorKind::Verify)));
+        }
+        if !function.local_variables.is_empty() {
+            return Err(nom::Err::Error(make_error(rest, ErrorKind::Verify)));
+        }
 
         let fn_import = FunctionImport {
             namespace: namespace.into(),

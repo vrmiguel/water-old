@@ -9,7 +9,7 @@ use nom::{
     combinator::value,
     error::context,
     multi::many0,
-    number::complete::double as parse_f64,
+    number::complete::{double as parse_f64, float as parse_f32},
     sequence::preceded,
     Parser,
 };
@@ -27,6 +27,13 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from text format
+///
+/// # Arguments  
+/// * `input` - The input string to parse
+///
+/// # Returns
+/// * `IResult<Instruction>` - The parsed instruction or error
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +71,13 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from text format
+///
+/// # Arguments
+/// * `input` - The input string to parse  
+///
+/// # Returns
+/// * `IResult<Opcode>` - The parsed opcode or error
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
@@ -86,9 +100,18 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 /// use water::parser::parse_const;
 /// use water::parser::parse_instruction;
 ///
-/// assert_eq!(parse_const("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
-/// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
-/// assert_eq!(parse_const("f32.const 2E-3"), Ok(("", NumericalValue::Float32(0.002))));
+/// assert_eq!(
+///     parse_const("i64.const -5"), 
+///     Ok(("", NumericalValue::Int64(-5)))
+/// );
+/// assert_eq!(
+///     parse_const("f64.const 5.5"), 
+///     Ok(("", NumericalValue::Float64(5.5)))
+/// );
+/// assert_eq!(
+///     parse_const("f32.const 2E-3"), 
+///     Ok(("", NumericalValue::Float32(0.002)))
+/// );
 /// ```
 pub fn parse_const(input: &str) -> IResult<NumericalValue> {
     // Parse the numerical type of this instruction: i32, i64,
@@ -111,13 +134,10 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
             Ok((rest, NumericalValue::Int64(int64)))
         }
         NumericalType::Float32 => {
-            let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+            let (rest, float32) =
+                preceded(multispace0, parse_f32)(rest)?;
 
-            // TODO: parsing f32.const as f64 and then casting to
-            // f32 is a hack and we should switch to using
-            // `nom::number::complete::f32`
-            Ok((rest, NumericalValue::Float32(float64 as f32)))
+            Ok((rest, NumericalValue::Float32(float32)))
         }
         NumericalType::Float64 => {
             let (rest, float64) =
@@ -141,7 +161,10 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 /// assert!(parse_instruction("call 5").is_ok());
 /// assert!(parse_instruction("(call 5 (i32.const 5))").is_ok());
 /// assert!(parse_instruction("(call 5").is_err());
-/// assert_eq!(parse_call("call $func"), Ok(("", Index::Identifier("func".into()))));
+/// assert_eq!(
+///     parse_call("call $func"), 
+///     Ok(("", Index::Identifier("func".into())))
+/// );
 /// ```
 pub fn parse_call(input: &str) -> IResult<Index> {
     let (rest, _) = tag("call")(input)?;
@@ -157,7 +180,10 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::ast::{ScopeKind, VariableInstruction, VariableOperation, Opcode, Index};
+/// use water::ast::{
+///     Index, Opcode, ScopeKind, VariableInstruction,
+///     VariableOperation,
+/// };
 /// use water::parser::parse_variable_instruction;
 ///
 /// assert_eq!(
