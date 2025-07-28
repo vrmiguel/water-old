@@ -15,11 +15,25 @@ fn stringify_error(
 }
 
 fn main() {
-    parse_instruction("i32.const 5").unwrap();
-    parse_instruction("(i32.const 5)").unwrap();
-    parse_instruction("(local.set $idx)").unwrap();
-    parse_instruction("(local.set $idx (i32.const 5))")
-        .unwrap();
+    if let Err(err) = parse_instruction("i32.const 5") {
+        eprintln!("Error parsing 'i32.const 5': {}", stringify_error("i32.const 5", err));
+        return;
+    }
+    
+    if let Err(err) = parse_instruction("(i32.const 5)") {
+        eprintln!("Error parsing '(i32.const 5)': {}", stringify_error("(i32.const 5)", err));
+        return;
+    }
+    
+    if let Err(err) = parse_instruction("(local.set $idx)") {
+        eprintln!("Error parsing '(local.set $idx)': {}", stringify_error("(local.set $idx)", err));
+        return;
+    }
+    
+    if let Err(err) = parse_instruction("(local.set $idx (i32.const 5))") {
+        eprintln!("Error parsing '(local.set $idx (i32.const 5))': {}", stringify_error("(local.set $idx (i32.const 5))", err));
+        return;
+    }
 
     let import_wat = r#"(import "console" "log"
         (func $log (param i32) (param i32)))"#;
