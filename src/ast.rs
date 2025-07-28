@@ -2,6 +2,7 @@
 
 use crate::small_string::SmallString;
 
+/// Represents a complete WebAssembly program consisting of modules
 #[derive(Debug)]
 pub struct Program {
     pub modules: Vec<Module>,
@@ -10,7 +11,10 @@ pub struct Program {
 /// Represents a WebAssembly Text Format module
 #[derive(Debug)]
 pub struct Module {
-    // TODO
+    /// Functions defined in this module
+    pub functions: Vec<Function>,
+    /// Function imports for this module
+    pub imports: Vec<FunctionImport>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

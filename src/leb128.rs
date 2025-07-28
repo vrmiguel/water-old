@@ -122,7 +122,7 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
 /// assert_eq!(low_bits(0b01010101), 0b01010101); // 85 -> 85 (unchanged)
 /// ```
 #[must_use]
-fn low_bits(value: u64) -> u8 {
+const fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;
     let lower_eight_bits = value & MASK;
