@@ -16,6 +16,7 @@ pub struct SignedLeb128 {
 }
 
 impl From<i64> for SignedLeb128 {
+    #[must_use]
     fn from(value: i64) -> Self {
         Self { value }
     }
@@ -63,6 +64,7 @@ pub struct UnsignedLeb128 {
 }
 
 impl From<u64> for UnsignedLeb128 {
+    #[must_use]
     fn from(value: u64) -> Self {
         Self { value }
     }
@@ -119,6 +121,7 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
 /// assert_eq!(low_bits(0b10000000), 0b00000000); // 128 -> 0  
 /// assert_eq!(low_bits(0b01010101), 0b01010101); // 85 -> 85 (unchanged)
 /// ```
+#[must_use]
 fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;

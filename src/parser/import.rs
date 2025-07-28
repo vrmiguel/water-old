@@ -31,6 +31,7 @@ use crate::{
 ///
 /// assert_eq!(parse_function_import(import_wat), Ok(("", parsed_import)));
 /// ```
+#[must_use]
 pub fn parse_function_import(
     input: &str,
 ) -> IResult<FunctionImport> {

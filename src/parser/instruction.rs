@@ -27,6 +27,7 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+#[must_use]
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +65,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+#[must_use]
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
@@ -90,6 +92,7 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 /// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
 /// assert_eq!(parse_const("f32.const 2E-3"), Ok(("", NumericalValue::Float32(0.002))));
 /// ```
+#[must_use]
 pub fn parse_const(input: &str) -> IResult<NumericalValue> {
     // Parse the numerical type of this instruction: i32, i64,
     // f32 or f64
@@ -143,6 +146,7 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 /// assert!(parse_instruction("(call 5").is_err());
 /// assert_eq!(parse_call("call $func"), Ok(("", Index::Identifier("func".into()))));
 /// ```
+#[must_use]
 pub fn parse_call(input: &str) -> IResult<Index> {
     let (rest, _) = tag("call")(input)?;
 
@@ -169,6 +173,7 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///     }))
 /// );
 /// ```
+#[must_use]
 pub fn parse_variable_instruction(
     input: &str,
 ) -> IResult<VariableOperation> {
@@ -204,6 +209,7 @@ pub fn parse_variable_instruction(
 }
 
 /// Parses the `unreachable` instruction
+#[must_use]
 pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
     let (rest, _) = tag("unreachable")(input)?;
 

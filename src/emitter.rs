@@ -43,6 +43,7 @@ impl<W: Write> Emitter<W> {
     }
 
     /// Builds a new emitter with the given writer
+    #[must_use]
     pub fn new(writer: W) -> Self {
         Self { writer }
     }
@@ -59,6 +60,7 @@ impl<W: Write> Emitter<W> {
     }
 
     #[cfg(test)]
+    #[must_use]
     pub fn into_inner(self) -> W {
         self.writer
     }
@@ -66,6 +68,7 @@ impl<W: Write> Emitter<W> {
 
 impl<W> Emitter<std::io::Cursor<W>> {
     #[cfg(test)]
+    #[must_use]
     pub fn new_cursored(writer: W) -> Self {
         use std::io::Cursor;
 

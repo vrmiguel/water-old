@@ -36,6 +36,7 @@ use crate::{
 /// assert_eq!(parse_string("\"hello \\\"world\\\"\""), Ok(("", "hello \"world\"")));
 /// assert_eq!(parse_string("\"\""), Ok(("", "")));
 /// ```
+#[must_use]
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
@@ -55,6 +56,7 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 /// assert_eq!(parse_identifier("$idx"), Ok(("", SmallString::new("idx"))));
 /// assert_eq!(parse_identifier("$asd_aa? a"), Ok((" a", SmallString::new("asd_aa?"))));
 /// ```
+#[must_use]
 pub fn parse_identifier(input: &str) -> IResult<SmallString> {
     let (rest, identifier) = context(
         "identifier",
@@ -70,6 +72,7 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
 /// Parses a WASM type.
 ///
 /// Does not eat leading whitespace.
+#[must_use]
 pub fn parse_type(input: &str) -> IResult<Type> {
     context(
         "type",
@@ -80,6 +83,7 @@ pub fn parse_type(input: &str) -> IResult<Type> {
 /// Parses one of the four built-in numerical WASM types.
 ///
 /// Does not eat leading whitespace.
+#[must_use]
 pub fn parse_numerical_type(
     input: &str,
 ) -> IResult<NumericalType> {
@@ -103,6 +107,7 @@ pub fn parse_numerical_type(
 /// assert_eq!(parse_index("$var"), Ok(("", Index::Identifier("var".into()))));
 /// assert_eq!(parse_index("5"), Ok(("", Index::Numerical(5))));
 /// ```
+#[must_use]
 pub fn parse_index(input: &str) -> IResult<Index> {
     alt((
         parse_identifier
@@ -143,6 +148,7 @@ pub fn parse_index(input: &str) -> IResult<Index> {
 /// ```
 ///
 /// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+#[must_use]
 pub fn parse_parenthesis_enclosed<'a, T, F>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<T>
@@ -188,6 +194,7 @@ where
 /// assert!(!is_acceptable_identifier_character(' '));
 /// assert!(!is_acceptable_identifier_character('('));
 /// ```
+#[must_use]
 fn is_acceptable_identifier_character(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(

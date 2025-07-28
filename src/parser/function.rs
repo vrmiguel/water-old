@@ -49,6 +49,7 @@ use crate::{
 ///     Ok(("", function))
 /// );
 /// ```
+#[must_use]
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
         let (rest, _) =
@@ -110,6 +111,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 /// // Wrong: extra string quote
 /// assert!(parse_export(r#"(export "valid"")"#).is_err());
 /// ```
+#[must_use]
 pub fn parse_export(input: &str) -> IResult<SmallString> {
     fn inner(input: &str) -> IResult<SmallString> {
         let (rest, _) =
@@ -146,6 +148,7 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 /// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
 /// ```
 // TODO: handle cases such as (param f32 f32)
+#[must_use]
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     fn inner(input: &str) -> IResult<Parameter> {
         let (rest, _) =
@@ -186,6 +189,7 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 /// assert_eq!(parse_local("(local f32)"), Ok(("", anonymous_f32)));
 /// assert_eq!(parse_local("( local $number i64)"), Ok(("", named_i64)));
 /// ```
+#[must_use]
 pub fn parse_local(input: &str) -> IResult<Local> {
     fn inner(input: &str) -> IResult<Local> {
         let (rest, _) =
