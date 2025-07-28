@@ -96,19 +96,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x4a,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x48,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x4e,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x4c,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::Equal,
@@ -120,19 +120,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x55,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x53,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x59,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x57,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::Equal,
@@ -144,19 +144,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x5e,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x5d,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x60,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x5f,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::Equal,
@@ -168,19 +168,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x64,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x63,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x66,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x65,
         }
     }
 }
