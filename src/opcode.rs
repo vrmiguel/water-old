@@ -275,7 +275,7 @@ impl ToOpcode for VariableOperation {
         use VariableInstruction as Instr;
 
         let Self {
-            scope, instruction, index: _
+            scope, instruction, index: _index
         } = self;
 
         match (scope, instruction) {

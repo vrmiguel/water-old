@@ -20,14 +20,12 @@ pub struct Emitter<W> {
 
 impl<W: Write> Emitter<W> {
     /// Emit a single byte to the writer
-    #[must_use]
     pub fn emit_byte(&mut self, byte: u8) -> io::Result<usize> {
         self.emit_bytes(&[byte])?;
         Ok(1)
     }
 
     /// Emit a sequence of bytes to the writer
-    #[must_use]
     pub fn emit_bytes(
         &mut self,
         bytes: &[u8],
@@ -52,7 +50,7 @@ impl<W: Write> Emitter<W> {
     }
 
     /// Emit the given program to WASM
-    #[must_use]
+    #[allow(unused_variables)]
     pub fn emit_program(
         &mut self,
         _program: Program,
