@@ -138,7 +138,7 @@ impl ToOpcode for ArithmeticOperation {
             ),
             (
                 NumericalType::Float32 | NumericalType::Float64,
-                ArithmeticInstruction::SignedRemainder 
+                ArithmeticInstruction::SignedRemainder
                 | ArithmeticInstruction::UnsignedRemainder,
             ) => unreachable!(
                 "no remainder instruction for floating numbers"
