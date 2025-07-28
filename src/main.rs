@@ -11,7 +11,8 @@ fn main() {
             .unwrap()
     );
 
-    let import_wat = r#"(import "console" "log" (func $log (param i32) (param i32)))"#;
+    let import_wat = r#"(import "console" "log" 
+        (func $log (param i32) (param i32)))"#;
 
     if let Err(err) = parse_function_import(import_wat) {
         println!("{}", stringify_error(import_wat, err));

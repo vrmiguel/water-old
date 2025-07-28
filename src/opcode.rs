@@ -59,12 +59,15 @@ impl ToOpcode for ArithmeticOperation {
             (Float64, FloatDivision) => 0xa3,
             
             // Invalid combinations
-            (Int32 | Int64, FloatDivision) => 
-                unreachable!("no float division for integers"),
-            (Float32 | Float64, UnsignedDisivion | SignedDivision) => 
-                unreachable!("no signed or unsigned division for floating numbers"),
-            (Float32 | Float64, SignedRemainder | UnsignedRemainder) => 
-                unreachable!("no remainder instruction for floating numbers"),
+            (Int32 | Int64, FloatDivision) => {
+                unreachable!("no float division for integers")
+            }
+            (Float32 | Float64, UnsignedDisivion | SignedDivision) => {
+                unreachable!("no signed/unsigned division for floats")
+            }
+            (Float32 | Float64, SignedRemainder | UnsignedRemainder) => {
+                unreachable!("no remainder instruction for floats")
+            }
         }
     }
 }

@@ -4,7 +4,7 @@
 //!
 //! The code in this file is heavily based in the [leb128](https://github.com/gimli-rs/leb128) crate by gimli-rs.
 
-use std::{io, io::Write, ops::Not};
+use std::{io, io::Write};
 
 use crate::emitter::{Emittable, Emitter};
 
@@ -36,10 +36,10 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
             let is_final_byte = matches!(value, 0 | -1);
             
             let byte = if is_final_byte {
-                current_byte & !(CONTINUATION_BIT)
+                current_byte & !(CONTINUATION_BIT as u8)
             } else {
                 value >>= 1;
-                current_byte | CONTINUATION_BIT
+                current_byte | (CONTINUATION_BIT as u8)
             };
 
             self.emit_byte(byte)?;
