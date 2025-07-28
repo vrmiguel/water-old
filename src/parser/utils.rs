@@ -108,30 +108,6 @@ where
 }
 
 fn is_acceptable_identifier_character(ch: char) -> bool {
-    ch.is_ascii_alphanumeric()
-        || matches!(
-            ch,
-            '!' | '#'
-                | '$'
-                | '%'
-                | '&'
-                | '´'
-                | '*'
-                | '+'
-                | '-'
-                | '.'
-                | '/'
-                | ':'
-                | '<'
-                | '='
-                | '>'
-                | '?'
-                | '@'
-                | '\\'
-                | '^'
-                | '_'
-                | '`'
-                | '|'
-                | '~'
-        )
+    const SPECIAL_CHARS: &str = "!#$%&´*+-./:<=>?@\\^_`|~";
+    ch.is_ascii_alphanumeric() || SPECIAL_CHARS.contains(ch)
 }

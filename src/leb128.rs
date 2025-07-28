@@ -28,28 +28,26 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
     ) -> io::Result<usize> {
         let mut bytes_written = 0;
         let SignedLeb128 { mut value } = element;
-        let mut is_done = false;
 
-        while is_done.not() {
-            // Backup the current value
-            let bkp = value;
-
+        loop {
+            let current_byte = value as u8;
             value >>= 6;
-
-            is_done = matches!(value, 0 | -1);
-            let byte = if is_done {
-                bkp & !(CONTINUATION_BIT as i64)
+            
+            let is_final_byte = matches!(value, 0 | -1);
+            
+            let byte = if is_final_byte {
+                current_byte & !(CONTINUATION_BIT)
             } else {
-                // Remove the sign bit
                 value >>= 1;
-
-                // More bytes to come, so set the continuation
-                // bit.
-                bkp | (CONTINUATION_BIT as i64)
-            } as u8;
+                current_byte | CONTINUATION_BIT
+            };
 
             self.emit_byte(byte)?;
             bytes_written += 1;
+            
+            if is_final_byte {
+                break;
+            }
         }
 
         Ok(bytes_written)
