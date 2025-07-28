@@ -23,13 +23,15 @@ use crate::{
 /// assert!(parse_module("module)").is_err());
 /// assert!(parse_module("(mod)").is_err());
 /// ```
-#[must_use]
 pub fn parse_module(input: &str) -> IResult<Module> {
     fn inner(input: &str) -> IResult<Module> {
         let (rest, _) =
             preceded(multispace0, tag("module"))(input)?;
 
-        Ok((rest, Module {}))
+        Ok((rest, Module {
+            functions: Vec::new(),
+            imports: Vec::new(),
+        }))
     }
 
     preceded(

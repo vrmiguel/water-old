@@ -27,7 +27,6 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
-#[must_use]
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -65,7 +64,6 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
-#[must_use]
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
@@ -101,7 +99,6 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 ///     Ok(("", NumericalValue::Float32(0.002)))
 /// );
 /// ```
-#[must_use]
 pub fn parse_const(input: &str) -> IResult<NumericalValue> {
     // Parse the numerical type of this instruction: i32, i64,
     // f32 or f64
@@ -155,7 +152,6 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 ///     Ok(("", Index::Identifier("func".into())))
 /// );
 /// ```
-#[must_use]
 pub fn parse_call(input: &str) -> IResult<Index> {
     let (rest, _) = tag("call")(input)?;
 
@@ -185,7 +181,6 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///     }))
 /// );
 /// ```
-#[must_use]
 pub fn parse_variable_instruction(
     input: &str,
 ) -> IResult<VariableOperation> {
@@ -221,7 +216,6 @@ pub fn parse_variable_instruction(
 }
 
 /// Parses the `unreachable` instruction
-#[must_use]
 pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
     let (rest, _) = tag("unreachable")(input)?;
 
