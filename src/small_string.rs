@@ -17,6 +17,8 @@ impl Hash for SmallString {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         match self {
             SmallString::Inlined { len, buf } => {
+                // SAFETY: `len` is always <= INLINE_CAP and the buffer is initialized
+                // up to `len` bytes during construction
                 unsafe { buf.get_unchecked(0..*len as usize) }
                     .hash(state);
             }
@@ -52,9 +54,9 @@ impl SmallString {
         debug_assert!(bytes.len() <= INLINE_CAP);
         let mut buf = [0u8; INLINE_CAP];
 
-        // Safety: this function is internal and only called
+        // SAFETY: this function is internal and only called
         // after we've made sure that the given bytes are not
-        // bigger than INLINE_CAP
+        // bigger than INLINE_CAP, and buf has size INLINE_CAP
         unsafe { buf.get_unchecked_mut(0..bytes.len()) }
             .copy_from_slice(bytes);
         Self::Inlined {
@@ -80,9 +82,10 @@ impl SmallString {
 
     pub fn as_str(&self) -> &str {
         match self {
-            // Safety: SmallString::Inlined can only be created
-            // from `AsRef<str>`, so we'll
-            // always have valid UTF-8
+            // SAFETY: SmallString::Inlined can only be created
+            // from `AsRef<str>`, so we'll always have valid UTF-8.
+            // len is always <= INLINE_CAP and the buffer is initialized
+            // up to `len` bytes with valid UTF-8 data.
             SmallString::Inlined { buf, len } => unsafe {
                 std::str::from_utf8_unchecked(
                     &buf[..*len as usize],
@@ -121,20 +124,18 @@ impl From<&str> for SmallString {
 
 #[cfg(test)]
 mod tests {
-    use std::ops::Not;
-
     use super::SmallString;
 
     #[test]
     fn creates_inlined_small_strings_correctly() {
         let hey = SmallString::new("hey");
         assert_eq!(hey.as_str(), "hey");
-        assert!(hey.is_in_heap().not());
+        assert!(!hey.is_in_heap());
 
         let length_22 =
             SmallString::new("abcdefghijkabcdefghijk");
         assert_eq!(length_22.as_str(), "abcdefghijkabcdefghijk");
-        assert!(length_22.is_in_heap().not());
+        assert!(!length_22.is_in_heap());
 
         let length_23 =
             SmallString::new("abcdefghijkabcdefghijkz");

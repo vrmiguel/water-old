@@ -28,113 +28,55 @@ impl ToOpcode for NumericalValue {
 
 impl ToOpcode for ArithmeticOperation {
     fn to_opcode(&self) -> u8 {
-        let Self { type_, instr } = self;
-        match (type_, instr) {
+        use NumericalType::*;
+        use ArithmeticInstruction::*;
+        match (&self.type_, &self.instr) {
+            // Integer operations
+            (Int32, Addition) => 0x6a,
+            (Int32, Subtraction) => 0x6b,
+            (Int32, Multiplication) => 0x6c,
+            (Int32, SignedDivision) => 0x6d,
+            (Int32, UnsignedDivision) => 0x6e,
+            (Int32, SignedRemainder) => 0x6f,
+            (Int32, UnsignedRemainder) => 0x70,
+            (Int64, Addition) => 0x7c,
+            (Int64, Subtraction) => 0x7d,
+            (Int64, Multiplication) => 0x7e,
+            (Int64, SignedDivision) => 0x7f,
+            (Int64, UnsignedDivision) => 0x80,
+            (Int64, SignedRemainder) => 0x81,
+            (Int64, UnsignedRemainder) => 0x82,
+
+            // Float operations
+            (Float32, Addition) => 0x92,
+            (Float32, Subtraction) => 0x93,
+            (Float32, Multiplication) => 0x94,
+            (Float32, FloatDivision) => 0x95,
+            (Float64, Addition) => 0xa0,
+            (Float64, Subtraction) => 0xa1,
+            (Float64, Multiplication) => 0xa2,
+            (Float64, FloatDivision) => 0xa3,
+
+            // Invalid combinations
+            (Int32 | Int64, FloatDivision) => {
+                unreachable!("no float division for integers")
+            }
             (
-                NumericalType::Int32,
-                ArithmeticInstruction::Addition,
-            ) => 0x6a,
+                Float32 | Float64,
+                UnsignedDivision | SignedDivision,
+            ) => {
+                unreachable!(
+                    "no signed/unsigned division for floats"
+                )
+            }
             (
-                NumericalType::Int32,
-                ArithmeticInstruction::Subtraction,
-            ) => 0x6b,
-            (
-                NumericalType::Int32,
-                ArithmeticInstruction::Multiplication,
-            ) => 0x6c,
-            (
-                NumericalType::Int32,
-                ArithmeticInstruction::SignedDivision,
-            ) => 0x6d,
-            (
-                NumericalType::Int32,
-                ArithmeticInstruction::UnsignedDisivion,
-            ) => 0x6e,
-            (
-                NumericalType::Int32,
-                ArithmeticInstruction::SignedRemainder,
-            ) => 0x6f,
-            (
-                NumericalType::Int32,
-                ArithmeticInstruction::UnsignedRemainder,
-            ) => 0x70,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::Addition,
-            ) => 0x7c,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::Subtraction,
-            ) => 0x7d,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::Multiplication,
-            ) => 0x7e,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::SignedDivision,
-            ) => 0x7f,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::UnsignedDisivion,
-            ) => 0x80,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::SignedRemainder,
-            ) => 0x81,
-            (
-                NumericalType::Int64,
-                ArithmeticInstruction::UnsignedRemainder,
-            ) => 0x82,
-            (
-                NumericalType::Int32
-                | NumericalType::Int64,
-                ArithmeticInstruction::FloatDivision,
-            ) => unreachable!(
-                "no float division for integers"
-            ),
-            (
-                NumericalType::Float32,
-                ArithmeticInstruction::Addition,
-            ) => 0x92,
-            (
-                NumericalType::Float32,
-                ArithmeticInstruction::Subtraction,
-            ) => 0x93,
-            (
-                NumericalType::Float32,
-                ArithmeticInstruction::Multiplication,
-            ) => 0x94,
-            (
-                NumericalType::Float32,
-                ArithmeticInstruction::FloatDivision,
-            ) => 0x95,
-            (
-                NumericalType::Float64,
-                ArithmeticInstruction::Addition,
-            ) => 0xa0,
-            (
-                NumericalType::Float64,
-                ArithmeticInstruction::Subtraction,
-            ) => 0xa1,
-            (
-                NumericalType::Float64,
-                ArithmeticInstruction::Multiplication,
-            ) => 0xa2,
-            (
-                NumericalType::Float64,
-                ArithmeticInstruction::FloatDivision,
-            ) => 0xa3,
-            (
-                NumericalType::Float32
-                | NumericalType::Float64,
-                ArithmeticInstruction::UnsignedDisivion
-                | ArithmeticInstruction::SignedDivision,
-            ) => unreachable!("no signed or unsigned division for floating numbers"),
-            (
-                NumericalType::Float32 | NumericalType::Float64,
-                ArithmeticInstruction::SignedRemainder | ArithmeticInstruction::UnsignedRemainder,
-            ) => unreachable!("no remainder instruction for floating numbers"),
+                Float32 | Float64,
+                SignedRemainder | UnsignedRemainder,
+            ) => {
+                unreachable!(
+                    "no remainder instruction for floats"
+                )
+            }
         }
     }
 }
@@ -154,19 +96,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x4a,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x48,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x4e,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x4c,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::Equal,
@@ -178,19 +120,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x55,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x53,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x59,
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x57,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::Equal,
@@ -202,19 +144,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x5e,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x5d,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x60,
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x5f,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::Equal,
@@ -226,19 +168,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x64,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x63,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x66,
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x65,
         }
     }
 }

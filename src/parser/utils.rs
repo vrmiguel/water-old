@@ -51,7 +51,7 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
 pub fn parse_type(input: &str) -> IResult<Type> {
     context(
         "type",
-        alt((parse_numerical_type.map(Type::Numerical),)),
+        parse_numerical_type.map(Type::Numerical),
     )(input)
 }
 
@@ -83,9 +83,7 @@ pub fn parse_numerical_type(
 /// ```
 pub fn parse_index(input: &str) -> IResult<Index> {
     alt((
-        parse_identifier
-            .map(SmallString::new)
-            .map(Index::Identifier),
+        parse_identifier.map(Index::Identifier),
         nom::character::complete::i64.map(Index::Numerical),
     ))(input)
 }
@@ -108,30 +106,6 @@ where
 }
 
 fn is_acceptable_identifier_character(ch: char) -> bool {
-    ch.is_ascii_alphanumeric()
-        || matches!(
-            ch,
-            '!' | '#'
-                | '$'
-                | '%'
-                | '&'
-                | '´'
-                | '*'
-                | '+'
-                | '-'
-                | '.'
-                | '/'
-                | ':'
-                | '<'
-                | '='
-                | '>'
-                | '?'
-                | '@'
-                | '\\'
-                | '^'
-                | '_'
-                | '`'
-                | '|'
-                | '~'
-        )
+    const SPECIAL_CHARS: &str = "!#$%&'*+-./:<=>?@\\^_`|~";
+    ch.is_ascii_alphanumeric() || SPECIAL_CHARS.contains(ch)
 }

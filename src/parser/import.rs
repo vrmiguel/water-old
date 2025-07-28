@@ -44,9 +44,29 @@ pub fn parse_function_import(
         let (rest, function) =
             preceded(multispace0, parse_function)(rest)?;
 
-        // TODO: transform into nom errors
-        assert!(function.exports.is_empty());
-        assert!(function.local_variables.is_empty());
+        use nom::error::{VerboseError, VerboseErrorKind};
+        
+        // Function imports should not have exports or locals
+        if !function.exports.is_empty() {
+            return Err(nom::Err::Error(VerboseError {
+                errors: vec![(
+                    input,
+                    VerboseErrorKind::Context(
+                        "function imports cannot have exports"
+                    )
+                )],
+            }));
+        }
+        if !function.local_variables.is_empty() {
+            return Err(nom::Err::Error(VerboseError {
+                errors: vec![(
+                    input,
+                    VerboseErrorKind::Context(
+                        "function imports cannot have locals"
+                    )
+                )],
+            }));
+        }
 
         let fn_import = FunctionImport {
             namespace: namespace.into(),
