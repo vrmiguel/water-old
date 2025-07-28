@@ -5,7 +5,10 @@ use crate::ast::{
     Unreachable, VariableInstruction, VariableOperation,
 };
 
+/// Trait for converting WebAssembly instructions to their corresponding opcodes
 pub trait ToOpcode {
+    /// Convert this instruction to its WebAssembly opcode byte value
+    #[must_use]
     fn to_opcode(&self) -> u8;
 }
 
@@ -154,19 +157,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x4a, // i32.gt_s
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x48, // i32.lt_s
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x4e, // i32.ge_s
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x4c, // i32.le_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::Equal,
@@ -178,19 +181,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x56, // i64.gt_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x54, // i64.lt_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x5a, // i64.ge_s
             (
                 NumericalType::Int64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x58, // i64.le_s
             (
                 NumericalType::Float32,
                 ComparisonInstruction::Equal,
@@ -202,19 +205,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x5e, // f32.gt
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x5d, // f32.lt
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x60, // f32.ge
             (
                 NumericalType::Float32,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x5f, // f32.le
             (
                 NumericalType::Float64,
                 ComparisonInstruction::Equal,
@@ -226,19 +229,19 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x64, // f64.gt
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessThan,
-            ) => todo!(),
+            ) => 0x63, // f64.lt
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterOrEqual,
-            ) => todo!(),
+            ) => 0x66, // f64.ge
             (
                 NumericalType::Float64,
                 ComparisonInstruction::LessOrEqual,
-            ) => todo!(),
+            ) => 0x65, // f64.le
         }
     }
 }

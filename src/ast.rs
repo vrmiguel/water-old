@@ -2,11 +2,13 @@
 
 use crate::small_string::SmallString;
 
+#[derive(Debug)]
 pub struct Program {
     pub modules: Vec<Module>,
 }
 
 /// Represents a WebAssembly Text Format module
+#[derive(Debug)]
 pub struct Module {
     // TODO
 }

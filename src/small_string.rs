@@ -17,6 +17,8 @@ impl Hash for SmallString {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         match self {
             SmallString::Inlined { len, buf } => {
+                // Safety: len is guaranteed to be <= INLINE_CAP when creating SmallString::Inlined,
+                // and INLINE_CAP equals buf.len(), so 0..*len as usize is always within bounds
                 unsafe { buf.get_unchecked(0..*len as usize) }
                     .hash(state);
             }
@@ -72,9 +74,9 @@ impl SmallString {
         debug_assert!(bytes.len() <= INLINE_CAP);
         let mut buf = [0u8; INLINE_CAP];
 
-        // Safety: this function is internal and only called
-        // after we've made sure that the given bytes are not
-        // bigger than INLINE_CAP
+        // Safety: This function is internal and only called after verifying that 
+        // bytes.len() <= INLINE_CAP, and INLINE_CAP equals buf.len().
+        // Therefore, 0..bytes.len() is guaranteed to be within bounds of buf.
         unsafe { buf.get_unchecked_mut(0..bytes.len()) }
             .copy_from_slice(bytes);
         Self::Inlined {
@@ -83,10 +85,12 @@ impl SmallString {
         }
     }
 
+    #[must_use]
     pub fn is_in_heap(&self) -> bool {
         matches!(self, Self::Heap(_))
     }
 
+    #[must_use]
     pub fn new<S: AsRef<str>>(input: S) -> Self {
         let string = input.as_ref();
         let bytes = string.as_bytes();
@@ -98,11 +102,13 @@ impl SmallString {
         }
     }
 
+    #[must_use]
     pub fn as_str(&self) -> &str {
         match self {
-            // Safety: SmallString::Inlined can only be created
-            // from `AsRef<str>`, so we'll
-            // always have valid UTF-8
+            // Safety: SmallString::Inlined can only be created from valid UTF-8 strings
+            // via `AsRef<str>`, and len is guaranteed to be <= INLINE_CAP during construction.
+            // The slice &buf[..*len as usize] represents the exact bytes that were validated
+            // as UTF-8 when the SmallString was created.
             SmallString::Inlined { buf, len } => unsafe {
                 std::str::from_utf8_unchecked(
                     &buf[..*len as usize],
@@ -141,20 +147,18 @@ impl From<&str> for SmallString {
 
 #[cfg(test)]
 mod tests {
-    use std::ops::Not;
-
     use super::SmallString;
 
     #[test]
     fn creates_inlined_small_strings_correctly() {
         let hey = SmallString::new("hey");
         assert_eq!(hey.as_str(), "hey");
-        assert!(hey.is_in_heap().not());
+        assert!(!hey.is_in_heap());
 
         let length_22 =
             SmallString::new("abcdefghijkabcdefghijk");
         assert_eq!(length_22.as_str(), "abcdefghijkabcdefghijk");
-        assert!(length_22.is_in_heap().not());
+        assert!(!length_22.is_in_heap());
 
         let length_23 =
             SmallString::new("abcdefghijkabcdefghijkz");
