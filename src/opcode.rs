@@ -30,21 +30,20 @@ impl ToOpcode for ArithmeticOperation {
     fn to_opcode(&self) -> u8 {
         use NumericalType::*;
         use ArithmeticInstruction::*;
-        
         match (&self.type_, &self.instr) {
             // Integer operations
             (Int32, Addition) => 0x6a,
             (Int32, Subtraction) => 0x6b,
             (Int32, Multiplication) => 0x6c,
             (Int32, SignedDivision) => 0x6d,
-            (Int32, UnsignedDisivion) => 0x6e,
+            (Int32, UnsignedDivision) => 0x6e,
             (Int32, SignedRemainder) => 0x6f,
             (Int32, UnsignedRemainder) => 0x70,
             (Int64, Addition) => 0x7c,
             (Int64, Subtraction) => 0x7d,
             (Int64, Multiplication) => 0x7e,
             (Int64, SignedDivision) => 0x7f,
-            (Int64, UnsignedDisivion) => 0x80,
+            (Int64, UnsignedDivision) => 0x80,
             (Int64, SignedRemainder) => 0x81,
             (Int64, UnsignedRemainder) => 0x82,
             
@@ -62,7 +61,7 @@ impl ToOpcode for ArithmeticOperation {
             (Int32 | Int64, FloatDivision) => {
                 unreachable!("no float division for integers")
             }
-            (Float32 | Float64, UnsignedDisivion | SignedDivision) => {
+            (Float32 | Float64, UnsignedDivision | SignedDivision) => {
                 unreachable!("no signed/unsigned division for floats")
             }
             (Float32 | Float64, SignedRemainder | UnsignedRemainder) => {

@@ -32,9 +32,7 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
         loop {
             let current_byte = value as u8;
             value >>= 6;
-            
             let is_final_byte = matches!(value, 0 | -1);
-            
             let byte = if is_final_byte {
                 current_byte & !(CONTINUATION_BIT as u8)
             } else {
@@ -44,7 +42,6 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
 
             self.emit_byte(byte)?;
             bytes_written += 1;
-            
             if is_final_byte {
                 break;
             }
