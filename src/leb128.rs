@@ -117,7 +117,7 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
         }
 
         while value != 0 {
-            let mut byte = low_bits(value);
+            let mut byte = lower_bits(value);
             value >>= 7;
             if value != 0 {
                 // More bytes to come, so set the continuation
@@ -144,7 +144,7 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
 ///
 /// # Returns
 /// A u8 containing only the lower 7 bits of the input value
-fn low_bits(value: u64) -> u8 {
+fn lower_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;
     let lower_eight_bits = value & MASK;
