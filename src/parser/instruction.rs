@@ -64,6 +64,28 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from the input string.
+///
+/// This function attempts to parse different types of opcodes including:
+/// - Variable instructions (local.get, local.set, global.get, etc.)
+/// - Constant operations (i32.const, f64.const, etc.)
+/// - The unreachable instruction
+/// - Call instructions
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::ast::{Opcode, NumericalValue, Constant};
+/// use water::parser::parse_opcode;
+///
+/// // Parse a constant opcode
+/// if let Ok((_, Opcode::Constant(constant))) = parse_opcode("i32.const 42") {
+///     assert_eq!(constant.value, NumericalValue::Int32(42));
+/// }
+///
+/// // Parse an unreachable opcode
+/// assert!(matches!(parse_opcode("unreachable"), Ok((_, Opcode::Unreachable(_)))));
+/// ```
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
