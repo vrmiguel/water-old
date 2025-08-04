@@ -47,7 +47,31 @@ impl<W: Write> Emitter<W> {
         Self { writer }
     }
 
-    /// Emit the given program to WASM
+    /// Emit the given program to WebAssembly binary format.
+    ///
+    /// This function takes a parsed WebAssembly program and emits it as binary WASM format
+    /// to the underlying writer. Currently, this implementation only emits the WASM magic
+    /// number and version header, serving as a foundation for a complete WASM compiler.
+    ///
+    /// The WebAssembly binary format starts with:
+    /// - Magic number: `\0asm` (0x00 0x61 0x73 0x6d)
+    /// - Version: `1000` in little-endian (0x01 0x00 0x00 0x00)
+    ///
+    /// # Arguments
+    ///
+    /// * `_program` - The parsed WebAssembly program to emit (currently unused in this early implementation)
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` on successful emission, or an `io::Error` if writing fails
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// let mut emitter = Emitter::new(Vec::new());
+    /// let program = Program::default(); // Assuming a default program
+    /// emitter.emit_program(program)?;
+    /// ```
     pub fn emit_program(
         &mut self,
         _program: Program,
