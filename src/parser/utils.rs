@@ -14,6 +14,20 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a quoted string with escape sequence support.
+///
+/// Supports escaped quotes within the string content. The returned
+/// string slice does not include the surrounding quotes.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_string;
+///
+/// assert_eq!(parse_string("\"hello\""), Ok(("", "hello")));
+/// assert_eq!(parse_string("\"\""), Ok(("", "")));
+/// assert_eq!(parse_string("\"hello\\\"world\""), Ok(("", "hello\\\"world")));
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
