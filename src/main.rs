@@ -28,5 +28,4 @@ fn main() {
     if let Err(err) = parse_function_import(import_wat) {
         println!("{}", stringify_error(import_wat, err));
     }
-
 }
