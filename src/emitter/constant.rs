@@ -35,7 +35,6 @@ mod tests {
             value: NumericalValue::Int32(128),
         };
 
-        // constant.emit_to(&mut buf.as_mut_slice()).unwrap();
         emitter.emit_element(constant).unwrap();
 
         assert_eq!(

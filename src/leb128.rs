@@ -56,41 +56,6 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
     }
 }
 
-// impl Emittable for SignedLeb128 {
-//     fn emit_to<W: Write>(
-//         &self,
-//         writer: &mut W,
-//     ) -> io::Result<usize> {
-//         let mut bytes_written = 0;
-//         let mut value = self.value;
-//         let mut is_done = false;
-
-//         while is_done.not() {
-//             // Backup the current value
-//             let bkp = value;
-
-//             value >>= 6;
-
-//             is_done = matches!(value, 0 | -1);
-//             let byte = if is_done {
-//                 bkp & !(CONTINUATION_BIT as i64)
-//             } else {
-//                 // Remove the sign bit
-//                 value >>= 1;
-
-//                 // More bytes to come, so set the continuation
-//                 // bit.
-//                 bkp | (CONTINUATION_BIT as i64)
-//             } as u8;
-
-//             writer.write_all(&[byte])?;
-//             bytes_written += 1;
-//         }
-
-//         Ok(bytes_written)
-//     }
-// }
-
 /// LEB128 encoder for unsigned integers
 pub struct UnsignedLeb128 {
     value: u64,
@@ -187,7 +152,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
@@ -229,7 +193,6 @@ mod tests {
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
-            // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
