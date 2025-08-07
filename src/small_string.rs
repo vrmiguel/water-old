@@ -121,20 +121,18 @@ impl From<&str> for SmallString {
 
 #[cfg(test)]
 mod tests {
-    use std::ops::Not;
-
     use super::SmallString;
 
     #[test]
     fn creates_inlined_small_strings_correctly() {
         let hey = SmallString::new("hey");
         assert_eq!(hey.as_str(), "hey");
-        assert!(hey.is_in_heap().not());
+        assert!(!hey.is_in_heap());
 
         let length_22 =
             SmallString::new("abcdefghijkabcdefghijk");
         assert_eq!(length_22.as_str(), "abcdefghijkabcdefghijk");
-        assert!(length_22.is_in_heap().not());
+        assert!(!length_22.is_in_heap());
 
         let length_23 =
             SmallString::new("abcdefghijkabcdefghijkz");

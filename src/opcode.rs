@@ -128,7 +128,7 @@ impl ToOpcode for ArithmeticOperation {
             (
                 NumericalType::Float32
                 | NumericalType::Float64,
-                ArithmeticInstruction::UnsignedDisivion
+                ArithmeticInstruction::UnsignedDivision
                 | ArithmeticInstruction::SignedDivision,
             ) => unreachable!("no signed or unsigned division for floating numbers"),
             (

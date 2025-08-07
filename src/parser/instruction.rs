@@ -117,6 +117,7 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
             // TODO: parsing f32.const as f64 and then casting to
             // f32 is a hack and we should switch to using
             // `nom::number::complete::f32`
+            #[allow(clippy::cast_possible_truncation)]
             Ok((rest, NumericalValue::Float32(float64 as f32)))
         }
         NumericalType::Float64 => {
