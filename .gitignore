@@ -1,1 +1,14 @@
 /target
+
+# Build artifacts
+*.rcgu.o
+*.rmeta
+*.rlib
+*.o
+*.so
+*.dylib
+*.exe
+*.pdb
+
+# Test artifacts
+test.*
