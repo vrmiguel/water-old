@@ -14,6 +14,20 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a quoted string literal with escape sequence support.
+///
+/// Handles strings enclosed in double quotes and supports basic escape sequences.
+/// Empty strings are also supported.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_string;
+///
+/// assert_eq!(parse_string(r#""hello""#), Ok(("", "hello")));
+/// assert_eq!(parse_string(r#""""#), Ok(("", "")));
+/// assert_eq!(parse_string(r#""with \"quotes\"""#), Ok(("", r#"with "quotes""#)));
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
@@ -90,7 +104,29 @@ pub fn parse_index(input: &str) -> IResult<Index> {
     ))(input)
 }
 
-// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+/// Creates a parser that parses content enclosed in parentheses.
+///
+/// This higher-order function takes an inner parser and returns a new parser
+/// that expects the inner parser's content to be wrapped in parentheses `()`.
+/// It automatically handles whitespace after the opening parenthesis and before
+/// the closing parenthesis.
+///
+/// The function uses `cut` for error recovery, meaning that once an opening
+/// parenthesis is found, a closing parenthesis is required or the parse will fail.
+///
+/// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+///
+/// # Examples
+///
+/// ```
+/// use nom::bytes::complete::tag;
+/// use water::parser::utils::parse_parenthesis_enclosed;
+///
+/// let mut parser = parse_parenthesis_enclosed(tag("hello"));
+/// assert_eq!(parser("(hello)"), Ok(("", "hello")));
+/// assert_eq!(parser("( hello )"), Ok(("", "hello")));
+/// assert!(parser("(hello").is_err()); // Missing closing parenthesis
+/// ```
 pub fn parse_parenthesis_enclosed<'a, T, F>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<T>
