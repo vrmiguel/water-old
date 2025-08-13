@@ -209,3 +209,289 @@ pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
 
     Ok((rest, Unreachable))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_instruction_simple_opcode() {
+        let result = parse_instruction("unreachable");
+        assert!(result.is_ok());
+        let (remaining, instruction) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(instruction, Instruction {
+            opcode: Opcode::Unreachable(Unreachable),
+            arguments: vec![]
+        });
+    }
+
+    #[test]
+    fn test_parse_instruction_with_parentheses() {
+        let result = parse_instruction("(unreachable)");
+        assert!(result.is_ok());
+        let (remaining, instruction) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(instruction, Instruction {
+            opcode: Opcode::Unreachable(Unreachable),
+            arguments: vec![]
+        });
+    }
+
+    #[test]
+    fn test_parse_instruction_call_numerical() {
+        let result = parse_instruction("call 5");
+        assert!(result.is_ok());
+        let (remaining, instruction) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(instruction, Instruction {
+            opcode: Opcode::Call(Index::Numerical(5)),
+            arguments: vec![]
+        });
+    }
+
+    #[test]
+    fn test_parse_instruction_call_identifier() {
+        let result = parse_instruction("call $func");
+        assert!(result.is_ok());
+        let (remaining, instruction) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(instruction, Instruction {
+            opcode: Opcode::Call(Index::Identifier("func".into())),
+            arguments: vec![]
+        });
+    }
+
+    #[test]
+    fn test_parse_instruction_with_arguments() {
+        let result = parse_instruction("(call 5 (i32.const 5))");
+        assert!(result.is_ok());
+        let (remaining, instruction) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(instruction.opcode, Opcode::Call(Index::Numerical(5)));
+        assert_eq!(instruction.arguments.len(), 1);
+        assert_eq!(instruction.arguments[0].opcode, 
+                   Opcode::Constant(Constant { value: NumericalValue::Int32(5) }));
+    }
+
+    #[test]
+    fn test_parse_opcode_unreachable() {
+        let result = parse_opcode("unreachable");
+        assert!(result.is_ok());
+        let (remaining, opcode) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(opcode, Opcode::Unreachable(Unreachable));
+    }
+
+    #[test]
+    fn test_parse_opcode_call() {
+        let result = parse_opcode("call 42");
+        assert!(result.is_ok());
+        let (remaining, opcode) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(opcode, Opcode::Call(Index::Numerical(42)));
+    }
+
+    #[test]
+    fn test_parse_const_i32() {
+        let result = parse_const("i32.const 42");
+        assert!(result.is_ok());
+        let (remaining, value) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(value, NumericalValue::Int32(42));
+    }
+
+    #[test]
+    fn test_parse_const_i64() {
+        let result = parse_const("i64.const -5");
+        assert!(result.is_ok());
+        let (remaining, value) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(value, NumericalValue::Int64(-5));
+    }
+
+    #[test]
+    fn test_parse_const_f32() {
+        let result = parse_const("f32.const 2E-3");
+        assert!(result.is_ok());
+        let (remaining, value) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(value, NumericalValue::Float32(0.002));
+    }
+
+    #[test]
+    fn test_parse_const_f64() {
+        let result = parse_const("f64.const 5.5");
+        assert!(result.is_ok());
+        let (remaining, value) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(value, NumericalValue::Float64(5.5));
+    }
+
+    #[test]
+    fn test_parse_const_with_whitespace() {
+        assert!(parse_const("i32.const  42").is_ok());
+        assert!(parse_const("i32.const\t42").is_ok());
+        assert!(parse_const("i32.const\n42").is_ok());
+    }
+
+    #[test]
+    fn test_parse_const_failures() {
+        assert!(parse_const("i32.const").is_err());
+        assert!(parse_const("i32const 42").is_err());
+        assert!(parse_const("invalid.const 42").is_err());
+        assert!(parse_const("i33.const 42").is_err());
+    }
+
+    #[test]
+    fn test_parse_call_numerical() {
+        let result = parse_call("call 5");
+        assert!(result.is_ok());
+        let (remaining, index) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(index, Index::Numerical(5));
+    }
+
+    #[test]
+    fn test_parse_call_identifier() {
+        let result = parse_call("call $func");
+        assert!(result.is_ok());
+        let (remaining, index) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(index, Index::Identifier("func".into()));
+    }
+
+    #[test]
+    fn test_parse_call_with_whitespace() {
+        assert!(parse_call("call  5").is_ok());
+        assert!(parse_call("call\t$func").is_ok());
+        assert!(parse_call("call\n5").is_ok());
+    }
+
+    #[test]
+    fn test_parse_call_failures() {
+        assert!(parse_call("call").is_err());
+        assert!(parse_call("cal 5").is_err());
+        assert!(parse_call("CALL 5").is_err());
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_local_get() {
+        let result = parse_variable_instruction("local.get $idx");
+        assert!(result.is_ok());
+        let (remaining, op) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(op, VariableOperation {
+            scope: ScopeKind::Local,
+            instruction: VariableInstruction::Get,
+            index: Index::Identifier("idx".into()),
+        });
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_local_set() {
+        let result = parse_variable_instruction("local.set 0");
+        assert!(result.is_ok());
+        let (remaining, op) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(op, VariableOperation {
+            scope: ScopeKind::Local,
+            instruction: VariableInstruction::Set,
+            index: Index::Numerical(0),
+        });
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_local_tee() {
+        let result = parse_variable_instruction("local.tee $var");
+        assert!(result.is_ok());
+        let (remaining, op) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(op, VariableOperation {
+            scope: ScopeKind::Local,
+            instruction: VariableInstruction::Tee,
+            index: Index::Identifier("var".into()),
+        });
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_global_get() {
+        let result = parse_variable_instruction("global.get 1");
+        assert!(result.is_ok());
+        let (remaining, op) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(op, VariableOperation {
+            scope: ScopeKind::Global,
+            instruction: VariableInstruction::Get,
+            index: Index::Numerical(1),
+        });
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_global_set() {
+        let result = parse_variable_instruction("global.set $global_var");
+        assert!(result.is_ok());
+        let (remaining, op) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(op, VariableOperation {
+            scope: ScopeKind::Global,
+            instruction: VariableInstruction::Set,
+            index: Index::Identifier("global_var".into()),
+        });
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_with_whitespace() {
+        assert!(parse_variable_instruction("local.get  $idx").is_ok());
+        assert!(parse_variable_instruction("local.set\t0").is_ok());
+        assert!(parse_variable_instruction("global.get\n1").is_ok());
+    }
+
+    #[test]
+    fn test_parse_variable_instruction_failures() {
+        assert!(parse_variable_instruction("global.tee $var").is_err());
+        assert!(parse_variable_instruction("local.invalid $var").is_err());
+        assert!(parse_variable_instruction("invalid.get $var").is_err());
+        assert!(parse_variable_instruction("local.get").is_err());
+        assert!(parse_variable_instruction("global.set").is_err());
+    }
+
+    #[test]
+    fn test_parse_unreachable() {
+        let result = parse_unreachable("unreachable");
+        assert!(result.is_ok());
+        let (remaining, unreachable_instr) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(unreachable_instr, Unreachable);
+    }
+
+    #[test]
+    fn test_parse_unreachable_with_trailing() {
+        let result = parse_unreachable("unreachable rest");
+        assert!(result.is_ok());
+        let (remaining, _) = result.unwrap();
+        assert_eq!(remaining, " rest");
+    }
+
+    #[test]
+    fn test_parse_unreachable_failures() {
+        assert!(parse_unreachable("UNREACHABLE").is_err());
+        assert!(parse_unreachable("unreach").is_err());
+        assert!(parse_unreachable("unreachables").is_err());
+        assert!(parse_unreachable("").is_err());
+    }
+
+    #[test]
+    fn test_complex_instruction_parsing() {
+        let result = parse_instruction("(call $add (i32.const 5) (i32.const 10))");
+        assert!(result.is_ok());
+        let (remaining, instruction) = result.unwrap();
+        assert_eq!(remaining, "");
+        assert_eq!(instruction.opcode, Opcode::Call(Index::Identifier("add".into())));
+        assert_eq!(instruction.arguments.len(), 2);
+        assert_eq!(instruction.arguments[0].opcode, 
+                   Opcode::Constant(Constant { value: NumericalValue::Int32(5) }));
+        assert_eq!(instruction.arguments[1].opcode,
+                   Opcode::Constant(Constant { value: NumericalValue::Int32(10) }));
+    }
+}
