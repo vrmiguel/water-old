@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: build (${{ matrix.target }}, ${{ matrix.os }}${{ matrix.ext }})
+    name: build (${{ matrix.target }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -13,7 +13,6 @@ jobs:
             os: macos-latest
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            ext: .exe
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
 
@@ -43,15 +42,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Rust toolchain (stable with clippy)
+      - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
-
-      - name: Setup Rust toolchain (nightly with rustfmt)
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: rustfmt
+          components: clippy, rustfmt
 
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
@@ -60,4 +54,4 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Check formatting
-        run: cargo +nightly fmt -- --check
+        run: cargo fmt -- --check
