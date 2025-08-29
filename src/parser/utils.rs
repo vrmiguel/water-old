@@ -138,6 +138,19 @@ where
     )
 }
 
+/// Determines if a character is valid in a WebAssembly Text Format identifier.
+///
+/// According to the WASM text format specification, identifiers can contain
+/// ASCII alphanumeric characters plus various special characters commonly
+/// used in programming languages.
+///
+/// # Arguments
+///
+/// * `ch` - The character to test
+///
+/// # Returns
+///
+/// `true` if the character is valid in an identifier, `false` otherwise
 fn is_acceptable_identifier_character(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(

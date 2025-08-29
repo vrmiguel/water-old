@@ -47,7 +47,31 @@ impl<W: Write> Emitter<W> {
         Self { writer }
     }
 
-    /// Emit the given program to WASM
+    /// Emits a WebAssembly program to the underlying writer.
+    ///
+    /// This method writes the WebAssembly binary format header (magic number
+    /// and version) followed by the program's sections. Currently only emits
+    /// the header as program emission is not yet fully implemented.
+    ///
+    /// # Arguments
+    ///
+    /// * `_program` - The WebAssembly program AST to emit (currently unused)
+    ///
+    /// # Errors
+    ///
+    /// Returns an `io::Error` if writing to the underlying writer fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use water::emitter::Emitter;
+    /// use water::ast::Program;
+    ///
+    /// let mut buffer = Vec::new();
+    /// let mut emitter = Emitter::new(&mut buffer);
+    /// let program = Program { functions: vec![] };
+    /// emitter.emit_program(program).unwrap();
+    /// ```
     pub fn emit_program(
         &mut self,
         _program: Program,
