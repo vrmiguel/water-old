@@ -14,6 +14,21 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a quoted string literal from WebAssembly text format.
+///
+/// This function handles escaped characters within double quotes and supports
+/// empty strings. It uses nom's escaped combinator to handle backslash escaping.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_string;
+///
+/// assert_eq!(parse_string(r#""hello""#), Ok(("", "hello")));
+/// assert_eq!(parse_string(r#""world" more"#), Ok((" more", "world")));
+/// assert_eq!(parse_string(r#""""#), Ok(("", "")));
+/// assert_eq!(parse_string(r#""escaped\"quote""#), Ok(("", r#"escaped"quote"#)));
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
@@ -90,7 +105,25 @@ pub fn parse_index(input: &str) -> IResult<Index> {
     ))(input)
 }
 
-// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+/// Parses content enclosed in parentheses with proper error handling.
+///
+/// This is a generic combinator that wraps any parser to handle parenthesis-enclosed
+/// content. It handles whitespace after the opening parenthesis and provides clear
+/// error messages for missing closing parentheses.
+///
+/// The function uses nom's `cut` combinator to provide better error messages
+/// once an opening parenthesis is found.
+///
+/// ```
+/// use water::parser::parse_parenthesis_enclosed;
+/// use nom::bytes::complete::tag;
+///
+/// let parser = parse_parenthesis_enclosed(tag("hello"));
+/// assert_eq!(parser("(hello)"), Ok(("", "hello")));
+/// assert_eq!(parser("( hello )"), Ok(("", "hello")));
+/// ```
+///
+/// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
 pub fn parse_parenthesis_enclosed<'a, T, F>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<T>
