@@ -67,6 +67,21 @@ impl SmallString {
         matches!(self, Self::Heap(_))
     }
 
+    /// Creates a new SmallString from any string-like input.
+    /// 
+    /// This function optimizes memory usage by storing short strings (≤22 bytes)
+    /// directly inline without heap allocation, while longer strings are stored
+    /// on the heap with reference counting for cheap cloning.
+    /// 
+    /// # Arguments
+    /// * `input` - Any type that can be converted to a string reference
+    /// 
+    /// # Returns
+    /// * `SmallString` - Either inlined or heap-allocated based on length
+    /// 
+    /// # Performance
+    /// - Strings ≤22 bytes: Zero heap allocations, stored inline
+    /// - Strings >22 bytes: Single heap allocation with Rc for cheap cloning
     pub fn new<S: AsRef<str>>(input: S) -> Self {
         let string = input.as_ref();
         let bytes = string.as_bytes();

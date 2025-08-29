@@ -49,6 +49,22 @@ use crate::{
 ///     Ok(("", function))
 /// );
 /// ```
+/// Parses a WebAssembly function definition from WAT text format.
+/// 
+/// This function parses complete function definitions including the function identifier,
+/// export declarations, parameters, and local variables. It's a key component for
+/// parsing WAT modules.
+/// 
+/// # Arguments
+/// * `input` - The input string containing the WAT function definition
+/// 
+/// # Returns
+/// * `IResult<Function>` - The parsed function structure or an error
+/// 
+/// # WAT Format
+/// ```text
+/// (func $name (export "exported_name") (param $p1 type) (local $l1 type) ...)
+/// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
         let (rest, _) =

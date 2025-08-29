@@ -11,8 +11,24 @@ use crate::{
     },
 };
 
-/// Parses a function import.
+/// Parses a WebAssembly function import declaration from WAT text format.
+/// 
+/// This function handles the parsing of import statements that bring external
+/// functions into the WebAssembly module. It's essential for modules that
+/// need to call host functions or functions from other modules.
+/// 
+/// # Arguments
+/// * `input` - The input string containing the WAT function import declaration
+/// 
+/// # Returns
+/// * `IResult<FunctionImport>` - The parsed function import structure or an error
+/// 
+/// # WAT Format
+/// ```text
+/// (import "namespace" "function_name" (func $local_name (param types...)))
+/// ```
 ///
+/// # Example
 /// ```
 /// use water::ast::{FunctionImport, Function, Parameter, Type, NumericalType};
 /// use water::parser::parse_function_import;

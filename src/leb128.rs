@@ -22,6 +22,17 @@ impl From<i64> for SignedLeb128 {
 }
 
 impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
+    /// Encodes and emits a signed integer using LEB128 variable-length encoding.
+    /// 
+    /// LEB128 (Little Endian Base 128) is a variable-length encoding used by
+    /// WebAssembly to efficiently store integers. This implementation handles
+    /// signed integers with proper sign extension.
+    /// 
+    /// # Arguments
+    /// * `element` - The signed integer to encode and emit
+    /// 
+    /// # Returns
+    /// * `io::Result<usize>` - Number of bytes written or an IO error
     fn emit_element(
         &mut self,
         element: SignedLeb128,
@@ -103,6 +114,16 @@ impl From<u64> for UnsignedLeb128 {
 }
 
 impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
+    /// Encodes and emits an unsigned integer using LEB128 variable-length encoding.
+    /// 
+    /// LEB128 encoding is essential for WebAssembly binary format as it allows
+    /// compact representation of integer values. Smaller values use fewer bytes.
+    /// 
+    /// # Arguments
+    /// * `element` - The unsigned integer to encode and emit
+    /// 
+    /// # Returns
+    /// * `io::Result<usize>` - Number of bytes written or an IO error
     fn emit_element(
         &mut self,
         element: UnsignedLeb128,

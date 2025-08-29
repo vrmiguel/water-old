@@ -47,7 +47,21 @@ impl<W: Write> Emitter<W> {
         Self { writer }
     }
 
-    /// Emit the given program to WASM
+    /// Emits a complete WebAssembly program to binary format.
+    /// 
+    /// This is the main entry point for converting a parsed WAT program
+    /// into WebAssembly binary format. It handles the WASM magic number,
+    /// version, and all program sections.
+    /// 
+    /// # Arguments
+    /// * `_program` - The parsed program structure to emit
+    /// 
+    /// # Returns
+    /// * `io::Result<()>` - Success or an IO error
+    /// 
+    /// # Note
+    /// Currently only emits the header (magic + version). Full program
+    /// emission is not yet implemented.
     pub fn emit_program(
         &mut self,
         _program: Program,
