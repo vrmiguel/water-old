@@ -133,6 +133,30 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
     }
 }
 
+/// Extracts the lower 7 bits from a u64 value for LEB128
+/// encoding.
+///
+/// This function masks out the continuation bit (bit 7) and
+/// returns only the lower 7 bits that contain the actual data
+/// for LEB128 encoding. The continuation bit is used to indicate
+/// whether more bytes follow.
+///
+/// # Arguments
+/// * `value` - The u64 value to extract bits from
+///
+/// # Returns
+/// The lower 7 bits of the value as a u8, with the continuation
+/// bit cleared
+///
+/// # Examples
+///
+/// ```ignore
+/// // This function is private, so it cannot be used directly.
+/// // If it were public, usage would be:
+/// // use water::leb128::low_bits;
+/// // assert_eq!(low_bits(0xFF), 0x7F); // All bits set becomes 0x7F (continuation bit cleared)
+/// // assert_eq!(low_bits(0x42), 0x42); // 0x42 stays the same (continuation bit already clear)
+/// ```
 fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;

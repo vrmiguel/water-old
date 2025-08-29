@@ -27,6 +27,23 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from text format.
+///
+/// This function handles both plain instructions (like opcodes
+/// without arguments) and instructions with nested arguments
+/// enclosed in parentheses.
+///
+/// # Examples
+///
+/// ```
+/// use water::parser::parse_instruction;
+///
+/// // Plain instruction
+/// assert!(parse_instruction("unreachable").is_ok());
+///
+/// // Instruction with arguments
+/// assert!(parse_instruction("(i32.const 42)").is_ok());
+/// ```
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +81,26 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from text format.
+///
+/// This function attempts to parse different types of opcodes
+/// including:
+/// - Variable instructions (local.get, global.set, etc.)
+/// - Constant instructions (i32.const, f64.const, etc.)
+/// - Unreachable instruction
+/// - Call instruction
+///
+/// # Examples
+///
+/// ```ignore
+/// use water::ast::{Opcode, NumericalValue, Constant};
+/// use water::parser::parse_opcode;
+///
+/// // Constant opcode
+/// if let Ok((_, Opcode::Constant(Constant { value: NumericalValue::Int32(42) }))) = parse_opcode("i32.const 42") {
+///     // Successfully parsed i32.const 42
+/// }
+/// ```
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
