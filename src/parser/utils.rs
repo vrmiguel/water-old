@@ -33,6 +33,20 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 /// assert_eq!(parse_identifier("$idx"), Ok(("", SmallString::new("idx"))));
 /// assert_eq!(parse_identifier("$asd_aa? a"), Ok((" a", SmallString::new("asd_aa?"))));
 /// ```
+/// Parses a WebAssembly Text Format identifier.
+/// 
+/// WebAssembly identifiers always start with a dollar sign ($) followed by
+/// acceptable identifier characters. This function is crucial for parsing
+/// variable names, function names, and other identifiers in WAT.
+/// 
+/// # Arguments
+/// * `input` - The input string containing the identifier
+/// 
+/// # Returns
+/// * `IResult<SmallString>` - The parsed identifier (without the $ prefix) or an error
+/// 
+/// # Note
+/// Does not consume leading whitespace - the caller should handle that.
 pub fn parse_identifier(input: &str) -> IResult<SmallString> {
     let (rest, identifier) = context(
         "identifier",
@@ -55,9 +69,20 @@ pub fn parse_type(input: &str) -> IResult<Type> {
     )(input)
 }
 
-/// Parses one of the four built-in numerical WASM types.
-///
-/// Does not eat leading whitespace.
+/// Parses one of the four built-in WebAssembly numerical types.
+/// 
+/// This function recognizes and parses the core WebAssembly numeric types:
+/// i32, i64, f32, and f64. It's fundamental to parsing type information
+/// throughout WAT expressions.
+/// 
+/// # Arguments
+/// * `input` - The input string containing the type name
+/// 
+/// # Returns
+/// * `IResult<NumericalType>` - The parsed numerical type or an error
+/// 
+/// # Note
+/// Does not consume leading whitespace - the caller should handle that.
 pub fn parse_numerical_type(
     input: &str,
 ) -> IResult<NumericalType> {

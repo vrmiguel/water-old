@@ -27,6 +27,31 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from WAT text format.
+/// 
+/// This is the main entry point for parsing WAT instructions. It handles both
+/// simple instructions (like `i32.const 5`) and complex nested instructions
+/// (like `(i32.const 5)`).
+/// 
+/// # Arguments
+/// * `input` - The input string containing the WAT instruction
+/// 
+/// # Returns
+/// * `IResult<Instruction>` - The parsed instruction or an error
+/// 
+/// # Examples
+/// ```
+/// use water::parser::parse_instruction;
+/// 
+/// // Simple instruction
+/// assert!(parse_instruction("i32.const 5").is_ok());
+/// 
+/// // Parenthesized instruction
+/// assert!(parse_instruction("(i32.const 5)").is_ok());
+/// 
+/// // Nested instruction with arguments
+/// assert!(parse_instruction("(local.set $idx (i32.const 5))").is_ok());
+/// ```
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +89,16 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from WAT text format.
+/// 
+/// This function identifies and parses different types of WebAssembly operations
+/// including variable instructions, constants, function calls, and unreachable instructions.
+/// 
+/// # Arguments
+/// * `input` - The input string containing the WAT opcode
+/// 
+/// # Returns
+/// * `IResult<Opcode>` - The parsed opcode enum variant or an error
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
