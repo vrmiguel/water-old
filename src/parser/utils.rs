@@ -21,6 +21,8 @@ use crate::{
 ///
 /// Does not eat leading whitespace.
 ///
+/// # Examples
+///
 /// ```
 /// use water::parser::parse_string;
 ///
@@ -114,11 +116,13 @@ pub fn parse_index(input: &str) -> IResult<Index> {
 /// The function uses nom's `cut` combinator to provide better error messages
 /// once an opening parenthesis is found.
 ///
-/// ```
+/// # Examples
+///
+/// ```no_run
 /// use water::parser::parse_parenthesis_enclosed;
 /// use nom::bytes::complete::tag;
 ///
-/// let parser = parse_parenthesis_enclosed(tag("hello"));
+/// let mut parser = parse_parenthesis_enclosed(tag("hello"));
 /// assert_eq!(parser("(hello)"), Ok(("", "hello")));
 /// assert_eq!(parser("( hello )"), Ok(("", "hello")));
 /// ```

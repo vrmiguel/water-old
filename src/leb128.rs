@@ -145,9 +145,12 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
 /// # Returns
 /// The lower 7 bits of the value as a u8, with the continuation bit cleared
 ///
-/// ```
-/// # use water::leb128::low_bits; // This is private, so this won't compile in real usage
-/// // If this were public:
+/// # Examples
+///
+/// ```ignore
+/// // This function is private, so it cannot be used directly.
+/// // If it were public, usage would be:
+/// // use water::leb128::low_bits;
 /// // assert_eq!(low_bits(0xFF), 0x7F); // All bits set becomes 0x7F (continuation bit cleared)
 /// // assert_eq!(low_bits(0x42), 0x42); // 0x42 stays the same (continuation bit already clear)
 /// ```

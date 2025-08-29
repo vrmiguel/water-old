@@ -32,8 +32,9 @@ use crate::{
 /// This function handles both plain instructions (like opcodes without arguments)
 /// and instructions with nested arguments enclosed in parentheses.
 ///
+/// # Examples
+///
 /// ```
-/// use water::ast::{Instruction, Opcode, NumericalValue, Constant};
 /// use water::parser::parse_instruction;
 ///
 /// // Plain instruction
@@ -87,7 +88,9 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 /// - Unreachable instruction
 /// - Call instruction
 ///
-/// ```
+/// # Examples
+///
+/// ```no_run
 /// use water::ast::{Opcode, NumericalValue, Constant};
 /// use water::parser::parse_opcode;
 ///
