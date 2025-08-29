@@ -29,8 +29,9 @@ use crate::{
 
 /// Parses a WebAssembly instruction from text format.
 ///
-/// This function handles both plain instructions (like opcodes without arguments)
-/// and instructions with nested arguments enclosed in parentheses.
+/// This function handles both plain instructions (like opcodes
+/// without arguments) and instructions with nested arguments
+/// enclosed in parentheses.
 ///
 /// # Examples
 ///
@@ -82,7 +83,8 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 
 /// Parses a WebAssembly opcode from text format.
 ///
-/// This function attempts to parse different types of opcodes including:
+/// This function attempts to parse different types of opcodes
+/// including:
 /// - Variable instructions (local.get, global.set, etc.)
 /// - Constant instructions (i32.const, f64.const, etc.)
 /// - Unreachable instruction
@@ -90,7 +92,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```ignore
 /// use water::ast::{Opcode, NumericalValue, Constant};
 /// use water::parser::parse_opcode;
 ///

@@ -133,17 +133,20 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
     }
 }
 
-/// Extracts the lower 7 bits from a u64 value for LEB128 encoding.
+/// Extracts the lower 7 bits from a u64 value for LEB128
+/// encoding.
 ///
-/// This function masks out the continuation bit (bit 7) and returns only
-/// the lower 7 bits that contain the actual data for LEB128 encoding.
-/// The continuation bit is used to indicate whether more bytes follow.
+/// This function masks out the continuation bit (bit 7) and
+/// returns only the lower 7 bits that contain the actual data
+/// for LEB128 encoding. The continuation bit is used to indicate
+/// whether more bytes follow.
 ///
 /// # Arguments
 /// * `value` - The u64 value to extract bits from
 ///
 /// # Returns
-/// The lower 7 bits of the value as a u8, with the continuation bit cleared
+/// The lower 7 bits of the value as a u8, with the continuation
+/// bit cleared
 ///
 /// # Examples
 ///

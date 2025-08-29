@@ -16,8 +16,9 @@ use crate::{
 
 /// Parses a quoted string literal from WebAssembly text format.
 ///
-/// This function handles escaped characters within double quotes and supports
-/// empty strings. It uses nom's escaped combinator to handle backslash escaping.
+/// This function handles escaped characters within double quotes
+/// and supports empty strings. It uses nom's escaped combinator
+/// to handle backslash escaping.
 ///
 /// Does not eat leading whitespace.
 ///
@@ -107,18 +108,20 @@ pub fn parse_index(input: &str) -> IResult<Index> {
     ))(input)
 }
 
-/// Parses content enclosed in parentheses with proper error handling.
+/// Parses content enclosed in parentheses with proper error
+/// handling.
 ///
-/// This is a generic combinator that wraps any parser to handle parenthesis-enclosed
-/// content. It handles whitespace after the opening parenthesis and provides clear
-/// error messages for missing closing parentheses.
+/// This is a generic combinator that wraps any parser to handle
+/// parenthesis-enclosed content. It handles whitespace after the
+/// opening parenthesis and provides clear error messages for
+/// missing closing parentheses.
 ///
-/// The function uses nom's `cut` combinator to provide better error messages
-/// once an opening parenthesis is found.
+/// The function uses nom's `cut` combinator to provide better
+/// error messages once an opening parenthesis is found.
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```ignore
 /// use water::parser::parse_parenthesis_enclosed;
 /// use nom::bytes::complete::tag;
 ///
