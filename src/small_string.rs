@@ -47,6 +47,20 @@ impl fmt::Display for SmallString {
 }
 
 impl SmallString {
+    /// Creates a new `SmallString` with inline storage from raw bytes.
+    ///
+    /// This is an internal function that directly creates an inlined variant
+    /// without checking the length constraint. It's used when we know the
+    /// bytes will fit within the inline capacity.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that `bytes.len() <= INLINE_CAP` (22 bytes).
+    /// This function will panic in debug builds if this constraint is violated.
+    ///
+    /// # Arguments
+    ///
+    /// * `bytes` - The byte slice to store inline (must be ≤ 22 bytes)
     #[inline(always)]
     fn inlined(bytes: &[u8]) -> Self {
         debug_assert!(bytes.len() <= INLINE_CAP);
