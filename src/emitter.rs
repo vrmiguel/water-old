@@ -82,6 +82,14 @@ impl<W: Write> Emitter<W> {
         Ok(())
     }
 
+    /// Consumes the emitter and returns the underlying writer.
+    ///
+    /// This method is only available in test builds and is primarily used
+    /// for testing to extract the written data from the emitter.
+    ///
+    /// # Returns
+    ///
+    /// The underlying writer that was passed to `new()`
     #[cfg(test)]
     pub fn into_inner(self) -> W {
         self.writer
@@ -89,6 +97,19 @@ impl<W: Write> Emitter<W> {
 }
 
 impl<W> Emitter<std::io::Cursor<W>> {
+    /// Creates a new emitter with a cursor-wrapped writer.
+    ///
+    /// This method is only available in test builds and wraps the given writer
+    /// in a `std::io::Cursor` for convenient testing scenarios where you want
+    /// to track position or seek within the written data.
+    ///
+    /// # Arguments
+    ///
+    /// * `writer` - The writer to wrap in a cursor
+    ///
+    /// # Returns
+    ///
+    /// A new `Emitter` with the cursor-wrapped writer
     #[cfg(test)]
     pub fn new_cursored(writer: W) -> Self {
         use std::io::Cursor;

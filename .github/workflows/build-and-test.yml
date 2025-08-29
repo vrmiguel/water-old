@@ -47,12 +47,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
-
-      - name: Install Rust nightly
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: rustfmt
+          components: clippy, rustfmt
 
       - name: Install build dependencies
         run: |
@@ -61,5 +56,5 @@ jobs:
 
       - name: "Cargo: clippy, fmt"
         run: |
-          cargo +stable clippy -- -D warnings
-          cargo +nightly fmt -- --check
+          cargo clippy -- -D warnings
+          cargo fmt -- --check

@@ -133,6 +133,18 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
     }
 }
 
+/// Extracts the lower 7 bits from a u64 value for LEB128 encoding.
+///
+/// This function masks out the continuation bit (bit 7) and returns only
+/// the data bits (bits 0-6) that will be encoded in a LEB128 byte.
+///
+/// # Arguments
+///
+/// * `value` - The 64-bit unsigned integer to extract bits from
+///
+/// # Returns
+///
+/// The lower 7 bits as a u8, with the continuation bit cleared
 fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;
