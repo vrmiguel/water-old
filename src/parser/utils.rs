@@ -14,6 +14,21 @@ use crate::{
     small_string::SmallString,
 };
 
+/// Parses a double-quoted string with escape sequences.
+///
+/// This function handles standard string parsing with support for escaped
+/// characters within double quotes. Empty strings are allowed.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_string;
+///
+/// assert_eq!(parse_string(r#""hello""#), Ok(("", "hello")));
+/// assert_eq!(parse_string(r#""""#), Ok(("", "")));
+/// assert_eq!(parse_string(r#""escaped\"quote""#), Ok(("", r#"escaped\"quote"#)));
+/// assert!(parse_string(r#""unclosed"#).is_err());
+/// ```
 pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
@@ -90,7 +105,23 @@ pub fn parse_index(input: &str) -> IResult<Index> {
     ))(input)
 }
 
-// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+/// Parses content enclosed in parentheses with proper error handling.
+///
+/// This is a generic parser combinator that wraps any inner parser to handle
+/// parentheses-enclosed content. It handles whitespace before the inner content
+/// and provides contextual error messages for missing closing parentheses.
+///
+/// Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
+///
+/// ```
+/// use water::parser::utils::parse_parenthesis_enclosed;
+/// use nom::bytes::complete::tag;
+///
+/// let parser = parse_parenthesis_enclosed(tag("hello"));
+/// assert_eq!(parser("(hello)"), Ok(("", "hello")));
+/// assert_eq!(parser("( hello)"), Ok(("", "hello")));
+/// assert!(parser("(hello").is_err()); // Missing closing parenthesis
+/// ```
 pub fn parse_parenthesis_enclosed<'a, T, F>(
     inner: F,
 ) -> impl FnMut(&'a str) -> IResult<T>
