@@ -27,6 +27,28 @@ use crate::{
     parser::utils::parse_parenthesis_enclosed,
 };
 
+/// Parses a WebAssembly instruction from text format.
+///
+/// This function can handle both plain instructions (opcodes without arguments)
+/// and instructions with nested parenthesized arguments. It supports the full
+/// range of WebAssembly instructions including constants, variable operations,
+/// function calls, and control flow instructions.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_instruction;
+/// use water::ast::{Instruction, Opcode, NumericalValue, Constant};
+///
+/// // Plain instruction
+/// assert_eq!(parse_instruction("unreachable"), Ok(("", Instruction { 
+///     opcode: Opcode::Unreachable(crate::ast::Unreachable), 
+///     arguments: vec![] 
+/// })));
+///
+/// // Instruction with parentheses and arguments
+/// assert!(parse_instruction("(call 5 (i32.const 10))").is_ok());
+/// ```
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     fn parse_plain_instruction(
         input: &str,
@@ -64,6 +86,26 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     ))(input)
 }
 
+/// Parses a WebAssembly opcode from text format.
+///
+/// This function recognizes and parses various types of opcodes including:
+/// - Variable instructions (local.get, local.set, global.get, etc.)
+/// - Constant instructions (i32.const, f64.const, etc.)
+/// - Control flow instructions (unreachable)
+/// - Function call instructions (call)
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_opcode;
+/// use water::ast::{Opcode, NumericalValue, Constant};
+///
+/// // Parse a constant opcode
+/// assert!(matches!(parse_opcode("i32.const 42"), Ok((_, Opcode::Constant(_)))));
+///
+/// // Parse a call opcode  
+/// assert!(matches!(parse_opcode("call 5"), Ok((_, Opcode::Call(_)))));
+/// ```
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
         parse_variable_instruction
@@ -203,7 +245,21 @@ pub fn parse_variable_instruction(
     Ok((rest, operation))
 }
 
-/// Parses the `unreachable` instruction
+/// Parses the `unreachable` instruction.
+///
+/// The unreachable instruction causes an unconditional trap when executed.
+/// This is used to mark code paths that should never be reached during
+/// normal program execution.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_unreachable;
+/// use water::ast::Unreachable;
+///
+/// assert_eq!(parse_unreachable("unreachable"), Ok(("", Unreachable)));
+/// assert!(parse_unreachable("unreachabl").is_err());
+/// ```
 pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
     let (rest, _) = tag("unreachable")(input)?;
 

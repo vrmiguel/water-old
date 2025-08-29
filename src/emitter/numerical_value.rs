@@ -40,11 +40,35 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
 /// enough to fit the spec but I'm not knowledgeable enough about
 /// IEEE 754 to be sure.
 mod floating_point_converters {
+    /// Converts a 32-bit floating-point number to its WebAssembly binary representation.
+    ///
+    /// Returns the IEEE 754 binary32 format in little-endian byte order as required
+    /// by the WebAssembly specification.
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - The f32 value to convert
+    ///
+    /// # Returns
+    ///
+    /// A 4-byte array containing the little-endian representation of the float
     #[inline(always)]
     pub fn f32_to_bytes(n: f32) -> [u8; 4] {
         n.to_le_bytes()
     }
 
+    /// Converts a 64-bit floating-point number to its WebAssembly binary representation.
+    ///
+    /// Returns the IEEE 754 binary64 format in little-endian byte order as required
+    /// by the WebAssembly specification.
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - The f64 value to convert
+    ///
+    /// # Returns
+    ///
+    /// An 8-byte array containing the little-endian representation of the double
     #[inline(always)]
     pub fn f64_to_bytes(n: f64) -> [u8; 8] {
         n.to_le_bytes()

@@ -47,6 +47,20 @@ impl fmt::Display for SmallString {
 }
 
 impl SmallString {
+    /// Creates a new `SmallString` with inline storage from raw bytes.
+    ///
+    /// This is an internal function that directly creates an inlined variant
+    /// without checking the length constraint. It's used when we know the
+    /// bytes will fit within the inline capacity.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that `bytes.len() <= INLINE_CAP` (22 bytes).
+    /// This function will panic in debug builds if this constraint is violated.
+    ///
+    /// # Arguments
+    ///
+    /// * `bytes` - The byte slice to store inline (must be ≤ 22 bytes)
     #[inline(always)]
     fn inlined(bytes: &[u8]) -> Self {
         debug_assert!(bytes.len() <= INLINE_CAP);
@@ -63,10 +77,40 @@ impl SmallString {
         }
     }
 
+    /// Checks whether the string is stored on the heap.
+    ///
+    /// Returns `true` if the string is too large for inline storage (> 22 bytes)
+    /// and is stored on the heap as a reference-counted string.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use water::small_string::SmallString;
+    ///
+    /// let small = SmallString::new("hello");
+    /// assert!(!small.is_in_heap());
+    ///
+    /// let large = SmallString::new("this is a very long string that exceeds the inline capacity");
+    /// assert!(large.is_in_heap());
+    /// ```
     pub fn is_in_heap(&self) -> bool {
         matches!(self, Self::Heap(_))
     }
 
+    /// Creates a new `SmallString` from any string-like input.
+    ///
+    /// Strings up to 22 bytes are stored inline for performance.
+    /// Larger strings are stored on the heap as reference-counted strings.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use water::small_string::SmallString;
+    ///
+    /// let small = SmallString::new("hello");
+    /// let from_string = SmallString::new(String::from("world"));
+    /// let large = SmallString::new("this string is longer than twenty-two bytes");
+    /// ```
     pub fn new<S: AsRef<str>>(input: S) -> Self {
         let string = input.as_ref();
         let bytes = string.as_bytes();
@@ -78,6 +122,19 @@ impl SmallString {
         }
     }
 
+    /// Returns the string content as a string slice.
+    ///
+    /// This method provides access to the underlying string data regardless
+    /// of whether it's stored inline or on the heap.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use water::small_string::SmallString;
+    ///
+    /// let s = SmallString::new("hello world");
+    /// assert_eq!(s.as_str(), "hello world");
+    /// ```
     pub fn as_str(&self) -> &str {
         match self {
             // Safety: SmallString::Inlined can only be created

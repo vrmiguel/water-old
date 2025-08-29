@@ -2,7 +2,23 @@
 
 use crate::small_string::SmallString;
 
+/// Represents a complete WebAssembly Text Format program.
+///
+/// A WebAssembly program consists of one or more modules, where each module
+/// contains functions, imports, exports, and other WebAssembly constructs.
+/// This is the root of the abstract syntax tree for parsed WebAssembly code.
+///
+/// # Examples
+///
+/// ```
+/// use water::ast::{Program, Module};
+///
+/// let program = Program {
+///     modules: vec![Module {}]
+/// };
+/// ```
 pub struct Program {
+    /// The collection of WebAssembly modules in this program
     pub modules: Vec<Module>,
 }
 

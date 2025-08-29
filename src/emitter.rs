@@ -47,7 +47,31 @@ impl<W: Write> Emitter<W> {
         Self { writer }
     }
 
-    /// Emit the given program to WASM
+    /// Emits a WebAssembly program to the underlying writer.
+    ///
+    /// This method writes the WebAssembly binary format header (magic number
+    /// and version) followed by the program's sections. Currently only emits
+    /// the header as program emission is not yet fully implemented.
+    ///
+    /// # Arguments
+    ///
+    /// * `_program` - The WebAssembly program AST to emit (currently unused)
+    ///
+    /// # Errors
+    ///
+    /// Returns an `io::Error` if writing to the underlying writer fails.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use water::emitter::Emitter;
+    /// use water::ast::Program;
+    ///
+    /// let mut buffer = Vec::new();
+    /// let mut emitter = Emitter::new(&mut buffer);
+    /// let program = Program { functions: vec![] };
+    /// emitter.emit_program(program).unwrap();
+    /// ```
     pub fn emit_program(
         &mut self,
         _program: Program,
@@ -58,6 +82,14 @@ impl<W: Write> Emitter<W> {
         Ok(())
     }
 
+    /// Consumes the emitter and returns the underlying writer.
+    ///
+    /// This method is only available in test builds and is primarily used
+    /// for testing to extract the written data from the emitter.
+    ///
+    /// # Returns
+    ///
+    /// The underlying writer that was passed to `new()`
     #[cfg(test)]
     pub fn into_inner(self) -> W {
         self.writer
@@ -65,6 +97,19 @@ impl<W: Write> Emitter<W> {
 }
 
 impl<W> Emitter<std::io::Cursor<W>> {
+    /// Creates a new emitter with a cursor-wrapped writer.
+    ///
+    /// This method is only available in test builds and wraps the given writer
+    /// in a `std::io::Cursor` for convenient testing scenarios where you want
+    /// to track position or seek within the written data.
+    ///
+    /// # Arguments
+    ///
+    /// * `writer` - The writer to wrap in a cursor
+    ///
+    /// # Returns
+    ///
+    /// A new `Emitter` with the cursor-wrapped writer
     #[cfg(test)]
     pub fn new_cursored(writer: W) -> Self {
         use std::io::Cursor;
