@@ -1,4 +1,4 @@
-![Tembo Logo](assets/tembo-logo.png)
+![Tembo Logo](assets/tembo-logo.svg)
 
 # water (WebAssembly TExt foRmat compiler)
 
