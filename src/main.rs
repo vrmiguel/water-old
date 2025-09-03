@@ -1,6 +1,8 @@
 use water::parser::{parse_function_import, parse_instruction};
 
 fn main() {
+    println!("Hello from Raycast!");
+    
     dbg!(parse_instruction("i32.const 5").unwrap());
 
     dbg!(parse_instruction("(i32.const 5)").unwrap());
