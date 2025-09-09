@@ -1,6 +1,11 @@
 use water::parser::{parse_function_import, parse_instruction};
 
+fn water_old_hello() -> String {
+    "Hello".to_string()
+}
+
 fn main() {
+    println!("{}", water_old_hello());
     dbg!(parse_instruction("i32.const 5").unwrap());
 
     dbg!(parse_instruction("(i32.const 5)").unwrap());
