@@ -1,4 +1,4 @@
-# water (WebAssembly TExt foRmat compiler)
+# water (WebAssembly 文本格式编译器)
 
-`water` aims to be a tiny and performant WebAssembly Text Format compiler.
+`water` 旨在成为一个微小且高性能的 WebAssembly 文本格式编译器。
 
