@@ -2,3 +2,5 @@
 
 `water` aims to be a tiny and performant WebAssembly Text Format compiler.
 
+This project is under active development.
+
