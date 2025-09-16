@@ -1,6 +1,8 @@
 use water::parser::{parse_function_import, parse_instruction};
 
 fn main() {
+    println!("Hey there! Welcome to the water WebAssembly compiler!");
+    
     dbg!(parse_instruction("i32.const 5").unwrap());
 
     dbg!(parse_instruction("(i32.const 5)").unwrap());
