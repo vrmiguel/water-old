@@ -1,3 +1,4 @@
+pub mod api;
 pub mod ast;
 pub mod emitter;
 pub mod leb128;
