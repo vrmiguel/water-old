@@ -26,3 +26,15 @@ Each instruction crisp and fine,
 In the digital ocean deep and wide,
 Water is your faithful guide.
 
+## A Third Poem
+
+Clear as water, swift as streams,
+Fulfilling WebAssembly dreams,
+Compiling text with artful care,
+A tool both simple and yet rare.
+
+Through modules, functions, memory's space,
+Water flows at perfect pace,
+From format to format, smooth translation,
+Building the web's next foundation.
+
