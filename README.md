@@ -38,3 +38,15 @@ Water flows at perfect pace,
 From format to format, smooth translation,
 Building the web's next foundation.
 
+## A Fourth Poem
+
+Beneath the surface, currents strong,
+Where bytes and bits belong,
+Water shapes the abstract code,
+Into paths where programs strode.
+
+With every parse, with every scan,
+Executing nature's plan,
+Efficient, elegant, and clean,
+The finest compiler ever seen.
+
