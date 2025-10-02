@@ -14,3 +14,15 @@ A bridge where both worlds are strung,
 Tiny, swift, and ever true,
 Water makes the old seem new.
 
+## Another Poem
+
+Like water carving through the stone,
+This compiler stands alone,
+Parsing text with graceful ease,
+WebAssembly's complexities it frees.
+
+No bloat, no weight, just pure design,
+Each instruction crisp and fine,
+In the digital ocean deep and wide,
+Water is your faithful guide.
+
