@@ -14,6 +14,18 @@ Transforming text to binary true.
 Like water flowing, clear and bright,
 The compiler works through day and night.
 
+### Spanish Translation / Traducción al Español
+
+En corrientes de código, donde fluye la lógica,
+A través del formato de texto, el agua va.
+Compilando símbolos, línea por línea,
+La danza de WebAssembly, pequeña y fina.
+
+Diminuto y veloz, eficiente también,
+Transformando texto a binario bien.
+Como agua fluyendo, clara y brillante,
+El compilador trabaja en todo instante.
+
 ---
 
 From source to bytecode, translation clear,
