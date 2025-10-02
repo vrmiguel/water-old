@@ -50,3 +50,15 @@ Executing nature's plan,
 Efficient, elegant, and clean,
 The finest compiler ever seen.
 
+## A Fifth Poem
+
+A liquid flow of logic pure,
+Where syntax errors find their cure,
+Water washes bugs away,
+Transforms the night into the day.
+
+Each token parsed with gentle touch,
+This tiny tool achieves so much,
+In WebAssembly's vast domain,
+Water's clarity will reign.
+
