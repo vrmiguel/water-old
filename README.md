@@ -110,3 +110,15 @@ Water fluye a ritmo perfecto en su gloria,
 De formato a formato, traducción tan suave,
 Construyendo la próxima fundación que clave.
 
+## Un Autre Poème (French)
+
+Comme l'eau sculptant la pierre,
+Ce compilateur solitaire,
+Analyse le texte avec grâce,
+Les complexités WebAssembly s'effacent.
+
+Sans excès, sans poids, design si pur,
+Chaque instruction nette et sûre,
+Dans l'océan numérique vaste et profond,
+Water est votre guide, votre bond.
+
