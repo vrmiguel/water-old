@@ -45,9 +45,16 @@ pub fn parse_function_import(
             preceded(multispace0, parse_function)(rest)?;
 
         // Function imports should not have exports or local variables
-        if !function.exports.is_empty() || !function.local_variables.is_empty() {
+        if !function.exports.is_empty()
+            || !function.local_variables.is_empty()
+        {
             return Err(nom::Err::Error(nom::error::VerboseError {
-                errors: vec![(rest, nom::error::VerboseErrorKind::Context("function imports cannot have exports or local variables"))],
+                errors: vec![(
+                    rest,
+                    nom::error::VerboseErrorKind::Context(
+                        "function imports cannot have exports or local variables",
+                    ),
+                )],
             }));
         }
 
