@@ -6,12 +6,20 @@ use std::{
 
 pub const INLINE_CAP: usize = 22;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone)]
 /// A cheaply-clonable String type
 pub enum SmallString {
     Inlined { len: u8, buf: [u8; INLINE_CAP] },
     Heap(Rc<str>),
 }
+
+impl PartialEq for SmallString {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_str() == other.as_str()
+    }
+}
+
+impl Eq for SmallString {}
 
 impl Hash for SmallString {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
