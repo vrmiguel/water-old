@@ -23,7 +23,15 @@ use crate::{
 ///     fn_name: "log".into(),
 ///     signature: Function {
 ///         identifier: Some("log".into()),
-///         parameters: vec![Parameter { identifier: None, type_: Type::Numerical(NumericalType::Float32)}; 2],
+///         parameters: vec![
+///             Parameter {
+///                 identifier: None,
+///                 type_: Type::Numerical(
+///                     NumericalType::Float32
+///                 )
+///             };
+///             2
+///         ],
 ///         exports: vec![],
 ///         local_variables: vec![],
 ///     }
