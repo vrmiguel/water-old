@@ -2,7 +2,7 @@
 
 `water` aims to be a tiny and performant WebAssembly Text Format compiler.
 
-## A Little Humor
+## Un Po' di Umorismo
 
-Why did the WebAssembly module go to therapy? Because it had too many unresolved exports!
+Perché il modulo WebAssembly è andato in terapia? Perché aveva troppe export non risolte!
 
