@@ -28,7 +28,13 @@ pub fn parse_module(input: &str) -> IResult<Module> {
         let (rest, _) =
             preceded(multispace0, tag("module"))(input)?;
 
-        Ok((rest, Module {}))
+        Ok((
+            rest,
+            Module {
+                functions: vec![],
+                imports: vec![],
+            },
+        ))
     }
 
     preceded(
