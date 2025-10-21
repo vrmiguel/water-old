@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 
 mod arithmetic_operation;
+mod comparison_operation;
 mod constant;
 pub mod emittable;
 mod numerical_value;
