@@ -146,11 +146,11 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int32,
                 ComparisonInstruction::Equal,
-            ) => 0x45,
+            ) => 0x45, // i32.eq
             (
                 NumericalType::Int32,
                 ComparisonInstruction::NotEqual,
-            ) => 0x47,
+            ) => 0x47, // i32.ne
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterThan,
@@ -170,11 +170,11 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int64,
                 ComparisonInstruction::Equal,
-            ) => 0x51,
+            ) => 0x51, // i64.eq
             (
                 NumericalType::Int64,
                 ComparisonInstruction::NotEqual,
-            ) => 0x52,
+            ) => 0x52, // i64.ne
             (
                 NumericalType::Int64,
                 ComparisonInstruction::GreaterThan,
@@ -194,11 +194,11 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float32,
                 ComparisonInstruction::Equal,
-            ) => 0x5b,
+            ) => 0x5b, // f32.eq
             (
                 NumericalType::Float32,
                 ComparisonInstruction::NotEqual,
-            ) => 0x5c,
+            ) => 0x5c, // f32.ne
             (
                 NumericalType::Float32,
                 ComparisonInstruction::GreaterThan,
@@ -218,11 +218,11 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Float64,
                 ComparisonInstruction::Equal,
-            ) => 0x61,
+            ) => 0x61, // f64.eq
             (
                 NumericalType::Float64,
                 ComparisonInstruction::NotEqual,
-            ) => 0x62,
+            ) => 0x62, // f64.ne
             (
                 NumericalType::Float64,
                 ComparisonInstruction::GreaterThan,
