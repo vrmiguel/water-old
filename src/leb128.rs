@@ -22,7 +22,7 @@ impl From<i64> for SignedLeb128 {
 }
 
 impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
-    fn emit_element(
+    fn element_ausgeben(
         &mut self,
         element: SignedLeb128,
     ) -> io::Result<usize> {
@@ -48,7 +48,7 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
                 bkp | (CONTINUATION_BIT as i64)
             } as u8;
 
-            self.emit_byte(byte)?;
+            self.byte_ausgeben(byte)?;
             bytes_written += 1;
         }
 
@@ -103,7 +103,7 @@ impl From<u64> for UnsignedLeb128 {
 }
 
 impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
-    fn emit_element(
+    fn element_ausgeben(
         &mut self,
         element: UnsignedLeb128,
     ) -> io::Result<usize> {
@@ -111,13 +111,13 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
         let UnsignedLeb128 { mut value } = element;
 
         if value == 0 {
-            self.emit_byte(0)?;
+            self.byte_ausgeben(0)?;
 
             return Ok(1);
         }
 
         while value != 0 {
-            let mut byte = low_bits(value);
+            let mut byte = niedrige_bits(value);
             value >>= 7;
             if value != 0 {
                 // More bytes to come, so set the continuation
@@ -126,14 +126,14 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
             }
 
             bytes_written += 1;
-            self.emit_byte(byte)?;
+            self.byte_ausgeben(byte)?;
         }
 
         Ok(bytes_written)
     }
 }
 
-fn low_bits(value: u64) -> u8 {
+fn niedrige_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;
     let lower_eight_bits = value & MASK;
@@ -186,7 +186,7 @@ mod tests {
             let encoder = SignedLeb128::from(value_to_encode);
             let mut emitter = Emitter::new(Vec::new());
 
-            emitter.emit_element(encoder).unwrap();
+            emitter.element_ausgeben(encoder).unwrap();
             // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }
@@ -228,7 +228,7 @@ mod tests {
             let encoder = UnsignedLeb128::from(value_to_encode);
             let mut emitter = Emitter::new(Vec::new());
 
-            emitter.emit_element(encoder).unwrap();
+            emitter.element_ausgeben(encoder).unwrap();
             // encoder.emit_to(&mut bytes).unwrap();
             assert_eq!(emitter.into_inner(), *expected);
         }

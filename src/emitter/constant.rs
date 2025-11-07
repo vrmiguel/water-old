@@ -4,17 +4,17 @@ use super::{emittable::Emittable, Emitter};
 use crate::{ast::Constant, opcode::ToOpcode};
 
 impl<W: Write> Emittable<Constant> for Emitter<W> {
-    fn emit_element(
+    fn element_ausgeben(
         &mut self,
         element: Constant,
     ) -> io::Result<usize> {
-        let opcode = element.value.to_opcode();
+        let opcode = element.value.zu_opcode();
 
         // Emit the `const` opcode for the given value
-        self.emit_byte(opcode)?;
+        self.byte_ausgeben(opcode)?;
 
         // .. and then the actual literal
-        self.emit_element(element.value)
+        self.element_ausgeben(element.value)
     }
 }
 
@@ -36,7 +36,7 @@ mod tests {
         };
 
         // constant.emit_to(&mut buf.as_mut_slice()).unwrap();
-        emitter.emit_element(constant).unwrap();
+        emitter.element_ausgeben(constant).unwrap();
 
         assert_eq!(
             &emitter.into_inner().into_inner(),
@@ -56,7 +56,7 @@ mod tests {
             value: NumericalValue::Int64(505),
         };
 
-        emitter.emit_element(constant).unwrap();
+        emitter.element_ausgeben(constant).unwrap();
         assert_eq!(
             &emitter.into_inner().into_inner(),
             &[
@@ -75,7 +75,7 @@ mod tests {
             value: NumericalValue::Float32(5.0),
         };
 
-        emitter.emit_element(constant).unwrap();
+        emitter.element_ausgeben(constant).unwrap();
         assert_eq!(
             &emitter.into_inner().into_inner(),
             &[
@@ -95,7 +95,7 @@ mod tests {
             value: NumericalValue::Float64(25.50),
         };
 
-        emitter.emit_element(constant).unwrap();
+        emitter.element_ausgeben(constant).unwrap();
 
         assert_eq!(
             &emitter.into_inner().into_inner(),

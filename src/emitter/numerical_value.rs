@@ -4,7 +4,7 @@ use super::{Emittable, Emitter};
 use crate::{ast::NumericalValue, leb128::SignedLeb128};
 
 impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
-    fn emit_element(
+    fn element_ausgeben(
         &mut self,
         element: NumericalValue,
     ) -> io::Result<usize> {
@@ -12,19 +12,19 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
 
         match element {
             NumericalValue::Int32(int32) => self
-                .emit_element(SignedLeb128::from(int32 as i64)),
+                .element_ausgeben(SignedLeb128::from(int32 as i64)),
             NumericalValue::Int64(int64) => {
-                self.emit_element(SignedLeb128::from(int64))
+                self.element_ausgeben(SignedLeb128::from(int64))
             }
             NumericalValue::Float32(f32) => {
                 let bytes = f32_to_bytes(f32);
 
-                self.emit_bytes(&bytes).map(|()| 4)
+                self.bytes_ausgeben(&bytes).map(|()| 4)
             }
             NumericalValue::Float64(f64) => {
                 let bytes = f64_to_bytes(f64);
 
-                self.emit_bytes(&bytes).map(|()| 8)
+                self.bytes_ausgeben(&bytes).map(|()| 8)
             }
         }
     }

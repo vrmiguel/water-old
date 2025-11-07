@@ -6,17 +6,17 @@ use crate::ast::{
 };
 
 pub trait ToOpcode {
-    fn to_opcode(&self) -> u8;
+    fn zu_opcode(&self) -> u8;
 }
 
 impl ToOpcode for Unreachable {
-    fn to_opcode(&self) -> u8 {
+    fn zu_opcode(&self) -> u8 {
         0x00
     }
 }
 
 impl ToOpcode for NumericalValue {
-    fn to_opcode(&self) -> u8 {
+    fn zu_opcode(&self) -> u8 {
         match self {
             NumericalValue::Int32(_) => 0x41,
             NumericalValue::Int64(_) => 0x42,
@@ -27,7 +27,7 @@ impl ToOpcode for NumericalValue {
 }
 
 impl ToOpcode for ArithmeticOperation {
-    fn to_opcode(&self) -> u8 {
+    fn zu_opcode(&self) -> u8 {
         let Self { type_, instr } = self;
         match (type_, instr) {
             (
@@ -140,7 +140,7 @@ impl ToOpcode for ArithmeticOperation {
 }
 
 impl ToOpcode for ComparisonOperation {
-    fn to_opcode(&self) -> u8 {
+    fn zu_opcode(&self) -> u8 {
         let Self { type_, instr } = self;
         match (type_, instr) {
             (
@@ -244,26 +244,26 @@ impl ToOpcode for ComparisonOperation {
 }
 
 impl ToOpcode for Opcode {
-    fn to_opcode(&self) -> u8 {
+    fn zu_opcode(&self) -> u8 {
         match self {
             Opcode::Unreachable(unreachable) => {
-                unreachable.to_opcode()
+                unreachable.zu_opcode()
             }
             Opcode::Call(_) => 0x10,
             Opcode::VariableInstruction(variable_operation) => {
-                variable_operation.to_opcode()
+                variable_operation.zu_opcode()
             }
             Opcode::Constant(Constant { value }) => {
-                value.to_opcode()
+                value.zu_opcode()
             }
-            Opcode::Arithmetic(op) => op.to_opcode(),
-            Opcode::Comparison(op) => op.to_opcode(),
+            Opcode::Arithmetic(op) => op.zu_opcode(),
+            Opcode::Comparison(op) => op.zu_opcode(),
         }
     }
 }
 
 impl ToOpcode for VariableOperation {
-    fn to_opcode(&self) -> u8 {
+    fn zu_opcode(&self) -> u8 {
         use VariableInstruction as Instr;
 
         let Self {

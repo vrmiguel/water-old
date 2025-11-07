@@ -14,7 +14,7 @@ use crate::{
     small_string::SmallString,
 };
 
-pub fn parse_string(input: &str) -> IResult<&str> {
+pub fn zeichenkette_parsen(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
 
@@ -27,18 +27,18 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::parser::parse_identifier;
+/// use water::parser::bezeichner_parsen;
 /// use water::small_string::SmallString;
 ///
-/// assert_eq!(parse_identifier("$idx"), Ok(("", SmallString::new("idx"))));
-/// assert_eq!(parse_identifier("$asd_aa? a"), Ok((" a", SmallString::new("asd_aa?"))));
+/// assert_eq!(bezeichner_parsen("$idx"), Ok(("", SmallString::new("idx"))));
+/// assert_eq!(bezeichner_parsen("$asd_aa? a"), Ok((" a", SmallString::new("asd_aa?"))));
 /// ```
-pub fn parse_identifier(input: &str) -> IResult<SmallString> {
+pub fn bezeichner_parsen(input: &str) -> IResult<SmallString> {
     let (rest, identifier) = context(
         "identifier",
         preceded(
             char('$'),
-            take_while1(is_acceptable_identifier_character),
+            take_while1(ist_akzeptables_bezeichner_zeichen),
         ),
     )(input)?;
 
@@ -48,17 +48,17 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
 /// Parses a WASM type.
 ///
 /// Does not eat leading whitespace.
-pub fn parse_type(input: &str) -> IResult<Type> {
+pub fn typ_parsen(input: &str) -> IResult<Type> {
     context(
         "type",
-        alt((parse_numerical_type.map(Type::Numerical),)),
+        alt((numerischer_typ_parsen.map(Type::Numerical),)),
     )(input)
 }
 
 /// Parses one of the four built-in numerical WASM types.
 ///
 /// Does not eat leading whitespace.
-pub fn parse_numerical_type(
+pub fn numerischer_typ_parsen(
     input: &str,
 ) -> IResult<NumericalType> {
     alt((
@@ -74,16 +74,16 @@ pub fn parse_numerical_type(
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::parser::parse_index;
+/// use water::parser::index_parsen;
 /// use water::small_string::SmallString;
 /// use water::ast::Index;
 ///
-/// assert_eq!(parse_index("$var"), Ok(("", Index::Identifier("var".into()))));
-/// assert_eq!(parse_index("5"), Ok(("", Index::Numerical(5))));
+/// assert_eq!(index_parsen("$var"), Ok(("", Index::Identifier("var".into()))));
+/// assert_eq!(index_parsen("5"), Ok(("", Index::Numerical(5))));
 /// ```
-pub fn parse_index(input: &str) -> IResult<Index> {
+pub fn index_parsen(input: &str) -> IResult<Index> {
     alt((
-        parse_identifier
+        bezeichner_parsen
             .map(SmallString::new)
             .map(Index::Identifier),
         nom::character::complete::i64.map(Index::Numerical),
@@ -91,15 +91,15 @@ pub fn parse_index(input: &str) -> IResult<Index> {
 }
 
 // Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
-pub fn parse_parenthesis_enclosed<'a, T, F>(
-    inner: F,
+pub fn in_klammern_eingeschlossen_parsen<'a, T, F>(
+    innere: F,
 ) -> impl FnMut(&'a str) -> IResult<T>
 where
     F: Parser<&'a str, T, VerboseError<&'a str>>,
 {
     delimited(
         char('('),
-        preceded(multispace0, inner),
+        preceded(multispace0, innere),
         context(
             "closing parenthesis",
             cut(preceded(multispace0, char(')'))),
@@ -107,7 +107,7 @@ where
     )
 }
 
-fn is_acceptable_identifier_character(ch: char) -> bool {
+fn ist_akzeptables_bezeichner_zeichen(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(
             ch,

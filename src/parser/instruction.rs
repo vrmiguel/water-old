@@ -15,7 +15,7 @@ use nom::{
 };
 
 use super::{
-    utils::{parse_index, parse_numerical_type},
+    utils::{index_parsen, numerischer_typ_parsen},
     IResult,
 };
 use crate::{
@@ -24,14 +24,14 @@ use crate::{
         NumericalValue, Opcode, ScopeKind, Unreachable,
         VariableInstruction, VariableOperation,
     },
-    parser::utils::parse_parenthesis_enclosed,
+    parser::utils::in_klammern_eingeschlossen_parsen,
 };
 
-pub fn parse_instruction(input: &str) -> IResult<Instruction> {
-    fn parse_plain_instruction(
+pub fn anweisung_parsen(input: &str) -> IResult<Instruction> {
+    fn einfache_anweisung_parsen(
         input: &str,
     ) -> IResult<Instruction> {
-        let (rest, opcode) = parse_opcode(input)?;
+        let (rest, opcode) = opcode_parsen(input)?;
 
         let instr = Instruction {
             opcode,
@@ -41,14 +41,14 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
         Ok((rest, instr))
     }
 
-    fn parse_instruction_with_arguments(
+    fn anweisung_mit_argumenten_parsen(
         input: &str,
     ) -> IResult<Instruction> {
-        let (rest, opcode) = parse_opcode(input)?;
+        let (rest, opcode) = opcode_parsen(input)?;
 
         let (rest, arguments) = many0(preceded(
             multispace0,
-            parse_parenthesis_enclosed(parse_instruction),
+            in_klammern_eingeschlossen_parsen(anweisung_parsen),
         ))(rest)?;
 
         let instr = Instruction { opcode, arguments };
@@ -57,22 +57,22 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
     }
 
     alt((
-        parse_plain_instruction,
-        parse_parenthesis_enclosed(
-            parse_instruction_with_arguments,
+        einfache_anweisung_parsen,
+        in_klammern_eingeschlossen_parsen(
+            anweisung_mit_argumenten_parsen,
         ),
     ))(input)
 }
 
-pub fn parse_opcode(input: &str) -> IResult<Opcode> {
+pub fn opcode_parsen(input: &str) -> IResult<Opcode> {
     alt((
-        parse_variable_instruction
+        variablen_anweisung_parsen
             .map(Opcode::VariableInstruction),
-        parse_const
+        konstante_parsen
             .map(|value| Constant { value })
             .map(Opcode::Constant),
-        parse_unreachable.map(Opcode::Unreachable),
-        context("call", parse_call).map(Opcode::Call),
+        unerreichbar_parsen.map(Opcode::Unreachable),
+        context("call", aufruf_parsen).map(Opcode::Call),
     ))(input)
 }
 
@@ -83,17 +83,17 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 ///
 /// ```
 /// use water::ast::{NumericalValue, Instruction};
-/// use water::parser::parse_const;
-/// use water::parser::parse_instruction;
+/// use water::parser::konstante_parsen;
+/// use water::parser::anweisung_parsen;
 ///
-/// assert_eq!(parse_const("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
-/// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
-/// assert_eq!(parse_const("f32.const 2E-3"), Ok(("", NumericalValue::Float32(0.002))));
+/// assert_eq!(konstante_parsen("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
+/// assert_eq!(konstante_parsen("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
+/// assert_eq!(konstante_parsen("f32.const 2E-3"), Ok(("", NumericalValue::Float32(0.002))));
 /// ```
-pub fn parse_const(input: &str) -> IResult<NumericalValue> {
+pub fn konstante_parsen(input: &str) -> IResult<NumericalValue> {
     // Parse the numerical type of this instruction: i32, i64,
     // f32 or f64
-    let (rest, numerical_type) = parse_numerical_type(input)?;
+    let (rest, numerical_type) = numerischer_typ_parsen(input)?;
     // Parse the preceding ".const" opcode
     let (rest, _) = tag(".const")(rest)?;
 
@@ -134,21 +134,21 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 ///
 /// ```
 /// use water::ast::{Index, Instruction};
-/// use water::parser::parse_call;
-/// use water::parser::parse_instruction;
+/// use water::parser::aufruf_parsen;
+/// use water::parser::anweisung_parsen;
 ///
-/// assert_eq!(parse_call("call 5"), Ok(("", Index::Numerical(5))));
-/// assert!(parse_instruction("call 5").is_ok());
-/// assert!(parse_instruction("(call 5 (i32.const 5))").is_ok());
-/// assert!(parse_instruction("(call 5").is_err());
-/// assert_eq!(parse_call("call $func"), Ok(("", Index::Identifier("func".into()))));
+/// assert_eq!(aufruf_parsen("call 5"), Ok(("", Index::Numerical(5))));
+/// assert!(anweisung_parsen("call 5").is_ok());
+/// assert!(anweisung_parsen("(call 5 (i32.const 5))").is_ok());
+/// assert!(anweisung_parsen("(call 5").is_err());
+/// assert_eq!(aufruf_parsen("call $func"), Ok(("", Index::Identifier("func".into()))));
 /// ```
-pub fn parse_call(input: &str) -> IResult<Index> {
+pub fn aufruf_parsen(input: &str) -> IResult<Index> {
     let (rest, _) = tag("call")(input)?;
 
     preceded(
         multispace0,
-        context("numerical index or identifier", parse_index),
+        context("numerical index or identifier", index_parsen),
     )(rest)
 }
 
@@ -158,10 +158,10 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///
 /// ```
 /// use water::ast::{ScopeKind, VariableInstruction, VariableOperation, Opcode, Index};
-/// use water::parser::parse_variable_instruction;
+/// use water::parser::variablen_anweisung_parsen;
 ///
 /// assert_eq!(
-///     parse_variable_instruction("local.set $idx"),
+///     variablen_anweisung_parsen("local.set $idx"),
 ///     Ok(("", VariableOperation {
 ///         scope: ScopeKind::Local,
 ///         instruction: VariableInstruction::Set,
@@ -169,7 +169,7 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///     }))
 /// );
 /// ```
-pub fn parse_variable_instruction(
+pub fn variablen_anweisung_parsen(
     input: &str,
 ) -> IResult<VariableOperation> {
     let (rest, scope) = alt((
@@ -192,7 +192,7 @@ pub fn parse_variable_instruction(
     };
 
     let (rest, index) =
-        preceded(multispace0, parse_index)(rest)?;
+        preceded(multispace0, index_parsen)(rest)?;
 
     let operation = VariableOperation {
         scope,
@@ -204,7 +204,7 @@ pub fn parse_variable_instruction(
 }
 
 /// Parses the `unreachable` instruction
-pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
+pub fn unerreichbar_parsen(input: &str) -> IResult<Unreachable> {
     let (rest, _) = tag("unreachable")(input)?;
 
     Ok((rest, Unreachable))
