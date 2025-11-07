@@ -20,12 +20,12 @@ pub struct Emitter<W> {
 
 impl<W: Write> Emitter<W> {
     /// Emit a single byte to the writer
-    pub fn emit_byte(&mut self, byte: u8) -> io::Result<usize> {
-        self.emit_bytes(&[byte]).map(|()| 1)
+    pub fn byte_ausgeben(&mut self, byte: u8) -> io::Result<usize> {
+        self.bytes_ausgeben(&[byte]).map(|()| 1)
     }
 
     /// Emit a sequence of bytes to the writer
-    pub fn emit_bytes(
+    pub fn bytes_ausgeben(
         &mut self,
         bytes: &[u8],
     ) -> io::Result<()> {
@@ -33,13 +33,13 @@ impl<W: Write> Emitter<W> {
     }
 
     /// Emits the WASM magic constant
-    fn emit_magic(&mut self) -> io::Result<()> {
-        self.emit_bytes(MAGIC)
+    fn magic_ausgeben(&mut self) -> io::Result<()> {
+        self.bytes_ausgeben(MAGIC)
     }
 
     /// Emits the WASM version tag
-    fn emit_version(&mut self) -> io::Result<()> {
-        self.emit_bytes(VERSION)
+    fn version_ausgeben(&mut self) -> io::Result<()> {
+        self.bytes_ausgeben(VERSION)
     }
 
     /// Builds a new emitter with the given writer
@@ -48,12 +48,12 @@ impl<W: Write> Emitter<W> {
     }
 
     /// Emit the given program to WASM
-    pub fn emit_program(
+    pub fn programm_ausgeben(
         &mut self,
         _program: Program,
     ) -> io::Result<()> {
-        self.emit_magic()?;
-        self.emit_version()?;
+        self.magic_ausgeben()?;
+        self.version_ausgeben()?;
 
         Ok(())
     }

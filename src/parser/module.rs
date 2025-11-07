@@ -5,7 +5,7 @@ use nom::{
 
 use super::IResult;
 use crate::{
-    ast::Module, parser::utils::parse_parenthesis_enclosed,
+    ast::Module, parser::utils::in_klammern_eingeschlossen_parsen,
 };
 
 /// Parses a WebAssembly Text Format module.
@@ -14,17 +14,17 @@ use crate::{
 /// parenthesis.
 ///
 /// ```
-/// use water::parser::parse_module;
+/// use water::parser::modul_parsen;
 ///
-/// assert!(parse_module("(module)").is_ok());
-/// assert!(parse_module("\n  (module)").is_ok());
+/// assert!(modul_parsen("(module)").is_ok());
+/// assert!(modul_parsen("\n  (module)").is_ok());
 ///
-/// assert!(parse_module(" (   module").is_err());
-/// assert!(parse_module("module)").is_err());
-/// assert!(parse_module("(mod)").is_err());
+/// assert!(modul_parsen(" (   module").is_err());
+/// assert!(modul_parsen("module)").is_err());
+/// assert!(modul_parsen("(mod)").is_err());
 /// ```
-pub fn parse_module(input: &str) -> IResult<Module> {
-    fn inner(input: &str) -> IResult<Module> {
+pub fn modul_parsen(input: &str) -> IResult<Module> {
+    fn innere(input: &str) -> IResult<Module> {
         let (rest, _) =
             preceded(multispace0, tag("module"))(input)?;
 
@@ -33,6 +33,6 @@ pub fn parse_module(input: &str) -> IResult<Module> {
 
     preceded(
         multispace0,
-        parse_parenthesis_enclosed(context("module", inner)),
+        in_klammern_eingeschlossen_parsen(context("module", innere)),
     )(input)
 }

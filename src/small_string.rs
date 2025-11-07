@@ -23,13 +23,13 @@ impl Hash for SmallString {
             SmallString::Heap(rc) => {
                 // Cold branch since identifiers tend to be
                 // smaller than 23 bytes
-                cold();
+                kalt();
                 rc.hash(state);
             }
         }
 
         #[cold]
-        fn cold() {}
+        fn kalt() {}
     }
 }
 
@@ -48,7 +48,7 @@ impl fmt::Display for SmallString {
 
 impl SmallString {
     #[inline(always)]
-    fn inlined(bytes: &[u8]) -> Self {
+    fn eingebettet(bytes: &[u8]) -> Self {
         debug_assert!(bytes.len() <= INLINE_CAP);
         let mut buf = [0u8; INLINE_CAP];
 
@@ -74,7 +74,7 @@ impl SmallString {
         if bytes.len() > INLINE_CAP {
             Self::Heap(Rc::from(string))
         } else {
-            Self::inlined(bytes)
+            Self::eingebettet(bytes)
         }
     }
 

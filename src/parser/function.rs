@@ -8,8 +8,8 @@ use super::IResult;
 use crate::{
     ast::{Function, Local, Parameter},
     parser::utils::{
-        parse_identifier, parse_parenthesis_enclosed,
-        parse_string, parse_type,
+        bezeichner_parsen, in_klammern_eingeschlossen_parsen,
+        zeichenkette_parsen, typ_parsen,
     },
     small_string::SmallString,
 };
@@ -17,7 +17,7 @@ use crate::{
 /// Parses a function definition.
 ///
 /// ```
-/// use water::parser::parse_function;
+/// use water::parser::funktion_parsen;
 /// use water::ast::{Function, Parameter, Local, Type, NumericalType};
 ///
 /// let parameters = vec![
@@ -45,24 +45,24 @@ use crate::{
 /// let function = Function { identifier: Some("add".into()), parameters, local_variables, exports: vec![] };
 ///
 /// assert_eq!(
-///     parse_function("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
+///     funktion_parsen("(func $add (param $number f64) (param i64) (local $l1 i32) (local f32))"),
 ///     Ok(("", function))
 /// );
 /// ```
-pub fn parse_function(input: &str) -> IResult<Function> {
-    fn inner(input: &str) -> IResult<Function> {
+pub fn funktion_parsen(input: &str) -> IResult<Function> {
+    fn innere(input: &str) -> IResult<Function> {
         let (rest, _) =
             preceded(multispace0, tag("func"))(input)?;
 
         let (rest, identifier) =
-            preceded(multispace0, opt(parse_identifier))(rest)?;
+            preceded(multispace0, opt(bezeichner_parsen))(rest)?;
 
         // TODO: WASM allows more than one `export` instructions
         // in a function, but they cannot have duplicated
         // names. Check for this either here or at a later step.
-        let (rest, exports) = many0(parse_export)(rest)?;
-        let (rest, parameters) = many0(parse_parameter)(rest)?;
-        let (rest, local_variables) = many0(parse_local)(rest)?;
+        let (rest, exports) = many0(export_parsen)(rest)?;
+        let (rest, parameters) = many0(parameter_parsen)(rest)?;
+        let (rest, local_variables) = many0(lokale_parsen)(rest)?;
 
         let function = Function {
             identifier,
@@ -74,54 +74,54 @@ pub fn parse_function(input: &str) -> IResult<Function> {
         Ok((rest, function))
     }
 
-    parse_parenthesis_enclosed(context("function", inner))(input)
+    in_klammern_eingeschlossen_parsen(context("function", innere))(input)
 }
 
 /// Parses an `export` definition.
 ///
 /// ```
-/// use water::parser::parse_export;
+/// use water::parser::export_parsen;
 /// use water::small_string::SmallString;
 ///
-/// assert_eq!(parse_export(r#"(export "add")"#), Ok(("", "add".into())));
-/// assert_eq!(parse_export(r#"(  export  "doSomethingUseful")"#), Ok(("", "doSomethingUseful".into())));
+/// assert_eq!(export_parsen(r#"(export "add")"#), Ok(("", "add".into())));
+/// assert_eq!(export_parsen(r#"(  export  "doSomethingUseful")"#), Ok(("", "doSomethingUseful".into())));
 /// // WASM allows "" as a valid export name
-/// assert_eq!(parse_export(r#"(export"")"#), Ok(("", "".into())));
+/// assert_eq!(export_parsen(r#"(export"")"#), Ok(("", "".into())));
 ///
 /// // Wrong: missing name
-/// assert!(parse_export(r#"(export)"#).is_err());
+/// assert!(export_parsen(r#"(export)"#).is_err());
 ///
 /// // Wrong: unclosed quoted string
-/// assert!(parse_export(r#"(export ")"#).is_err());
+/// assert!(export_parsen(r#"(export ")"#).is_err());
 ///
 /// // Wrong: missing terminating parenthesis
-/// assert!(parse_export(r#"(export "valid""#).is_err());
+/// assert!(export_parsen(r#"(export "valid""#).is_err());
 ///
 /// // Wrong: missing first parenthesis
-/// assert!(parse_export(r#"export "valid")"#).is_err());
+/// assert!(export_parsen(r#"export "valid")"#).is_err());
 ///
 /// // Wrong: missing both parenthesis
-/// assert!(parse_export(r#"export "valid""#).is_err());
+/// assert!(export_parsen(r#"export "valid""#).is_err());
 ///
 /// // Wrong: incorrect keyword
-/// assert!(parse_export(r#"(expor "valid""))"#).is_err());
-/// assert!(parse_export(r#"(exporT "valid""))"#).is_err());
+/// assert!(export_parsen(r#"(expor "valid""))"#).is_err());
+/// assert!(export_parsen(r#"(exporT "valid""))"#).is_err());
 ///
 /// // Wrong: extra string quote
-/// assert!(parse_export(r#"(export "valid"")"#).is_err());
+/// assert!(export_parsen(r#"(export "valid"")"#).is_err());
 /// ```
-pub fn parse_export(input: &str) -> IResult<SmallString> {
-    fn inner(input: &str) -> IResult<SmallString> {
+pub fn export_parsen(input: &str) -> IResult<SmallString> {
+    fn innere(input: &str) -> IResult<SmallString> {
         let (rest, _) =
             preceded(multispace0, tag("export"))(input)?;
 
         let (rest, name) =
-            preceded(multispace0, parse_string)(rest)?;
+            preceded(multispace0, zeichenkette_parsen)(rest)?;
 
         Ok((rest, name.into()))
     }
 
-    parse_parenthesis_enclosed(context("export", inner))(input)
+    in_klammern_eingeschlossen_parsen(context("export", innere))(input)
 }
 
 /// Parses a function parameter.
@@ -130,7 +130,7 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 ///
 /// ```
 /// use water::ast::{Parameter, Type, NumericalType};
-/// use water::parser::parse_parameter;
+/// use water::parser::parameter_parsen;
 ///
 /// let anonymous_i32 = Parameter {
 ///     identifier: None,
@@ -142,18 +142,18 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 ///     type_: Type::Numerical(NumericalType::Float64)
 /// };
 ///
-/// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
-/// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
+/// assert_eq!(parameter_parsen("(param i32)"), Ok(("", anonymous_i32)));
+/// assert_eq!(parameter_parsen("( param $number f64)"), Ok(("", named_f64)));
 /// ```
 // TODO: handle cases such as (param f32 f32)
-pub fn parse_parameter(input: &str) -> IResult<Parameter> {
-    fn inner(input: &str) -> IResult<Parameter> {
+pub fn parameter_parsen(input: &str) -> IResult<Parameter> {
+    fn innere(input: &str) -> IResult<Parameter> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
         let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
+            opt(preceded(multispace0, bezeichner_parsen))(rest)?;
         let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+            preceded(multispace0, typ_parsen)(rest)?;
 
         let parameter = Parameter { identifier, type_ };
 
@@ -162,7 +162,7 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 
     preceded(
         multispace0,
-        parse_parenthesis_enclosed(context("parameter", inner)),
+        in_klammern_eingeschlossen_parsen(context("parameter", innere)),
     )(input)
 }
 
@@ -170,7 +170,7 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 ///
 /// ```
 /// use water::ast::{Local, Type, NumericalType};
-/// use water::parser::parse_local;
+/// use water::parser::lokale_parsen;
 /// use water::small_string::SmallString;
 ///
 /// let anonymous_f32 = Local {
@@ -183,17 +183,17 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 ///     type_: Type::Numerical(NumericalType::Int64)
 /// };
 ///
-/// assert_eq!(parse_local("(local f32)"), Ok(("", anonymous_f32)));
-/// assert_eq!(parse_local("( local $number i64)"), Ok(("", named_i64)));
+/// assert_eq!(lokale_parsen("(local f32)"), Ok(("", anonymous_f32)));
+/// assert_eq!(lokale_parsen("( local $number i64)"), Ok(("", named_i64)));
 /// ```
-pub fn parse_local(input: &str) -> IResult<Local> {
-    fn inner(input: &str) -> IResult<Local> {
+pub fn lokale_parsen(input: &str) -> IResult<Local> {
+    fn innere(input: &str) -> IResult<Local> {
         let (rest, _) =
             preceded(multispace0, tag("local"))(input)?;
         let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
+            opt(preceded(multispace0, bezeichner_parsen))(rest)?;
         let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+            preceded(multispace0, typ_parsen)(rest)?;
 
         let local = Local { identifier, type_ };
 
@@ -202,6 +202,6 @@ pub fn parse_local(input: &str) -> IResult<Local> {
 
     preceded(
         multispace0,
-        parse_parenthesis_enclosed(context("local", inner)),
+        in_klammern_eingeschlossen_parsen(context("local", innere)),
     )(input)
 }

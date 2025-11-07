@@ -9,13 +9,13 @@ impl<W: Write> Emittable<ArithmeticOperation> for Emitter<W> {
     //
     // This method may only be called within a larger `Emittable`
     // implementation that checks for this stuff.
-    fn emit_element(
+    fn element_ausgeben(
         &mut self,
         element: ArithmeticOperation,
     ) -> std::io::Result<usize> {
-        let opcode = element.to_opcode();
+        let opcode = element.zu_opcode();
 
-        self.emit_byte(opcode)
+        self.byte_ausgeben(opcode)
     }
 }
 
