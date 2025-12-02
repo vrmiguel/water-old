@@ -146,7 +146,17 @@ mod tests {
     use crate::{
         emitter::{Emittable, Emitter},
         leb128::{SignedLeb128, UnsignedLeb128},
+        utils::is_power_of_two,
     };
+
+    use super::CONTINUATION_BIT;
+
+    #[test]
+    fn continuation_bit_is_power_of_two() {
+        // CONTINUATION_BIT must be a power of two for the bit
+        // manipulation in LEB128 encoding to work correctly
+        assert!(is_power_of_two(CONTINUATION_BIT as u32));
+    }
 
     #[test]
     fn encodes_signed_leb_128() {

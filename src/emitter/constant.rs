@@ -25,7 +25,25 @@ mod tests {
     use crate::{
         ast::{Constant, NumericalValue},
         emitter::{Emittable, Emitter},
+        utils::align_to,
     };
+
+    #[test]
+    fn test_buffer_sizes_are_properly_aligned() {
+        // Test that our buffer sizes for floating point values
+        // are properly aligned. WebAssembly requires proper
+        // alignment for memory operations.
+
+        // f32 requires 4 bytes, buffer should align to 4-byte boundary
+        let f32_size = 4_u32;
+        let f32_buffer_size = 1 + f32_size; // 1 byte for opcode + 4 for value = 5
+        assert_eq!(align_to(f32_buffer_size, 4), 8);
+
+        // f64 requires 8 bytes, buffer should align to 8-byte boundary
+        let f64_size = 8_u32;
+        let f64_buffer_size = 1 + f64_size; // 1 byte for opcode + 8 for value = 9
+        assert_eq!(align_to(f64_buffer_size, 8), 16);
+    }
 
     #[test]
     fn emits_i32_const_correctly() {

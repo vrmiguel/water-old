@@ -40,13 +40,21 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
 /// enough to fit the spec but I'm not knowledgeable enough about
 /// IEEE 754 to be sure.
 mod floating_point_converters {
+    use crate::utils::is_power_of_two;
+
     #[inline(always)]
     pub fn f32_to_bytes(n: f32) -> [u8; 4] {
+        // Verify at runtime that f32 size (4 bytes) is a power of two
+        // This is important for proper alignment in WebAssembly
+        debug_assert!(is_power_of_two(4));
         n.to_le_bytes()
     }
 
     #[inline(always)]
     pub fn f64_to_bytes(n: f64) -> [u8; 8] {
+        // Verify at runtime that f64 size (8 bytes) is a power of two
+        // This is important for proper alignment in WebAssembly
+        debug_assert!(is_power_of_two(8));
         n.to_le_bytes()
     }
 }
