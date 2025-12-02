@@ -135,3 +135,80 @@ fn is_acceptable_identifier_character(ch: char) -> bool {
                 | '~'
         )
 }
+
+/// Parses a comma-separated list of items enclosed in
+/// parentheses.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_identifier;
+/// use water::small_string::SmallString;
+///
+/// let input = "($a, $b, $c)";
+/// let result = water::parser::parse_comma_list(
+///     parse_identifier
+/// )(input);
+/// assert!(result.is_ok());
+/// ```
+pub fn parse_comma_list<'a, T, F>(
+    item_parser: F,
+) -> impl FnMut(&'a str) -> IResult<Vec<T>>
+where
+    F: Parser<&'a str, T, VerboseError<&'a str>>,
+{
+    parse_parenthesis_enclosed(nom::multi::separated_list0(
+        delimited(multispace0, char(','), multispace0),
+        item_parser,
+    ))
+}
+
+/// Parses a hexadecimal number prefixed with "0x".
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_hex_number;
+///
+/// assert_eq!(parse_hex_number("0xFF"), Ok(("", 255)));
+/// assert_eq!(parse_hex_number("0x10"), Ok(("", 16)));
+/// assert_eq!(parse_hex_number("0xDEADBEEF"), Ok(("", 3735928559)));
+/// ```
+pub fn parse_hex_number(input: &str) -> IResult<u64> {
+    context(
+        "hexadecimal number",
+        preceded(
+            tag("0x"),
+            nom::combinator::map_res(
+                nom::bytes::complete::take_while1(|c: char| {
+                    c.is_ascii_hexdigit()
+                }),
+                |hex_str: &str| u64::from_str_radix(hex_str, 16),
+            ),
+        ),
+    )(input)
+}
+
+/// Parses an optional identifier, returning None if no
+/// identifier is present.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_optional_identifier;
+/// use water::small_string::SmallString;
+///
+/// assert_eq!(
+///     parse_optional_identifier("$var"),
+///     Ok(("", Some(SmallString::new("var"))))
+/// );
+/// assert_eq!(
+///     parse_optional_identifier("123"),
+///     Ok(("123", None))
+/// );
+/// ```
+pub fn parse_optional_identifier(
+    input: &str,
+) -> IResult<Option<SmallString>> {
+    nom::combinator::opt(parse_identifier)(input)
+}
