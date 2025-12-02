@@ -1,15 +1,14 @@
 use nom::{
     bytes::complete::tag, character::complete::multispace0,
-    combinator::opt, error::context, multi::many0,
-    sequence::preceded,
+    error::context, multi::many0, sequence::preceded,
 };
 
 use super::IResult;
 use crate::{
     ast::{Function, Local, Parameter},
     parser::utils::{
-        parse_identifier, parse_parenthesis_enclosed,
-        parse_string, parse_type,
+        parse_identifier, parse_optional_identifier,
+        parse_parenthesis_enclosed, parse_string, parse_type,
     },
     small_string::SmallString,
 };
@@ -55,7 +54,7 @@ pub fn parse_function(input: &str) -> IResult<Function> {
             preceded(multispace0, tag("func"))(input)?;
 
         let (rest, identifier) =
-            preceded(multispace0, opt(parse_identifier))(rest)?;
+            preceded(multispace0, parse_optional_identifier)(rest)?;
 
         // TODO: WASM allows more than one `export` instructions
         // in a function, but they cannot have duplicated
@@ -151,7 +150,7 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
         let (rest, _) =
             preceded(multispace0, tag("param"))(input)?;
         let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
+            preceded(multispace0, parse_optional_identifier)(rest)?;
         let (rest, type_) =
             preceded(multispace0, parse_type)(rest)?;
 
@@ -191,7 +190,7 @@ pub fn parse_local(input: &str) -> IResult<Local> {
         let (rest, _) =
             preceded(multispace0, tag("local"))(input)?;
         let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
+            preceded(multispace0, parse_optional_identifier)(rest)?;
         let (rest, type_) =
             preceded(multispace0, parse_type)(rest)?;
 

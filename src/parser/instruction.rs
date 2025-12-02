@@ -15,7 +15,7 @@ use nom::{
 };
 
 use super::{
-    utils::{parse_index, parse_numerical_type},
+    utils::{parse_hex_number, parse_index, parse_numerical_type},
     IResult,
 };
 use crate::{
@@ -89,6 +89,8 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
 /// assert_eq!(parse_const("i64.const -5"), Ok(("", NumericalValue::Int64(-5))));
 /// assert_eq!(parse_const("f64.const 5.5"), Ok(("", NumericalValue::Float64(5.5))));
 /// assert_eq!(parse_const("f32.const 2E-3"), Ok(("", NumericalValue::Float32(0.002))));
+/// assert_eq!(parse_const("i32.const 0xFF"), Ok(("", NumericalValue::Int32(255))));
+/// assert_eq!(parse_const("i64.const 0x10"), Ok(("", NumericalValue::Int64(16))));
 /// ```
 pub fn parse_const(input: &str) -> IResult<NumericalValue> {
     // Parse the numerical type of this instruction: i32, i64,
@@ -99,14 +101,24 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 
     match numerical_type {
         NumericalType::Int32 => {
-            let (rest, int32) =
-                preceded(multispace0, parse_i32)(rest)?;
+            let (rest, int32) = preceded(
+                multispace0,
+                alt((
+                    parse_hex_number.map(|x| x as i32),
+                    parse_i32,
+                )),
+            )(rest)?;
 
             Ok((rest, NumericalValue::Int32(int32)))
         }
         NumericalType::Int64 => {
-            let (rest, int64) =
-                preceded(multispace0, parse_i64)(rest)?;
+            let (rest, int64) = preceded(
+                multispace0,
+                alt((
+                    parse_hex_number.map(|x| x as i64),
+                    parse_i64,
+                )),
+            )(rest)?;
 
             Ok((rest, NumericalValue::Int64(int64)))
         }

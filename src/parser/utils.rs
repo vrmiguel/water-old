@@ -80,12 +80,14 @@ pub fn parse_numerical_type(
 ///
 /// assert_eq!(parse_index("$var"), Ok(("", Index::Identifier("var".into()))));
 /// assert_eq!(parse_index("5"), Ok(("", Index::Numerical(5))));
+/// assert_eq!(parse_index("0x10"), Ok(("", Index::Numerical(16))));
 /// ```
 pub fn parse_index(input: &str) -> IResult<Index> {
     alt((
         parse_identifier
             .map(SmallString::new)
             .map(Index::Identifier),
+        parse_hex_number.map(|x| Index::Numerical(x as i64)),
         nom::character::complete::i64.map(Index::Numerical),
     ))(input)
 }
