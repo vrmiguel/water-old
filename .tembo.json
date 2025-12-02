@@ -1,0 +1,6 @@
+{
+	"hooks": {
+		"postClone": ["cargo fmt --check"],
+		"prePush": ["cargo fmt --check"]
+	}
+}
