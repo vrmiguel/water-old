@@ -141,6 +141,31 @@ fn low_bits(value: u64) -> u8 {
     (lower_eight_bits & !CONTINUATION_BIT) as u8
 }
 
+/// Calculate the size in bytes that an unsigned LEB128 encoding would take
+/// without actually performing the encoding.
+///
+/// # Examples
+///
+/// ```
+/// use water::leb128_encoded_size;
+///
+/// assert_eq!(leb128_encoded_size(0), 1);
+/// assert_eq!(leb128_encoded_size(127), 1);
+/// assert_eq!(leb128_encoded_size(128), 2);
+/// assert_eq!(leb128_encoded_size(16383), 2);
+/// assert_eq!(leb128_encoded_size(16384), 3);
+/// ```
+pub fn leb128_encoded_size(value: u64) -> usize {
+    if value == 0 {
+        return 1;
+    }
+
+    // Each LEB128 byte encodes 7 bits of data
+    // Calculate how many 7-bit groups are needed
+    let bits_needed = 64 - value.leading_zeros();
+    ((bits_needed + 6) / 7) as usize
+}
+
 #[cfg(test)]
 mod tests {
     use crate::{
