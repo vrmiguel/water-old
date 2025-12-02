@@ -1,0 +1,14 @@
+In the realm of binary streams so clear,
+Where WebAssembly flows without fear,
+The water compiler stands so bright,
+Transforming text to executable might.
+
+From WAT to WASM, swift and true,
+A tiny tool with power through and through,
+Performance high, and size so small,
+The water compiler conquers all.
+
+In browsers fast, on servers wide,
+The compiled code runs with pride,
+Text format parsed with careful grace,
+Making WebAssembly's grand embrace.
