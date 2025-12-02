@@ -45,7 +45,7 @@ pub fn is_valid_identifier(identifier: &str) -> bool {
 /// assert_eq!(align_to_power_of_two(8), 8);
 /// assert_eq!(align_to_power_of_two(9), 16);
 /// ```
-pub fn align_to_power_of_two(value: usize) -> usize {
+pub const fn align_to_power_of_two(value: usize) -> usize {
     if value == 0 {
         return 0;
     }

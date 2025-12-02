@@ -144,6 +144,7 @@ fn low_bits(value: u64) -> u8 {
 #[cfg(test)]
 mod tests {
     use crate::{
+        calculate_leb128_size,
         emitter::{Emittable, Emitter},
         leb128::{SignedLeb128, UnsignedLeb128},
     };
@@ -225,12 +226,20 @@ mod tests {
         for (value_to_encode, expected) in
             to_encode.into_iter().zip(expected_encoding)
         {
+            // Calculate the expected size before encoding
+            let calculated_size = calculate_leb128_size(value_to_encode);
+
             let encoder = UnsignedLeb128::from(value_to_encode);
             let mut emitter = Emitter::new(Vec::new());
 
             emitter.emit_element(encoder).unwrap();
+
+            let result = emitter.into_inner();
             // encoder.emit_to(&mut bytes).unwrap();
-            assert_eq!(emitter.into_inner(), *expected);
+            assert_eq!(result, *expected);
+
+            // Verify that the calculated size matches actual encoded size
+            assert_eq!(calculated_size, result.len());
         }
     }
 }

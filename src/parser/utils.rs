@@ -11,6 +11,7 @@ use nom::{
 use super::IResult;
 use crate::{
     ast::{Index, NumericalType, Type},
+    is_valid_identifier,
     small_string::SmallString,
 };
 
@@ -41,6 +42,19 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
             take_while1(is_acceptable_identifier_character),
         ),
     )(input)?;
+
+    // Validate the identifier (with $ prefix for validation)
+    let identifier_with_dollar = format!("${}", identifier);
+    if !is_valid_identifier(&identifier_with_dollar) {
+        return Err(nom::Err::Failure(VerboseError {
+            errors: vec![(
+                input,
+                nom::error::VerboseErrorKind::Context(
+                    "invalid identifier",
+                ),
+            )],
+        }));
+    }
 
     Ok((rest, SmallString::new(identifier)))
 }

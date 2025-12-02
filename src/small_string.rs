@@ -4,7 +4,10 @@ use std::{
     borrow::Borrow, fmt, hash::Hash, ops::Deref, rc::Rc, str,
 };
 
-pub const INLINE_CAP: usize = 22;
+use crate::align_to_power_of_two;
+
+// Use aligned capacity for better memory efficiency
+pub const INLINE_CAP: usize = align_to_power_of_two(22);
 
 #[derive(Clone, PartialEq, Eq)]
 /// A cheaply-clonable String type
