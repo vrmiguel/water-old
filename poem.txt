@@ -1,0 +1,19 @@
+In the realm of bytes and code so bright,
+Where WebAssembly takes its flight,
+Water flows through text format's gate,
+Compiling dreams at lightning rate.
+
+From AST to opcodes true,
+The parser works with careful view,
+Each instruction finds its place,
+In binary's efficient space.
+
+Emitters craft with precise art,
+Functions form the module's heart,
+LEB128 numbers compressed tight,
+Making every byte just right.
+
+A tiny compiler, fast and lean,
+The finest WAT tool ever seen,
+Through water's flow, our code takes form,
+WebAssembly's textual norm.
