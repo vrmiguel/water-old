@@ -233,4 +233,23 @@ mod tests {
             assert_eq!(emitter.into_inner(), *expected);
         }
     }
+
+    #[test]
+    fn encodes_unsigned_leb_128_with_padding() {
+        use crate::vec_utils::pad_to_length;
+
+        // Test encoding with a pre-allocated, padded buffer
+        let encoder = UnsignedLeb128::from(624485);
+        let mut buffer = Vec::new();
+
+        // Pre-allocate a buffer with padding to ensure sufficient capacity
+        pad_to_length(&mut buffer, 10, 0u8);
+        buffer.clear(); // Clear the padding, but capacity remains
+
+        let mut emitter = Emitter::new(buffer);
+        emitter.emit_element(encoder).unwrap();
+
+        // 624485 in LEB128 is [229, 141, 38]
+        assert_eq!(emitter.into_inner(), &[229, 141, 38]);
+    }
 }

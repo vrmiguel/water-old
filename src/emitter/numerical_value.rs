@@ -40,13 +40,15 @@ impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
 /// enough to fit the spec but I'm not knowledgeable enough about
 /// IEEE 754 to be sure.
 mod floating_point_converters {
+    use crate::type_utils;
+
     #[inline(always)]
     pub fn f32_to_bytes(n: f32) -> [u8; 4] {
-        n.to_le_bytes()
+        type_utils::f32_to_bits(n).to_le_bytes()
     }
 
     #[inline(always)]
     pub fn f64_to_bytes(n: f64) -> [u8; 8] {
-        n.to_le_bytes()
+        type_utils::f64_to_bits(n).to_le_bytes()
     }
 }
