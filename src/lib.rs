@@ -1,6 +1,9 @@
 pub mod ast;
+pub mod bit_utils;
 pub mod emitter;
 pub mod leb128;
 pub mod opcode;
 pub mod parser;
 pub mod small_string;
+pub mod type_utils;
+pub mod vec_utils;
