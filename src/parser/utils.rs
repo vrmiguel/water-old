@@ -1,10 +1,15 @@
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, tag, take_while1},
-    character::complete::{char, multispace0, none_of},
-    combinator::{cut, value},
+    bytes::complete::{
+        escaped, tag, take_until, take_while, take_while1,
+    },
+    character::complete::{
+        char, digit1, hex_digit1, multispace0, multispace1,
+        none_of,
+    },
+    combinator::{cut, opt, recognize, value},
     error::{context, VerboseError},
-    sequence::{delimited, preceded},
+    sequence::{delimited, pair, preceded, terminated, tuple},
     Parser,
 };
 
@@ -134,4 +139,202 @@ fn is_acceptable_identifier_character(ch: char) -> bool {
                 | '|'
                 | '~'
         )
+}
+
+/// Parses a line comment starting with `;;`.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_comment;
+///
+/// assert_eq!(parse_comment(";; this is a comment"), Ok(("", " this is a comment")));
+/// assert_eq!(parse_comment(";; comment\ncode"), Ok(("\ncode", " comment")));
+/// ```
+pub fn parse_comment(input: &str) -> IResult<&str> {
+    context(
+        "comment",
+        preceded(
+            tag(";;"),
+            alt((
+                take_until("\n"),
+                take_while(|_| true), // Rest of input if no newline
+            )),
+        ),
+    )(input)
+}
+
+/// Parses a block comment enclosed in `(;` and `;)`.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_block_comment;
+///
+/// assert_eq!(parse_block_comment("(; block comment ;)"), Ok(("", " block comment ")));
+/// assert_eq!(parse_block_comment("(; nested comment ;) code"), Ok((" code", " nested comment ")));
+/// ```
+pub fn parse_block_comment(input: &str) -> IResult<&str> {
+    context(
+        "block comment",
+        delimited(tag("(;"), take_until(";)"), tag(";)")),
+    )(input)
+}
+
+/// Parses an unsigned integer literal.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_unsigned_int;
+///
+/// assert_eq!(parse_unsigned_int("42"), Ok(("", 42)));
+/// assert_eq!(parse_unsigned_int("123 abc"), Ok((" abc", 123)));
+/// ```
+pub fn parse_unsigned_int(input: &str) -> IResult<u64> {
+    context(
+        "unsigned integer",
+        digit1.map(|s: &str| s.parse::<u64>().unwrap()),
+    )(input)
+}
+
+/// Parses a hexadecimal integer literal with `0x` prefix.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_hex_int;
+///
+/// assert_eq!(parse_hex_int("0x2A"), Ok(("", 42)));
+/// assert_eq!(parse_hex_int("0xFF abc"), Ok((" abc", 255)));
+/// ```
+pub fn parse_hex_int(input: &str) -> IResult<u64> {
+    context(
+        "hexadecimal integer",
+        preceded(
+            tag("0x"),
+            hex_digit1.map(|s: &str| {
+                u64::from_str_radix(s, 16).unwrap()
+            }),
+        ),
+    )(input)
+}
+
+/// Parses either a decimal or hexadecimal integer.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_integer;
+///
+/// assert_eq!(parse_integer("42"), Ok(("", 42)));
+/// assert_eq!(parse_integer("0x2A"), Ok(("", 42)));
+/// ```
+pub fn parse_integer(input: &str) -> IResult<u64> {
+    context(
+        "integer",
+        alt((parse_hex_int, parse_unsigned_int)),
+    )(input)
+}
+
+/// Parses content enclosed in square brackets `[]`.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_bracketed;
+///
+/// assert_eq!(parse_bracketed("[content]"), Ok(("", "content")));
+/// assert_eq!(parse_bracketed("[test] more"), Ok((" more", "test")));
+/// ```
+pub fn parse_bracketed(input: &str) -> IResult<&str> {
+    context(
+        "bracketed content",
+        delimited(
+            char('['),
+            take_while(|c| c != ']'),
+            char(']'),
+        ),
+    )(input)
+}
+
+/// Parses a keyword (alphabetic identifier without `$` prefix).
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_keyword;
+///
+/// assert_eq!(parse_keyword("module"), Ok(("", "module")));
+/// assert_eq!(parse_keyword("func "), Ok((" ", "func")));
+/// ```
+pub fn parse_keyword(input: &str) -> IResult<&str> {
+    context(
+        "keyword",
+        take_while1(|c: char| {
+            c.is_ascii_alphabetic() || c == '.' || c == '_'
+        }),
+    )(input)
+}
+
+/// Parses optional whitespace and returns the consumed input.
+///
+/// ```
+/// use water::parser::parse_optional_whitespace;
+///
+/// assert_eq!(parse_optional_whitespace("   abc"), Ok(("abc", "   ")));
+/// assert_eq!(parse_optional_whitespace("abc"), Ok(("abc", "")));
+/// ```
+pub fn parse_optional_whitespace(input: &str) -> IResult<&str> {
+    recognize(multispace0)(input)
+}
+
+/// Parses required whitespace (at least one whitespace character).
+///
+/// ```
+/// use water::parser::parse_required_whitespace;
+///
+/// assert_eq!(parse_required_whitespace("   abc"), Ok(("abc", "   ")));
+/// assert!(parse_required_whitespace("abc").is_err());
+/// ```
+pub fn parse_required_whitespace(input: &str) -> IResult<&str> {
+    context("whitespace", recognize(multispace1))(input)
+}
+
+/// Checks if a character is valid for starting an identifier (alphabetic or underscore).
+///
+/// ```
+/// use water::parser::is_identifier_start;
+///
+/// assert!(is_identifier_start('a'));
+/// assert!(is_identifier_start('_'));
+/// assert!(!is_identifier_start('1'));
+/// ```
+pub fn is_identifier_start(ch: char) -> bool {
+    ch.is_ascii_alphabetic() || ch == '_'
+}
+
+/// Checks if a string is a valid WebAssembly identifier name (without the `$` prefix).
+///
+/// ```
+/// use water::parser::is_valid_identifier;
+///
+/// assert!(is_valid_identifier("myVar"));
+/// assert!(is_valid_identifier("test123"));
+/// assert!(!is_valid_identifier("123test"));
+/// assert!(!is_valid_identifier(""));
+/// ```
+pub fn is_valid_identifier(s: &str) -> bool {
+    if s.is_empty() {
+        return false;
+    }
+
+    let mut chars = s.chars();
+    if let Some(first) = chars.next() {
+        if !is_identifier_start(first) {
+            return false;
+        }
+    }
+
+    chars.all(is_acceptable_identifier_character)
 }
