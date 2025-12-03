@@ -1,0 +1,22 @@
+Poema en Español
+================
+
+En el código que fluye sin cesar,
+como agua que busca su cauce natural,
+bits y bytes danzan en el mar
+de un compilador que sabe transformar.
+
+WebAssembly, texto convertido en acción,
+instrucciones que cobran vida en cada función,
+desde el formato de texto hasta la ejecución,
+water compila con precisión y devoción.
+
+En cada línea que el parser lee con cuidado,
+en cada opcode que ha sido generado,
+vive la magia del código bien forjado,
+un puente entre mundos, perfectamente trazado.
+
+Como el agua que fluye, libre y clara,
+así el código viaja, nada lo separa,
+de ser texto simple a máquina que trabaja,
+water transforma todo lo que pasa.
