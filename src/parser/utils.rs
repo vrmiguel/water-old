@@ -14,7 +14,7 @@ use crate::{
     small_string::SmallString,
 };
 
-pub fn parsiere_zeichenkette(input: &str) -> IResult<&str> {
+pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
 
@@ -27,13 +27,13 @@ pub fn parsiere_zeichenkette(input: &str) -> IResult<&str> {
 /// Does not eat leading whitespace.
 ///
 /// ```
-/// use water::parser::parsiere_bezeichner;
+/// use water::parser::parse_identifier;
 /// use water::small_string::SmallString;
 ///
-/// assert_eq!(parsiere_bezeichner("$idx"), Ok(("", SmallString::new("idx"))));
-/// assert_eq!(parsiere_bezeichner("$asd_aa? a"), Ok((" a", SmallString::new("asd_aa?"))));
+/// assert_eq!(parse_identifier("$idx"), Ok(("", SmallString::new("idx"))));
+/// assert_eq!(parse_identifier("$asd_aa? a"), Ok((" a", SmallString::new("asd_aa?"))));
 /// ```
-pub fn parsiere_bezeichner(input: &str) -> IResult<SmallString> {
+pub fn parse_identifier(input: &str) -> IResult<SmallString> {
     let (rest, identifier) = context(
         "identifier",
         preceded(
@@ -83,7 +83,7 @@ pub fn parse_numerical_type(
 /// ```
 pub fn parse_index(input: &str) -> IResult<Index> {
     alt((
-        parsiere_bezeichner
+        parse_identifier
             .map(SmallString::new)
             .map(Index::Identifier),
         nom::character::complete::i64.map(Index::Numerical),

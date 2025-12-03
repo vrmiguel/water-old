@@ -14,10 +14,10 @@ fn main() {
     let import_wat = r#"(import "console" "log" (func $log (param i32) (param i32)))"#;
 
     if let Err(err) = parse_function_import(import_wat) {
-        println!("{}", fehler_zu_zeichenkette(import_wat, err));
+        println!("{}", stringify_error(import_wat, err));
     }
 
-    fn fehler_zu_zeichenkette(
+    fn stringify_error(
         input: &str,
         error: nom::Err<nom::error::VerboseError<&str>>,
     ) -> String {

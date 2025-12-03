@@ -20,12 +20,12 @@ pub struct Emitter<W> {
 
 impl<W: Write> Emitter<W> {
     /// Emit a single byte to the writer
-    pub fn sende_byte(&mut self, byte: u8) -> io::Result<usize> {
-        self.sende_bytes(&[byte]).map(|()| 1)
+    pub fn emit_byte(&mut self, byte: u8) -> io::Result<usize> {
+        self.emit_bytes(&[byte]).map(|()| 1)
     }
 
     /// Emit a sequence of bytes to the writer
-    pub fn sende_bytes(
+    pub fn emit_bytes(
         &mut self,
         bytes: &[u8],
     ) -> io::Result<()> {
@@ -34,12 +34,12 @@ impl<W: Write> Emitter<W> {
 
     /// Emits the WASM magic constant
     fn emit_magic(&mut self) -> io::Result<()> {
-        self.sende_bytes(MAGIC)
+        self.emit_bytes(MAGIC)
     }
 
     /// Emits the WASM version tag
     fn emit_version(&mut self) -> io::Result<()> {
-        self.sende_bytes(VERSION)
+        self.emit_bytes(VERSION)
     }
 
     /// Builds a new emitter with the given writer

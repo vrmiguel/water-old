@@ -48,7 +48,7 @@ impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
                 bkp | (CONTINUATION_BIT as i64)
             } as u8;
 
-            self.sende_byte(byte)?;
+            self.emit_byte(byte)?;
             bytes_written += 1;
         }
 
@@ -111,13 +111,13 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
         let UnsignedLeb128 { mut value } = element;
 
         if value == 0 {
-            self.sende_byte(0)?;
+            self.emit_byte(0)?;
 
             return Ok(1);
         }
 
         while value != 0 {
-            let mut byte = niedrige_bits(value);
+            let mut byte = low_bits(value);
             value >>= 7;
             if value != 0 {
                 // More bytes to come, so set the continuation
@@ -126,14 +126,14 @@ impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
             }
 
             bytes_written += 1;
-            self.sende_byte(byte)?;
+            self.emit_byte(byte)?;
         }
 
         Ok(bytes_written)
     }
 }
 
-fn niedrige_bits(value: u64) -> u8 {
+fn low_bits(value: u64) -> u8 {
     // This mask has all the lower 8 bits set
     const MASK: u64 = 0xFF;
     let lower_eight_bits = value & MASK;
