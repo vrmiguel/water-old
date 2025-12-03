@@ -9,6 +9,7 @@ mod unreachable;
 pub use emittable::Emittable;
 
 use crate::ast::Program;
+use crate::calculate_padding;
 
 const MAGIC: &[u8] = b"\0asm";
 const VERSION: &[u8] = b"1000";
@@ -30,6 +31,33 @@ impl<W: Write> Emitter<W> {
         bytes: &[u8],
     ) -> io::Result<()> {
         self.writer.write_all(bytes)
+    }
+
+    /// Emit padding bytes to align to the specified boundary.
+    ///
+    /// This is useful when emitting WebAssembly sections that require
+    /// specific alignment (e.g., data segments, memory initialization).
+    ///
+    /// # Arguments
+    ///
+    /// * `current_offset` - The current position in the output
+    /// * `alignment` - The required alignment boundary (must be a power of 2)
+    ///
+    /// # Returns
+    ///
+    /// The number of padding bytes written
+    pub fn emit_padding(
+        &mut self,
+        current_offset: usize,
+        alignment: usize,
+    ) -> io::Result<usize> {
+        let padding_needed =
+            calculate_padding(current_offset, alignment);
+        if padding_needed > 0 {
+            let padding = vec![0u8; padding_needed];
+            self.emit_bytes(&padding)?;
+        }
+        Ok(padding_needed)
     }
 
     /// Emits the WASM magic constant
@@ -77,10 +105,42 @@ impl<W> Emitter<std::io::Cursor<W>> {
 
 #[cfg(test)]
 mod tests {
-    use super::MAGIC;
+    use super::{Emitter, MAGIC};
 
     #[test]
     fn assert_correct_magic() {
         assert_eq!(MAGIC, &[0x00, 0x61, 0x73, 0x6d])
+    }
+
+    #[test]
+    fn test_emit_padding() {
+        let mut emitter = Emitter::new(Vec::new());
+
+        // Write 5 bytes
+        emitter.emit_bytes(&[1, 2, 3, 4, 5]).unwrap();
+
+        // Align to 8-byte boundary (should add 3 padding bytes)
+        let padding_written =
+            emitter.emit_padding(5, 8).unwrap();
+        assert_eq!(padding_written, 3);
+
+        let result = emitter.into_inner();
+        assert_eq!(result, vec![1, 2, 3, 4, 5, 0, 0, 0]);
+    }
+
+    #[test]
+    fn test_emit_padding_already_aligned() {
+        let mut emitter = Emitter::new(Vec::new());
+
+        // Write 8 bytes (already aligned to 8-byte boundary)
+        emitter.emit_bytes(&[1, 2, 3, 4, 5, 6, 7, 8]).unwrap();
+
+        // Should not add any padding
+        let padding_written =
+            emitter.emit_padding(8, 8).unwrap();
+        assert_eq!(padding_written, 0);
+
+        let result = emitter.into_inner();
+        assert_eq!(result, vec![1, 2, 3, 4, 5, 6, 7, 8]);
     }
 }

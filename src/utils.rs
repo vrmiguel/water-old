@@ -24,9 +24,14 @@
 /// // Aligning to 8-byte boundary
 /// assert_eq!(calculate_padding(10, 8), 6); // 10 + 6 = 16 (next multiple of 8)
 /// ```
-pub fn calculate_padding(offset: usize, alignment: usize) -> usize {
-    debug_assert!(alignment > 0 && (alignment & (alignment - 1)) == 0,
-                  "alignment must be a power of 2");
+pub fn calculate_padding(
+    offset: usize,
+    alignment: usize,
+) -> usize {
+    debug_assert!(
+        alignment > 0 && (alignment & (alignment - 1)) == 0,
+        "alignment must be a power of 2"
+    );
 
     let mask = alignment - 1;
     let remainder = offset & mask;
