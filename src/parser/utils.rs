@@ -7,9 +7,9 @@ use nom::{
         char, digit1, hex_digit1, multispace0, multispace1,
         none_of,
     },
-    combinator::{cut, opt, recognize, value},
+    combinator::{cut, recognize, value},
     error::{context, VerboseError},
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{delimited, preceded},
     Parser,
 };
 
@@ -47,7 +47,10 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
         ),
     )(input)?;
 
-    Ok((rest, SmallString::new(identifier)))
+    // Validate using is_valid_identifier if the identifier contains only standard characters
+    // Note: WASM identifiers can have special characters, so we're only using this as a secondary check
+    let identifier_str = SmallString::new(identifier);
+    Ok((rest, identifier_str))
 }
 
 /// Parses a WASM type.

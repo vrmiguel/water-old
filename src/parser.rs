@@ -2,16 +2,17 @@
 //!
 //! Functions are mostly all public as to allow doc-tests.
 
+pub mod extended;
 mod function;
 mod import;
 mod instruction;
 mod module;
-mod utils;
+pub mod utils;
 
 use nom::error::VerboseError;
 
 pub use self::{
-    function::*, import::*, instruction::*, module::*, utils::*,
+    function::*, import::*, instruction::*, module::*,
 };
 
 /// The result of a parsing operation with added error context

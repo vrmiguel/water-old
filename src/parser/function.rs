@@ -1,14 +1,14 @@
 use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    combinator::opt, error::context, multi::many0,
-    sequence::preceded,
+    bytes::complete::tag, combinator::opt, error::context,
+    multi::many0, sequence::preceded,
 };
 
 use super::IResult;
 use crate::{
     ast::{Function, Local, Parameter},
     parser::utils::{
-        parse_identifier, parse_parenthesis_enclosed,
+        parse_identifier, parse_keyword,
+        parse_optional_whitespace, parse_parenthesis_enclosed,
         parse_string, parse_type,
     },
     small_string::SmallString,
@@ -51,11 +51,28 @@ use crate::{
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
-        let (rest, _) =
-            preceded(multispace0, tag("func"))(input)?;
+        let (rest, keyword) = preceded(
+            parse_optional_whitespace,
+            parse_keyword,
+        )(input)?;
 
-        let (rest, identifier) =
-            preceded(multispace0, opt(parse_identifier))(rest)?;
+        if keyword != "func" {
+            return Err(nom::Err::Error(
+                nom::error::VerboseError {
+                    errors: vec![(
+                        input,
+                        nom::error::VerboseErrorKind::Context(
+                            "expected 'func' keyword",
+                        ),
+                    )],
+                },
+            ));
+        }
+
+        let (rest, identifier) = preceded(
+            parse_optional_whitespace,
+            opt(parse_identifier),
+        )(rest)?;
 
         // TODO: WASM allows more than one `export` instructions
         // in a function, but they cannot have duplicated
@@ -112,11 +129,28 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 /// ```
 pub fn parse_export(input: &str) -> IResult<SmallString> {
     fn inner(input: &str) -> IResult<SmallString> {
-        let (rest, _) =
-            preceded(multispace0, tag("export"))(input)?;
+        let (rest, keyword) = preceded(
+            parse_optional_whitespace,
+            parse_keyword,
+        )(input)?;
 
-        let (rest, name) =
-            preceded(multispace0, parse_string)(rest)?;
+        if keyword != "export" {
+            return Err(nom::Err::Error(
+                nom::error::VerboseError {
+                    errors: vec![(
+                        input,
+                        nom::error::VerboseErrorKind::Context(
+                            "expected 'export' keyword",
+                        ),
+                    )],
+                },
+            ));
+        }
+
+        let (rest, name) = preceded(
+            parse_optional_whitespace,
+            parse_string,
+        )(rest)?;
 
         Ok((rest, name.into()))
     }
@@ -148,12 +182,32 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 // TODO: handle cases such as (param f32 f32)
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     fn inner(input: &str) -> IResult<Parameter> {
-        let (rest, _) =
-            preceded(multispace0, tag("param"))(input)?;
-        let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+        let (rest, keyword) = preceded(
+            parse_optional_whitespace,
+            parse_keyword,
+        )(input)?;
+
+        if keyword != "param" {
+            return Err(nom::Err::Error(
+                nom::error::VerboseError {
+                    errors: vec![(
+                        input,
+                        nom::error::VerboseErrorKind::Context(
+                            "expected 'param' keyword",
+                        ),
+                    )],
+                },
+            ));
+        }
+
+        let (rest, identifier) = opt(preceded(
+            parse_optional_whitespace,
+            parse_identifier,
+        ))(rest)?;
+        let (rest, type_) = preceded(
+            parse_optional_whitespace,
+            parse_type,
+        )(rest)?;
 
         let parameter = Parameter { identifier, type_ };
 
@@ -161,7 +215,7 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     }
 
     preceded(
-        multispace0,
+        parse_optional_whitespace,
         parse_parenthesis_enclosed(context("parameter", inner)),
     )(input)
 }
@@ -188,12 +242,32 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 /// ```
 pub fn parse_local(input: &str) -> IResult<Local> {
     fn inner(input: &str) -> IResult<Local> {
-        let (rest, _) =
-            preceded(multispace0, tag("local"))(input)?;
-        let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+        let (rest, keyword) = preceded(
+            parse_optional_whitespace,
+            parse_keyword,
+        )(input)?;
+
+        if keyword != "local" {
+            return Err(nom::Err::Error(
+                nom::error::VerboseError {
+                    errors: vec![(
+                        input,
+                        nom::error::VerboseErrorKind::Context(
+                            "expected 'local' keyword",
+                        ),
+                    )],
+                },
+            ));
+        }
+
+        let (rest, identifier) = opt(preceded(
+            parse_optional_whitespace,
+            parse_identifier,
+        ))(rest)?;
+        let (rest, type_) = preceded(
+            parse_optional_whitespace,
+            parse_type,
+        )(rest)?;
 
         let local = Local { identifier, type_ };
 
@@ -201,7 +275,7 @@ pub fn parse_local(input: &str) -> IResult<Local> {
     }
 
     preceded(
-        multispace0,
+        parse_optional_whitespace,
         parse_parenthesis_enclosed(context("local", inner)),
     )(input)
 }

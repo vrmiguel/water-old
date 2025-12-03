@@ -3,9 +3,7 @@
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{
-        i32 as parse_i32, i64 as parse_i64, multispace0,
-    },
+    character::complete::{i32 as parse_i32, i64 as parse_i64},
     combinator::value,
     error::context,
     multi::many0,
@@ -15,7 +13,10 @@ use nom::{
 };
 
 use super::{
-    utils::{parse_index, parse_numerical_type},
+    utils::{
+        parse_index, parse_numerical_type,
+        parse_optional_whitespace,
+    },
     IResult,
 };
 use crate::{
@@ -47,7 +48,7 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
         let (rest, opcode) = parse_opcode(input)?;
 
         let (rest, arguments) = many0(preceded(
-            multispace0,
+            parse_optional_whitespace,
             parse_parenthesis_enclosed(parse_instruction),
         ))(rest)?;
 
@@ -99,20 +100,26 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 
     match numerical_type {
         NumericalType::Int32 => {
-            let (rest, int32) =
-                preceded(multispace0, parse_i32)(rest)?;
+            let (rest, int32) = preceded(
+                parse_optional_whitespace,
+                parse_i32,
+            )(rest)?;
 
             Ok((rest, NumericalValue::Int32(int32)))
         }
         NumericalType::Int64 => {
-            let (rest, int64) =
-                preceded(multispace0, parse_i64)(rest)?;
+            let (rest, int64) = preceded(
+                parse_optional_whitespace,
+                parse_i64,
+            )(rest)?;
 
             Ok((rest, NumericalValue::Int64(int64)))
         }
         NumericalType::Float32 => {
-            let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+            let (rest, float64) = preceded(
+                parse_optional_whitespace,
+                parse_f64,
+            )(rest)?;
 
             // TODO: parsing f32.const as f64 and then casting to
             // f32 is a hack and we should switch to using
@@ -120,8 +127,10 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
             Ok((rest, NumericalValue::Float32(float64 as f32)))
         }
         NumericalType::Float64 => {
-            let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+            let (rest, float64) = preceded(
+                parse_optional_whitespace,
+                parse_f64,
+            )(rest)?;
 
             Ok((rest, NumericalValue::Float64(float64)))
         }
@@ -147,7 +156,7 @@ pub fn parse_call(input: &str) -> IResult<Index> {
     let (rest, _) = tag("call")(input)?;
 
     preceded(
-        multispace0,
+        parse_optional_whitespace,
         context("numerical index or identifier", parse_index),
     )(rest)
 }
@@ -192,7 +201,7 @@ pub fn parse_variable_instruction(
     };
 
     let (rest, index) =
-        preceded(multispace0, parse_index)(rest)?;
+        preceded(parse_optional_whitespace, parse_index)(rest)?;
 
     let operation = VariableOperation {
         scope,

@@ -1,11 +1,12 @@
-use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
-};
+use nom::{error::context, sequence::preceded};
 
 use super::IResult;
 use crate::{
-    ast::Module, parser::utils::parse_parenthesis_enclosed,
+    ast::Module,
+    parser::utils::{
+        parse_keyword, parse_optional_whitespace,
+        parse_parenthesis_enclosed,
+    },
 };
 
 /// Parses a WebAssembly Text Format module.
@@ -25,14 +26,29 @@ use crate::{
 /// ```
 pub fn parse_module(input: &str) -> IResult<Module> {
     fn inner(input: &str) -> IResult<Module> {
-        let (rest, _) =
-            preceded(multispace0, tag("module"))(input)?;
+        let (rest, keyword) = preceded(
+            parse_optional_whitespace,
+            parse_keyword,
+        )(input)?;
+
+        if keyword != "module" {
+            return Err(nom::Err::Error(
+                nom::error::VerboseError {
+                    errors: vec![(
+                        input,
+                        nom::error::VerboseErrorKind::Context(
+                            "expected 'module' keyword",
+                        ),
+                    )],
+                },
+            ));
+        }
 
         Ok((rest, Module {}))
     }
 
     preceded(
-        multispace0,
+        parse_optional_whitespace,
         parse_parenthesis_enclosed(context("module", inner)),
     )(input)
 }

@@ -1,13 +1,12 @@
-use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
-};
+use nom::{error::context, sequence::preceded};
 
 use super::IResult;
 use crate::{
     ast::FunctionImport,
     parser::{
-        parse_function, parse_parenthesis_enclosed, parse_string,
+        parse_function, parse_parenthesis_enclosed,
+        parse_string,
+        utils::{parse_keyword, parse_optional_whitespace},
     },
 };
 
@@ -35,14 +34,36 @@ pub fn parse_function_import(
     input: &str,
 ) -> IResult<FunctionImport> {
     fn inner(input: &str) -> IResult<FunctionImport> {
-        let (rest, _) =
-            preceded(multispace0, tag("import"))(input)?;
-        let (rest, namespace) =
-            preceded(multispace0, parse_string)(rest)?;
-        let (rest, fn_name) =
-            preceded(multispace0, parse_string)(rest)?;
-        let (rest, function) =
-            preceded(multispace0, parse_function)(rest)?;
+        let (rest, keyword) = preceded(
+            parse_optional_whitespace,
+            parse_keyword,
+        )(input)?;
+
+        if keyword != "import" {
+            return Err(nom::Err::Error(
+                nom::error::VerboseError {
+                    errors: vec![(
+                        input,
+                        nom::error::VerboseErrorKind::Context(
+                            "expected 'import' keyword",
+                        ),
+                    )],
+                },
+            ));
+        }
+
+        let (rest, namespace) = preceded(
+            parse_optional_whitespace,
+            parse_string,
+        )(rest)?;
+        let (rest, fn_name) = preceded(
+            parse_optional_whitespace,
+            parse_string,
+        )(rest)?;
+        let (rest, function) = preceded(
+            parse_optional_whitespace,
+            parse_function,
+        )(rest)?;
 
         // TODO: transform into nom errors
         assert!(function.exports.is_empty());
