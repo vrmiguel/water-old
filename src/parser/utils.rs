@@ -2,7 +2,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, tag, take_while1},
     character::complete::{char, multispace0, none_of},
-    combinator::{cut, value},
+    combinator::{cut, opt, value},
     error::{context, VerboseError},
     sequence::{delimited, preceded},
     Parser,

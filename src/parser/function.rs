@@ -1,7 +1,6 @@
 use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    combinator::opt, error::context, multi::many0,
-    sequence::preceded,
+    bytes::complete::tag, combinator::opt, error::context,
+    multi::many0,
 };
 
 use super::IResult;
@@ -9,7 +8,7 @@ use crate::{
     ast::{Function, Local, Parameter},
     parser::utils::{
         parse_identifier, parse_parenthesis_enclosed,
-        parse_string, parse_type,
+        parse_string, parse_typed_declaration, ws,
     },
     small_string::SmallString,
 };
@@ -51,11 +50,10 @@ use crate::{
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
-        let (rest, _) =
-            preceded(multispace0, tag("func"))(input)?;
+        let (rest, _) = ws(tag("func"))(input)?;
 
         let (rest, identifier) =
-            preceded(multispace0, opt(parse_identifier))(rest)?;
+            ws(opt(parse_identifier))(rest)?;
 
         // TODO: WASM allows more than one `export` instructions
         // in a function, but they cannot have duplicated
@@ -112,11 +110,9 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 /// ```
 pub fn parse_export(input: &str) -> IResult<SmallString> {
     fn inner(input: &str) -> IResult<SmallString> {
-        let (rest, _) =
-            preceded(multispace0, tag("export"))(input)?;
+        let (rest, _) = ws(tag("export"))(input)?;
 
-        let (rest, name) =
-            preceded(multispace0, parse_string)(rest)?;
+        let (rest, name) = ws(parse_string)(rest)?;
 
         Ok((rest, name.into()))
     }
@@ -147,22 +143,10 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 /// ```
 // TODO: handle cases such as (param f32 f32)
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
-    fn inner(input: &str) -> IResult<Parameter> {
-        let (rest, _) =
-            preceded(multispace0, tag("param"))(input)?;
-        let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
-
-        let parameter = Parameter { identifier, type_ };
-
-        Ok((rest, parameter))
-    }
-
-    preceded(
-        multispace0,
-        parse_parenthesis_enclosed(context("parameter", inner)),
+    parse_typed_declaration(
+        "param",
+        "parameter",
+        |identifier, type_| Parameter { identifier, type_ },
     )(input)
 }
 
@@ -187,21 +171,9 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 /// assert_eq!(parse_local("( local $number i64)"), Ok(("", named_i64)));
 /// ```
 pub fn parse_local(input: &str) -> IResult<Local> {
-    fn inner(input: &str) -> IResult<Local> {
-        let (rest, _) =
-            preceded(multispace0, tag("local"))(input)?;
-        let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
-
-        let local = Local { identifier, type_ };
-
-        Ok((rest, local))
-    }
-
-    preceded(
-        multispace0,
-        parse_parenthesis_enclosed(context("local", inner)),
+    parse_typed_declaration(
+        "local",
+        "local",
+        |identifier, type_| Local { identifier, type_ },
     )(input)
 }
