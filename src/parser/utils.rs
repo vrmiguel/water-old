@@ -107,6 +107,109 @@ where
     )
 }
 
+/// A whitespace-aware parser combinator that wraps any parser
+/// and automatically handles leading whitespace before applying
+/// the parser.
+///
+/// This is a common pattern in the codebase to reduce
+/// boilerplate code of the form `preceded(multispace0, parser)`.
+///
+/// # Examples
+///
+/// ```
+/// use nom::bytes::complete::tag;
+/// use water::parser::utils::ws;
+///
+/// let parser = ws(tag("func"));
+/// assert_eq!(parser("  func"), Ok(("", "func")));
+/// assert_eq!(parser("func"), Ok(("", "func")));
+/// ```
+pub fn ws<'a, T, F>(
+    parser: F,
+) -> impl FnMut(&'a str) -> IResult<'a, T>
+where
+    F: Parser<&'a str, T, VerboseError<&'a str>>,
+{
+    preceded(multispace0, parser)
+}
+
+/// A generic parser for typed declarations that follow the
+/// pattern: `(keyword [identifier] type)`
+///
+/// This function eliminates code duplication between
+/// `parse_parameter` and `parse_local` which share the same
+/// structure but differ only in their keyword and result type.
+///
+/// # Parameters
+///
+/// * `keyword` - The keyword to match (e.g., "param", "local")
+/// * `context_name` - The context name for error messages
+/// * `constructor` - A function that constructs the result type
+///   from an optional identifier and a type
+///
+/// # Examples
+///
+/// ```
+/// use water::ast::{Parameter, Local, Type};
+/// use water::parser::utils::parse_typed_declaration;
+///
+/// // Parse a parameter
+/// let param_parser = parse_typed_declaration(
+///     "param",
+///     "parameter",
+///     |id, ty| Parameter { identifier: id, type_: ty }
+/// );
+///
+/// // Parse a local variable
+/// let local_parser = parse_typed_declaration(
+///     "local",
+///     "local",
+///     |id, ty| Local { identifier: id, type_: ty }
+/// );
+/// ```
+pub fn parse_typed_declaration<'a, T, F>(
+    keyword: &'a str,
+    context_name: &'a str,
+    constructor: F,
+) -> impl FnMut(&'a str) -> IResult<'a, T>
+where
+    F: Fn(Option<SmallString>, Type) -> T,
+{
+    move |input: &'a str| {
+        fn inner<'b, T, F>(
+            keyword: &'b str,
+            constructor: F,
+        ) -> impl FnMut(&'b str) -> IResult<'b, T>
+        where
+            F: Fn(Option<SmallString>, Type) -> T,
+        {
+            move |input: &'b str| {
+                let (rest, _) =
+                    preceded(multispace0, tag(keyword))(input)?;
+                let (rest, identifier) =
+                    opt(preceded(
+                        multispace0,
+                        parse_identifier,
+                    ))(rest)?;
+                let (rest, type_) =
+                    preceded(multispace0, parse_type)(rest)?;
+
+                let result = constructor(identifier, type_);
+
+                Ok((rest, result))
+            }
+        }
+
+        preceded(
+            multispace0,
+            parse_parenthesis_enclosed(context(
+                context_name,
+                inner(keyword, &constructor),
+            )),
+        )(input)
+    }
+}
+
 fn is_acceptable_identifier_character(ch: char) -> bool {
     ch.is_ascii_alphanumeric()
         || matches!(
