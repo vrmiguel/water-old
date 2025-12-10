@@ -43,6 +43,38 @@ pub enum NumericalValue {
     Float64(f64),
 }
 
+impl NumericalValue {
+    /// Returns the negation of this numerical value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use water::ast::NumericalValue;
+    ///
+    /// let positive = NumericalValue::Int32(42);
+    /// assert_eq!(positive.negate(), NumericalValue::Int32(-42));
+    ///
+    /// let negative = NumericalValue::Float64(-3.14);
+    /// assert_eq!(negative.negate(), NumericalValue::Float64(3.14));
+    /// ```
+    pub fn negate(self) -> Self {
+        match self {
+            NumericalValue::Int32(v) => {
+                NumericalValue::Int32(-v)
+            }
+            NumericalValue::Int64(v) => {
+                NumericalValue::Int64(-v)
+            }
+            NumericalValue::Float32(v) => {
+                NumericalValue::Float32(-v)
+            }
+            NumericalValue::Float64(v) => {
+                NumericalValue::Float64(-v)
+            }
+        }
+    }
+}
+
 /// A function parameter.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Parameter {
