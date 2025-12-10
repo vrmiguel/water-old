@@ -20,9 +20,10 @@ use super::{
 };
 use crate::{
     ast::{
-        Constant, Index, Instruction, NumericalType,
-        NumericalValue, Opcode, ScopeKind, Unreachable,
-        VariableInstruction, VariableOperation,
+        ArithmeticInstruction, ArithmeticOperation, Constant,
+        Index, Instruction, NumericalType, NumericalValue,
+        Opcode, ScopeKind, Unreachable, VariableInstruction,
+        VariableOperation,
     },
     parser::utils::parse_parenthesis_enclosed,
 };
@@ -71,6 +72,7 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
         parse_const
             .map(|value| Constant { value })
             .map(Opcode::Constant),
+        parse_arithmetic_operation.map(Opcode::Arithmetic),
         parse_unreachable.map(Opcode::Unreachable),
         context("call", parse_call).map(Opcode::Call),
     ))(input)
@@ -208,4 +210,118 @@ pub fn parse_unreachable(input: &str) -> IResult<Unreachable> {
     let (rest, _) = tag("unreachable")(input)?;
 
     Ok((rest, Unreachable))
+}
+
+/// Parses an arithmetic operation, such as `i32.add`, `i64.sub`,
+/// `f32.mul`, or `f64.div`.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::ast::{ArithmeticInstruction, ArithmeticOperation, NumericalType};
+/// use water::parser::parse_arithmetic_operation;
+///
+/// assert_eq!(
+///     parse_arithmetic_operation("i32.add"),
+///     Ok(("", ArithmeticOperation {
+///         type_: NumericalType::Int32,
+///         instr: ArithmeticInstruction::Addition,
+///     }))
+/// );
+/// assert_eq!(
+///     parse_arithmetic_operation("i64.sub"),
+///     Ok(("", ArithmeticOperation {
+///         type_: NumericalType::Int64,
+///         instr: ArithmeticInstruction::Subtraction,
+///     }))
+/// );
+/// assert_eq!(
+///     parse_arithmetic_operation("f32.mul"),
+///     Ok(("", ArithmeticOperation {
+///         type_: NumericalType::Float32,
+///         instr: ArithmeticInstruction::Multiplication,
+///     }))
+/// );
+/// assert_eq!(
+///     parse_arithmetic_operation("f64.div"),
+///     Ok(("", ArithmeticOperation {
+///         type_: NumericalType::Float64,
+///         instr: ArithmeticInstruction::FloatDivision,
+///     }))
+/// );
+/// assert_eq!(
+///     parse_arithmetic_operation("i32.rem_s"),
+///     Ok(("", ArithmeticOperation {
+///         type_: NumericalType::Int32,
+///         instr: ArithmeticInstruction::SignedRemainder,
+///     }))
+/// );
+/// ```
+pub fn parse_arithmetic_operation(
+    input: &str,
+) -> IResult<ArithmeticOperation> {
+    // Parse the numerical type of this instruction: i32, i64,
+    // f32 or f64
+    let (rest, type_) = parse_numerical_type(input)?;
+
+    // Parse the arithmetic instruction
+    let (rest, instr) = match type_ {
+        NumericalType::Int32 | NumericalType::Int64 => {
+            // Integer types support: add, sub, mul, div_s, div_u,
+            // rem_s, rem_u
+            alt((
+                value(
+                    ArithmeticInstruction::Addition,
+                    tag(".add"),
+                ),
+                value(
+                    ArithmeticInstruction::Subtraction,
+                    tag(".sub"),
+                ),
+                value(
+                    ArithmeticInstruction::Multiplication,
+                    tag(".mul"),
+                ),
+                value(
+                    ArithmeticInstruction::SignedDivision,
+                    tag(".div_s"),
+                ),
+                value(
+                    ArithmeticInstruction::UnsignedDisivion,
+                    tag(".div_u"),
+                ),
+                value(
+                    ArithmeticInstruction::SignedRemainder,
+                    tag(".rem_s"),
+                ),
+                value(
+                    ArithmeticInstruction::UnsignedRemainder,
+                    tag(".rem_u"),
+                ),
+            ))(rest)?
+        }
+        NumericalType::Float32 | NumericalType::Float64 => {
+            // Float types support: add, sub, mul, div
+            alt((
+                value(
+                    ArithmeticInstruction::Addition,
+                    tag(".add"),
+                ),
+                value(
+                    ArithmeticInstruction::Subtraction,
+                    tag(".sub"),
+                ),
+                value(
+                    ArithmeticInstruction::Multiplication,
+                    tag(".mul"),
+                ),
+                value(
+                    ArithmeticInstruction::FloatDivision,
+                    tag(".div"),
+                ),
+            ))(rest)?
+        }
+    };
+
+    Ok((rest, ArithmeticOperation { type_, instr }))
 }
