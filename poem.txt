@@ -1,0 +1,9 @@
+in the realm of ones and zeros bright,
+where web assembly takes its flight,
+the water flows through bytes so clear,
+compiling text without a fear.
+
+from wasm's depths to browser's shore,
+this tiny tool does so much more,
+it parses, builds, and sets things free,
+a compiler for you and me.
