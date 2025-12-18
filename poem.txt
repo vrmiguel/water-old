@@ -1,0 +1,19 @@
+In the realm where bytes flow like water,
+Where assembly meets the web's bright quarter,
+A compiler stands both small and keen,
+The fastest format reader ever seen.
+
+Through text it parses, swift and clean,
+WebAssembly's dance, a binary dream,
+From WAT to module, line by line,
+Performance tuned, by grand design.
+
+Like water finding its perfect course,
+Through memory's valleys with gentle force,
+It shapes the code with careful hand,
+Building bridges to the promised land.
+
+So let it flow, this "water" pure,
+A tiny tool, yet strong and sure,
+Compiling dreams of speed and light,
+Turning text to binary flight.
