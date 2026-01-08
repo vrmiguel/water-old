@@ -2,3 +2,4 @@
 
 `water` aims to be a tiny and performant WebAssembly Text Format compiler.
 
+See `POEM.md` for a small poem about the project’s theme.
