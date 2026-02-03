@@ -7,8 +7,12 @@ pub struct Program {
 }
 
 /// Represents a WebAssembly Text Format module
+#[derive(Clone, Debug, PartialEq)]
 pub struct Module {
-    // TODO
+    /// Functions defined in this module
+    pub functions: Vec<Function>,
+    /// Function imports
+    pub imports: Vec<FunctionImport>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -66,7 +70,7 @@ pub struct Local {
 }
 
 /// Represents a function definition.
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Function {
     /// The identifier for this function, if any.
     pub identifier: Option<SmallString>,
@@ -81,6 +85,10 @@ pub struct Function {
     /// Ordered according to the order the
     /// locals were defined.
     pub local_variables: Vec<Local>,
+    /// The return type of this function, if any
+    pub return_type: Option<Type>,
+    /// The body of the function (list of instructions)
+    pub body: Vec<Instruction>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -91,8 +99,11 @@ pub struct Instruction {
     pub opcode: Opcode,
     /// The list of "inlined" arguments to this instruction, if
     /// any.
-    // TODO: transform this into a "generic" Value
-    // TODO: investigate use of SmallVec here
+    ///
+    /// Future optimization: Consider using SmallVec here to avoid heap
+    /// allocations for small argument lists (most instructions have 0-2 args).
+    /// Future enhancement: Could be transformed into a generic Value type
+    /// to support non-instruction arguments.
     pub arguments: Vec<Instruction>,
 }
 
@@ -145,6 +156,50 @@ pub enum Opcode {
     /// (unreachable (i32.const 5) (i32.const 5))
     /// ```
     Unreachable(Unreachable),
+    /// Control flow operations (blocks, loops, if/else)
+    ControlFlow(ControlFlow),
+    /// Branch instructions
+    Branch(Branch),
+}
+
+/// Control flow structures in WebAssembly
+#[derive(Clone, Debug, PartialEq)]
+pub enum ControlFlow {
+    /// A block creates a label that can be branched to
+    Block {
+        label: Option<SmallString>,
+        result_type: Option<Type>,
+        instructions: Vec<Instruction>,
+    },
+    /// A loop creates a label that branches jump to the start of
+    Loop {
+        label: Option<SmallString>,
+        result_type: Option<Type>,
+        instructions: Vec<Instruction>,
+    },
+    /// Conditional execution
+    If {
+        label: Option<SmallString>,
+        result_type: Option<Type>,
+        then_instructions: Vec<Instruction>,
+        else_instructions: Option<Vec<Instruction>>,
+    },
+}
+
+/// Branch instructions for control flow
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Branch {
+    /// Unconditional branch to a label
+    Br(Index),
+    /// Conditional branch (branches if top of stack is non-zero)
+    BrIf(Index),
+    /// Branch table for switch-like behavior
+    BrTable {
+        labels: Vec<Index>,
+        default: Index,
+    },
+    /// Return from current function
+    Return,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

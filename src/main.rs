@@ -6,10 +6,7 @@ fn main() {
     dbg!(parse_instruction("(i32.const 5)").unwrap());
 
     dbg!(parse_instruction("(local.set $idx)").unwrap());
-    dbg!(
-        parse_instruction("(local.set $idx (i32.const 5))")
-            .unwrap()
-    );
+    dbg!(parse_instruction("(local.set $idx (i32.const 5))").unwrap());
 
     let import_wat = r#"(import "console" "log" (func $log (param i32) (param i32)))"#;
 
@@ -17,14 +14,10 @@ fn main() {
         println!("{}", stringify_error(import_wat, err));
     }
 
-    fn stringify_error(
-        input: &str,
-        error: nom::Err<nom::error::VerboseError<&str>>,
-    ) -> String {
+    fn stringify_error(input: &str, error: nom::Err<nom::error::VerboseError<&str>>) -> String {
         match error {
             nom::Err::Incomplete(_) => unreachable!(),
-            nom::Err::Error(error)
-            | nom::Err::Failure(error) => {
+            nom::Err::Error(error) | nom::Err::Failure(error) => {
                 nom::error::convert_error(input, error)
             }
         }

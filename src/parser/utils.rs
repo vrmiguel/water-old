@@ -36,10 +36,7 @@ pub fn parse_string(input: &str) -> IResult<&str> {
 pub fn parse_identifier(input: &str) -> IResult<SmallString> {
     let (rest, identifier) = context(
         "identifier",
-        preceded(
-            char('$'),
-            take_while1(is_acceptable_identifier_character),
-        ),
+        preceded(char('$'), take_while1(is_acceptable_identifier_character)),
     )(input)?;
 
     Ok((rest, SmallString::new(identifier)))
@@ -49,18 +46,13 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
 ///
 /// Does not eat leading whitespace.
 pub fn parse_type(input: &str) -> IResult<Type> {
-    context(
-        "type",
-        alt((parse_numerical_type.map(Type::Numerical),)),
-    )(input)
+    context("type", alt((parse_numerical_type.map(Type::Numerical),)))(input)
 }
 
 /// Parses one of the four built-in numerical WASM types.
 ///
 /// Does not eat leading whitespace.
-pub fn parse_numerical_type(
-    input: &str,
-) -> IResult<NumericalType> {
+pub fn parse_numerical_type(input: &str) -> IResult<NumericalType> {
     alt((
         value(NumericalType::Int32, tag("i32")),
         value(NumericalType::Int64, tag("i64")),
@@ -91,19 +83,14 @@ pub fn parse_index(input: &str) -> IResult<Index> {
 }
 
 // Based on https://github.com/Geal/nom/blob/761ab0a24fccb4c560367b583b608fbae5f31647/examples/s_expression.rs#L155
-pub fn parse_parenthesis_enclosed<'a, T, F>(
-    inner: F,
-) -> impl FnMut(&'a str) -> IResult<T>
+pub fn parse_parenthesis_enclosed<'a, T, F>(inner: F) -> impl FnMut(&'a str) -> IResult<T>
 where
     F: Parser<&'a str, T, VerboseError<&'a str>>,
 {
     delimited(
         char('('),
         preceded(multispace0, inner),
-        context(
-            "closing parenthesis",
-            cut(preceded(multispace0, char(')'))),
-        ),
+        context("closing parenthesis", cut(preceded(multispace0, char(')')))),
     )
 }
 

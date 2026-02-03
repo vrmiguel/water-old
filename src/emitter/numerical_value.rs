@@ -4,18 +4,12 @@ use super::{Emittable, Emitter};
 use crate::{ast::NumericalValue, leb128::SignedLeb128};
 
 impl<W: Write> Emittable<NumericalValue> for Emitter<W> {
-    fn emit_element(
-        &mut self,
-        element: NumericalValue,
-    ) -> io::Result<usize> {
+    fn emit_element(&mut self, element: NumericalValue) -> io::Result<usize> {
         use floating_point_converters::*;
 
         match element {
-            NumericalValue::Int32(int32) => self
-                .emit_element(SignedLeb128::from(int32 as i64)),
-            NumericalValue::Int64(int64) => {
-                self.emit_element(SignedLeb128::from(int64))
-            }
+            NumericalValue::Int32(int32) => self.emit_element(SignedLeb128::from(int32 as i64)),
+            NumericalValue::Int64(int64) => self.emit_element(SignedLeb128::from(int64)),
             NumericalValue::Float32(f32) => {
                 let bytes = f32_to_bytes(f32);
 

@@ -4,5 +4,5 @@ newline_style = "Unix"
 wrap_comments = true
 reorder_imports = true
 group_imports = "StdExternalCrate"
-fn_call_width = 50
-max_width = 65
+fn_call_width = 80
+max_width = 100

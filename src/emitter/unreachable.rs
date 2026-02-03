@@ -6,10 +6,7 @@ use crate::{ast::Unreachable, opcode::ToOpcode};
 impl<W: Write> Emittable<Unreachable> for Emitter<W> {
     /// Does not type-check or check arity since unreachable
     /// doesn't really check for anything.
-    fn emit_element(
-        &mut self,
-        unreachable: Unreachable,
-    ) -> io::Result<usize> {
+    fn emit_element(&mut self, unreachable: Unreachable) -> io::Result<usize> {
         let opcode = unreachable.to_opcode();
 
         self.emit_byte(opcode)
