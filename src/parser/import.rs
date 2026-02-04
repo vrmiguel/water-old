@@ -1,6 +1,9 @@
 use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
+    bytes::complete::tag,
+    character::complete::multispace0,
+    error::{context, VerboseError, VerboseErrorKind},
+    sequence::preceded,
+    Err,
 };
 
 use super::IResult;
@@ -30,6 +33,14 @@ use crate::{
 /// };
 ///
 /// assert_eq!(parse_function_import(import_wat), Ok(("", parsed_import)));
+///
+/// // Imported functions cannot have exports
+/// let invalid_with_export = r#"(import "mod" "fn" (func $f (export "bad")))"#;
+/// assert!(parse_function_import(invalid_with_export).is_err());
+///
+/// // Imported functions cannot have local variables
+/// let invalid_with_local = r#"(import "mod" "fn" (func $f (local i32)))"#;
+/// assert!(parse_function_import(invalid_with_local).is_err());
 /// ```
 pub fn parse_function_import(
     input: &str,
@@ -44,9 +55,27 @@ pub fn parse_function_import(
         let (rest, function) =
             preceded(multispace0, parse_function)(rest)?;
 
-        // TODO: transform into nom errors
-        assert!(function.exports.is_empty());
-        assert!(function.local_variables.is_empty());
+        if !function.exports.is_empty() {
+            return Err(Err::Failure(VerboseError {
+                errors: vec![(
+                    rest,
+                    VerboseErrorKind::Context(
+                        "imported functions cannot have exports",
+                    ),
+                )],
+            }));
+        }
+
+        if !function.local_variables.is_empty() {
+            return Err(Err::Failure(VerboseError {
+                errors: vec![(
+                    rest,
+                    VerboseErrorKind::Context(
+                        "imported functions cannot have local variables",
+                    ),
+                )],
+            }));
+        }
 
         let fn_import = FunctionImport {
             namespace: namespace.into(),
