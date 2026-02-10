@@ -154,7 +154,7 @@ impl ToOpcode for ComparisonOperation {
             (
                 NumericalType::Int32,
                 ComparisonInstruction::GreaterThan,
-            ) => todo!(),
+            ) => 0x48,
             (
                 NumericalType::Int32,
                 ComparisonInstruction::LessThan,
