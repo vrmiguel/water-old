@@ -2,7 +2,7 @@
 
 `water` aims to be a tiny and performant WebAssembly Text Format compiler.
 
-## Related Repositories
+## Dépôts Associés
 
-- **[PolynomialToolbox](https://github.com/tembo-io/PolynomialToolbox)** - A series of polynomial-related functions for mathematical operations, available in Rust and Python. Features operations like evaluation, differentiation, integration, multiplication, and root-finding for polynomial mathematics.
+- **[PolynomialToolbox](https://github.com/tembo-io/PolynomialToolbox)** - Une série de fonctions liées aux polynômes pour les opérations mathématiques, disponible en Rust et Python. Comprend des opérations comme l'évaluation, la différenciation, l'intégration, la multiplication et la recherche de racines pour les mathématiques polynomiales.
 
