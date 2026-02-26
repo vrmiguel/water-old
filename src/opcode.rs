@@ -1,12 +1,34 @@
 use crate::ast::{
     ArithmeticInstruction, ArithmeticOperation,
     ComparisonInstruction, ComparisonOperation, Constant,
-    NumericalType, NumericalValue, Opcode, ScopeKind,
+    NumericalType, NumericalValue, Opcode, ScopeKind, Type,
     Unreachable, VariableInstruction, VariableOperation,
 };
 
 pub trait ToOpcode {
     fn to_opcode(&self) -> u8;
+}
+
+impl ToOpcode for Type {
+    fn to_opcode(&self) -> u8 {
+        match self {
+            Type::Numerical(numerical) => numerical.to_opcode(),
+        }
+    }
+}
+
+impl ToOpcode for NumericalType {
+    /// Returns the WebAssembly binary encoding for value types.
+    ///
+    /// See: <https://webassembly.github.io/spec/core/binary/types.html#value-types>
+    fn to_opcode(&self) -> u8 {
+        match self {
+            NumericalType::Int32 => 0x7F,
+            NumericalType::Int64 => 0x7E,
+            NumericalType::Float32 => 0x7D,
+            NumericalType::Float64 => 0x7C,
+        }
+    }
 }
 
 impl ToOpcode for Unreachable {

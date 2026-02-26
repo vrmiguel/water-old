@@ -8,7 +8,22 @@ pub struct Program {
 
 /// Represents a WebAssembly Text Format module
 pub struct Module {
-    // TODO
+    /// The function type signatures declared in this module's
+    /// type section.
+    pub types: Vec<FuncType>,
+}
+
+/// A WebAssembly function type, representing a signature with
+/// parameter types and result types.
+///
+/// Encoded in the binary format as:
+/// `0x60 <param_types:vec(valtype)> <result_types:vec(valtype)>`
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FuncType {
+    /// The parameter types of this function signature.
+    pub params: Vec<Type>,
+    /// The result types of this function signature.
+    pub results: Vec<Type>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

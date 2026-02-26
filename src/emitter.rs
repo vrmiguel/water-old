@@ -4,6 +4,7 @@ mod arithmetic_operation;
 mod constant;
 pub mod emittable;
 mod numerical_value;
+mod type_section;
 mod unreachable;
 
 pub use emittable::Emittable;
@@ -50,15 +51,20 @@ impl<W: Write> Emitter<W> {
     /// Emit the given program to WASM
     pub fn emit_program(
         &mut self,
-        _program: Program,
+        program: Program,
     ) -> io::Result<()> {
         self.emit_magic()?;
         self.emit_version()?;
 
+        for module in &program.modules {
+            // Type Section (0x01)
+            self.emit_element(module.types.as_slice())?;
+        }
+
         Ok(())
     }
 
-    #[cfg(test)]
+    /// Consumes this emitter, returning the underlying writer.
     pub fn into_inner(self) -> W {
         self.writer
     }
