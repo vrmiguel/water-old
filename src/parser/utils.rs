@@ -1,9 +1,12 @@
 use nom::{
     branch::alt,
     bytes::complete::{escaped, tag, take_while1},
-    character::complete::{char, multispace0, none_of},
-    combinator::{cut, value},
+    character::complete::{
+        char, multispace0, multispace1, none_of,
+    },
+    combinator::{cut, opt, value},
     error::{context, VerboseError},
+    multi::separated_list0,
     sequence::{delimited, preceded},
     Parser,
 };
@@ -134,4 +137,72 @@ fn is_acceptable_identifier_character(ch: char) -> bool {
                 | '|'
                 | '~'
         )
+}
+
+/// Parses a whitespace-separated list of elements.
+///
+/// This combinator is useful for parsing sequences of items
+/// where elements are separated by one or more whitespace
+/// characters. Returns an empty vector if no elements are
+/// found.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_whitespace_separated;
+/// use water::parser::parse_numerical_type;
+/// use water::ast::NumericalType;
+///
+/// let result = parse_whitespace_separated(
+///     parse_numerical_type
+/// )("i32 i64 f32");
+/// assert_eq!(result, Ok(("", vec![
+///     NumericalType::Int32,
+///     NumericalType::Int64,
+///     NumericalType::Float32
+/// ])));
+///
+/// let empty = parse_whitespace_separated(
+///     parse_numerical_type
+/// )("");
+/// assert_eq!(empty, Ok(("", vec![])));
+/// ```
+pub fn parse_whitespace_separated<'a, T, F>(
+    inner: F,
+) -> impl FnMut(&'a str) -> IResult<Vec<T>>
+where
+    F: Parser<&'a str, T, VerboseError<&'a str>>,
+{
+    separated_list0(multispace1, inner)
+}
+
+/// Parses an optional element, returning `Some(T)` if the
+/// parser succeeds or `None` if it fails without consuming
+/// input.
+///
+/// This combinator wraps nom's `opt` with proper error context
+/// for WebAssembly parsing. Useful for parsing elements that
+/// may or may not be present, such as optional identifiers or
+/// export declarations.
+///
+/// Does not eat leading whitespace.
+///
+/// ```
+/// use water::parser::parse_optional;
+/// use water::parser::parse_identifier;
+/// use water::small_string::SmallString;
+///
+/// let with_id = parse_optional(parse_identifier)("$foo rest");
+/// assert_eq!(with_id, Ok((" rest", Some(SmallString::new("foo")))));
+///
+/// let without_id = parse_optional(parse_identifier)("rest");
+/// assert_eq!(without_id, Ok(("rest", None)));
+/// ```
+pub fn parse_optional<'a, T, F>(
+    inner: F,
+) -> impl FnMut(&'a str) -> IResult<Option<T>>
+where
+    F: Parser<&'a str, T, VerboseError<&'a str>>,
+{
+    opt(inner)
 }
