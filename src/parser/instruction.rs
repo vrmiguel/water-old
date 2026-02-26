@@ -9,7 +9,9 @@ use nom::{
     combinator::value,
     error::context,
     multi::many0,
-    number::complete::double as parse_f64,
+    number::complete::{
+        double as parse_double, float as parse_float,
+    },
     sequence::preceded,
     Parser,
 };
@@ -111,17 +113,14 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
             Ok((rest, NumericalValue::Int64(int64)))
         }
         NumericalType::Float32 => {
-            let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+            let (rest, float32) =
+                preceded(multispace0, parse_float)(rest)?;
 
-            // TODO: parsing f32.const as f64 and then casting to
-            // f32 is a hack and we should switch to using
-            // `nom::number::complete::f32`
-            Ok((rest, NumericalValue::Float32(float64 as f32)))
+            Ok((rest, NumericalValue::Float32(float32)))
         }
         NumericalType::Float64 => {
             let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+                preceded(multispace0, parse_double)(rest)?;
 
             Ok((rest, NumericalValue::Float64(float64)))
         }
