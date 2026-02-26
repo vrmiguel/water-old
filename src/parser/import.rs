@@ -1,14 +1,11 @@
 use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    error::context, sequence::preceded,
+    bytes::complete::tag, character::complete::multispace0, error::context, sequence::preceded,
 };
 
 use super::IResult;
 use crate::{
     ast::FunctionImport,
-    parser::{
-        parse_function, parse_parenthesis_enclosed, parse_string,
-    },
+    parser::{parse_function, parse_parenthesis_enclosed, parse_string},
 };
 
 /// Parses a function import.
@@ -31,22 +28,26 @@ use crate::{
 ///
 /// assert_eq!(parse_function_import(import_wat), Ok(("", parsed_import)));
 /// ```
-pub fn parse_function_import(
-    input: &str,
-) -> IResult<FunctionImport> {
+pub fn parse_function_import(input: &str) -> IResult<FunctionImport> {
     fn inner(input: &str) -> IResult<FunctionImport> {
-        let (rest, _) =
-            preceded(multispace0, tag("import"))(input)?;
-        let (rest, namespace) =
-            preceded(multispace0, parse_string)(rest)?;
-        let (rest, fn_name) =
-            preceded(multispace0, parse_string)(rest)?;
-        let (rest, function) =
-            preceded(multispace0, parse_function)(rest)?;
+        let (rest, _) = preceded(multispace0, tag("import"))(input)?;
+        let (rest, namespace) = preceded(multispace0, parse_string)(rest)?;
+        let (rest, fn_name) = preceded(multispace0, parse_string)(rest)?;
+        let (rest, function) = preceded(multispace0, parse_function)(rest)?;
 
-        // TODO: transform into nom errors
-        assert!(function.exports.is_empty());
-        assert!(function.local_variables.is_empty());
+        // Imported functions cannot have exports or locals
+        if !function.exports.is_empty() {
+            return Err(nom::Err::Error(nom::error::Error::new(
+                rest,
+                nom::error::ErrorKind::Verify,
+            )));
+        }
+        if !function.local_variables.is_empty() {
+            return Err(nom::Err::Error(nom::error::Error::new(
+                rest,
+                nom::error::ErrorKind::Verify,
+            )));
+        }
 
         let fn_import = FunctionImport {
             namespace: namespace.into(),
@@ -57,7 +58,5 @@ pub fn parse_function_import(
         Ok((rest, fn_import))
     }
 
-    parse_parenthesis_enclosed(context("function import", inner))(
-        input,
-    )
+    parse_parenthesis_enclosed(context("function import", inner))(input)
 }

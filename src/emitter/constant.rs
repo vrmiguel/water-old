@@ -4,10 +4,7 @@ use super::{emittable::Emittable, Emitter};
 use crate::{ast::Constant, opcode::ToOpcode};
 
 impl<W: Write> Emittable<Constant> for Emitter<W> {
-    fn emit_element(
-        &mut self,
-        element: Constant,
-    ) -> io::Result<usize> {
+    fn emit_element(&mut self, element: Constant) -> io::Result<usize> {
         let opcode = element.value.to_opcode();
 
         // Emit the `const` opcode for the given value
@@ -80,8 +77,7 @@ mod tests {
             &emitter.into_inner().into_inner(),
             &[
                 // `f32.const`'s opcode
-                0x43,
-                // and then the LE bit pattern for 5.0
+                0x43, // and then the LE bit pattern for 5.0
                 0x00, 0x00, 0xa0, 0x40,
             ]
         );
@@ -101,8 +97,7 @@ mod tests {
             &emitter.into_inner().into_inner(),
             &[
                 // `f64.const`'s opcode
-                0x44,
-                // and then the LE bit pattern for 25.50
+                0x44, // and then the LE bit pattern for 25.50
                 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x39, 0x40,
             ]
         );

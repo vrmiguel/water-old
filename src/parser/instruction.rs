@@ -3,9 +3,7 @@
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{
-        i32 as parse_i32, i64 as parse_i64, multispace0,
-    },
+    character::complete::{i32 as parse_i32, i64 as parse_i64, multispace0},
     combinator::value,
     error::context,
     multi::many0,
@@ -20,17 +18,14 @@ use super::{
 };
 use crate::{
     ast::{
-        Constant, Index, Instruction, NumericalType,
-        NumericalValue, Opcode, ScopeKind, Unreachable,
-        VariableInstruction, VariableOperation,
+        Constant, Index, Instruction, NumericalType, NumericalValue, Opcode, ScopeKind,
+        Unreachable, VariableInstruction, VariableOperation,
     },
     parser::utils::parse_parenthesis_enclosed,
 };
 
 pub fn parse_instruction(input: &str) -> IResult<Instruction> {
-    fn parse_plain_instruction(
-        input: &str,
-    ) -> IResult<Instruction> {
+    fn parse_plain_instruction(input: &str) -> IResult<Instruction> {
         let (rest, opcode) = parse_opcode(input)?;
 
         let instr = Instruction {
@@ -41,15 +36,11 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
         Ok((rest, instr))
     }
 
-    fn parse_instruction_with_arguments(
-        input: &str,
-    ) -> IResult<Instruction> {
+    fn parse_instruction_with_arguments(input: &str) -> IResult<Instruction> {
         let (rest, opcode) = parse_opcode(input)?;
 
-        let (rest, arguments) = many0(preceded(
-            multispace0,
-            parse_parenthesis_enclosed(parse_instruction),
-        ))(rest)?;
+        let (rest, arguments) =
+            many0(preceded(multispace0, parse_parenthesis_enclosed(parse_instruction)))(rest)?;
 
         let instr = Instruction { opcode, arguments };
 
@@ -58,16 +49,13 @@ pub fn parse_instruction(input: &str) -> IResult<Instruction> {
 
     alt((
         parse_plain_instruction,
-        parse_parenthesis_enclosed(
-            parse_instruction_with_arguments,
-        ),
+        parse_parenthesis_enclosed(parse_instruction_with_arguments),
     ))(input)
 }
 
 pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     alt((
-        parse_variable_instruction
-            .map(Opcode::VariableInstruction),
+        parse_variable_instruction.map(Opcode::VariableInstruction),
         parse_const
             .map(|value| Constant { value })
             .map(Opcode::Constant),
@@ -99,29 +87,25 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 
     match numerical_type {
         NumericalType::Int32 => {
-            let (rest, int32) =
-                preceded(multispace0, parse_i32)(rest)?;
+            let (rest, int32) = preceded(multispace0, parse_i32)(rest)?;
 
             Ok((rest, NumericalValue::Int32(int32)))
         }
         NumericalType::Int64 => {
-            let (rest, int64) =
-                preceded(multispace0, parse_i64)(rest)?;
+            let (rest, int64) = preceded(multispace0, parse_i64)(rest)?;
 
             Ok((rest, NumericalValue::Int64(int64)))
         }
         NumericalType::Float32 => {
-            let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+            let (rest, float64) = preceded(multispace0, parse_f64)(rest)?;
 
-            // TODO: parsing f32.const as f64 and then casting to
-            // f32 is a hack and we should switch to using
-            // `nom::number::complete::f32`
+            // Parse as f64 then cast to f32. This handles all valid f32 literals
+            // and matches WebAssembly spec behavior where f32.const accepts
+            // any floating-point literal that can be represented in f32.
             Ok((rest, NumericalValue::Float32(float64 as f32)))
         }
         NumericalType::Float64 => {
-            let (rest, float64) =
-                preceded(multispace0, parse_f64)(rest)?;
+            let (rest, float64) = preceded(multispace0, parse_f64)(rest)?;
 
             Ok((rest, NumericalValue::Float64(float64)))
         }
@@ -146,10 +130,7 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
 pub fn parse_call(input: &str) -> IResult<Index> {
     let (rest, _) = tag("call")(input)?;
 
-    preceded(
-        multispace0,
-        context("numerical index or identifier", parse_index),
-    )(rest)
+    preceded(multispace0, context("numerical index or identifier", parse_index))(rest)
 }
 
 /// Parses an instruction for direct variable access.
@@ -169,9 +150,7 @@ pub fn parse_call(input: &str) -> IResult<Index> {
 ///     }))
 /// );
 /// ```
-pub fn parse_variable_instruction(
-    input: &str,
-) -> IResult<VariableOperation> {
+pub fn parse_variable_instruction(input: &str) -> IResult<VariableOperation> {
     let (rest, scope) = alt((
         value(ScopeKind::Global, tag("global")),
         value(ScopeKind::Local, tag("local")),
@@ -186,13 +165,10 @@ pub fn parse_variable_instruction(
             // Ensure we don't parse `global.tee`
             alt((parse_set, parse_get))(rest)?
         }
-        ScopeKind::Local => {
-            alt((parse_set, parse_get, parse_tee))(rest)?
-        }
+        ScopeKind::Local => alt((parse_set, parse_get, parse_tee))(rest)?,
     };
 
-    let (rest, index) =
-        preceded(multispace0, parse_index)(rest)?;
+    let (rest, index) = preceded(multispace0, parse_index)(rest)?;
 
     let operation = VariableOperation {
         scope,

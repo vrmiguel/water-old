@@ -1,16 +1,12 @@
 use nom::{
-    bytes::complete::tag, character::complete::multispace0,
-    combinator::opt, error::context, multi::many0,
-    sequence::preceded,
+    bytes::complete::tag, character::complete::multispace0, combinator::opt, error::context,
+    multi::many0, sequence::preceded,
 };
 
 use super::IResult;
 use crate::{
     ast::{Function, Local, Parameter},
-    parser::utils::{
-        parse_identifier, parse_parenthesis_enclosed,
-        parse_string, parse_type,
-    },
+    parser::utils::{parse_identifier, parse_parenthesis_enclosed, parse_string, parse_type},
     small_string::SmallString,
 };
 
@@ -51,16 +47,23 @@ use crate::{
 /// ```
 pub fn parse_function(input: &str) -> IResult<Function> {
     fn inner(input: &str) -> IResult<Function> {
-        let (rest, _) =
-            preceded(multispace0, tag("func"))(input)?;
+        let (rest, _) = preceded(multispace0, tag("func"))(input)?;
 
-        let (rest, identifier) =
-            preceded(multispace0, opt(parse_identifier))(rest)?;
+        let (rest, identifier) = preceded(multispace0, opt(parse_identifier))(rest)?;
 
-        // TODO: WASM allows more than one `export` instructions
-        // in a function, but they cannot have duplicated
-        // names. Check for this either here or at a later step.
         let (rest, exports) = many0(parse_export)(rest)?;
+
+        // Validate that export names are unique
+        let mut seen_exports = std::collections::HashSet::new();
+        for export in &exports {
+            if !seen_exports.insert(export.as_str()) {
+                return Err(nom::Err::Error(nom::error::Error::new(
+                    rest,
+                    nom::error::ErrorKind::Verify,
+                )));
+            }
+        }
+
         let (rest, parameters) = many0(parse_parameter)(rest)?;
         let (rest, local_variables) = many0(parse_local)(rest)?;
 
@@ -112,11 +115,9 @@ pub fn parse_function(input: &str) -> IResult<Function> {
 /// ```
 pub fn parse_export(input: &str) -> IResult<SmallString> {
     fn inner(input: &str) -> IResult<SmallString> {
-        let (rest, _) =
-            preceded(multispace0, tag("export"))(input)?;
+        let (rest, _) = preceded(multispace0, tag("export"))(input)?;
 
-        let (rest, name) =
-            preceded(multispace0, parse_string)(rest)?;
+        let (rest, name) = preceded(multispace0, parse_string)(rest)?;
 
         Ok((rest, name.into()))
     }
@@ -145,25 +146,22 @@ pub fn parse_export(input: &str) -> IResult<SmallString> {
 /// assert_eq!(parse_parameter("(param i32)"), Ok(("", anonymous_i32)));
 /// assert_eq!(parse_parameter("( param $number f64)"), Ok(("", named_f64)));
 /// ```
-// TODO: handle cases such as (param f32 f32)
+///
+/// Note: This parser currently handles one parameter per declaration.
+/// WebAssembly also allows multiple parameters of the same type in one declaration
+/// like `(param f32 f32)`, which would need a separate parser implementation.
 pub fn parse_parameter(input: &str) -> IResult<Parameter> {
     fn inner(input: &str) -> IResult<Parameter> {
-        let (rest, _) =
-            preceded(multispace0, tag("param"))(input)?;
-        let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+        let (rest, _) = preceded(multispace0, tag("param"))(input)?;
+        let (rest, identifier) = opt(preceded(multispace0, parse_identifier))(rest)?;
+        let (rest, type_) = preceded(multispace0, parse_type)(rest)?;
 
         let parameter = Parameter { identifier, type_ };
 
         Ok((rest, parameter))
     }
 
-    preceded(
-        multispace0,
-        parse_parenthesis_enclosed(context("parameter", inner)),
-    )(input)
+    preceded(multispace0, parse_parenthesis_enclosed(context("parameter", inner)))(input)
 }
 
 /// Parses a local variable definition.
@@ -188,20 +186,14 @@ pub fn parse_parameter(input: &str) -> IResult<Parameter> {
 /// ```
 pub fn parse_local(input: &str) -> IResult<Local> {
     fn inner(input: &str) -> IResult<Local> {
-        let (rest, _) =
-            preceded(multispace0, tag("local"))(input)?;
-        let (rest, identifier) =
-            opt(preceded(multispace0, parse_identifier))(rest)?;
-        let (rest, type_) =
-            preceded(multispace0, parse_type)(rest)?;
+        let (rest, _) = preceded(multispace0, tag("local"))(input)?;
+        let (rest, identifier) = opt(preceded(multispace0, parse_identifier))(rest)?;
+        let (rest, type_) = preceded(multispace0, parse_type)(rest)?;
 
         let local = Local { identifier, type_ };
 
         Ok((rest, local))
     }
 
-    preceded(
-        multispace0,
-        parse_parenthesis_enclosed(context("local", inner)),
-    )(input)
+    preceded(multispace0, parse_parenthesis_enclosed(context("local", inner)))(input)
 }

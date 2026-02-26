@@ -22,10 +22,7 @@ impl From<i64> for SignedLeb128 {
 }
 
 impl<W: Write> Emittable<SignedLeb128> for Emitter<W> {
-    fn emit_element(
-        &mut self,
-        element: SignedLeb128,
-    ) -> io::Result<usize> {
+    fn emit_element(&mut self, element: SignedLeb128) -> io::Result<usize> {
         let mut bytes_written = 0;
         let SignedLeb128 { mut value } = element;
         let mut is_done = false;
@@ -103,10 +100,7 @@ impl From<u64> for UnsignedLeb128 {
 }
 
 impl<W: Write> Emittable<UnsignedLeb128> for Emitter<W> {
-    fn emit_element(
-        &mut self,
-        element: UnsignedLeb128,
-    ) -> io::Result<usize> {
+    fn emit_element(&mut self, element: UnsignedLeb128) -> io::Result<usize> {
         let mut bytes_written = 0;
         let UnsignedLeb128 { mut value } = element;
 
@@ -180,9 +174,7 @@ mod tests {
             &[255, 255, 255, 255, 255, 255, 255, 255, 255, 0],
         ];
 
-        for (value_to_encode, expected) in
-            to_encode.into_iter().zip(expected_encoding)
-        {
+        for (value_to_encode, expected) in to_encode.into_iter().zip(expected_encoding) {
             let encoder = SignedLeb128::from(value_to_encode);
             let mut emitter = Emitter::new(Vec::new());
 
@@ -222,9 +214,7 @@ mod tests {
             &[255, 255, 255, 255, 255, 255, 255, 255, 255, 1],
         ];
 
-        for (value_to_encode, expected) in
-            to_encode.into_iter().zip(expected_encoding)
-        {
+        for (value_to_encode, expected) in to_encode.into_iter().zip(expected_encoding) {
             let encoder = UnsignedLeb128::from(value_to_encode);
             let mut emitter = Emitter::new(Vec::new());
 
