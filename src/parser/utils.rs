@@ -2,7 +2,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, tag, take_while1},
     character::complete::{char, multispace0, none_of},
-    combinator::{cut, value},
+    combinator::{cut, opt, value},
     error::{context, VerboseError},
     sequence::{delimited, preceded},
     Parser,
@@ -105,6 +105,58 @@ where
             cut(preceded(multispace0, char(')'))),
         ),
     )
+}
+
+pub fn ws<'a, T, F>(
+    parser: F,
+) -> impl FnMut(&'a str) -> IResult<'a, T>
+where
+    F: Parser<&'a str, T, VerboseError<&'a str>>,
+{
+    preceded(multispace0, parser)
+}
+
+pub fn parse_typed_declaration<'a, T, F>(
+    keyword: &'a str,
+    context_name: &'a str,
+    constructor: F,
+) -> impl FnMut(&'a str) -> IResult<'a, T>
+where
+    F: Fn(Option<SmallString>, Type) -> T,
+{
+    move |input: &'a str| {
+        fn inner<'b, T, F>(
+            keyword: &'b str,
+            constructor: F,
+        ) -> impl FnMut(&'b str) -> IResult<'b, T>
+        where
+            F: Fn(Option<SmallString>, Type) -> T,
+        {
+            move |input: &'b str| {
+                let (rest, _) =
+                    preceded(multispace0, tag(keyword))(input)?;
+                let (rest, identifier) =
+                    opt(preceded(
+                        multispace0,
+                        parse_identifier,
+                    ))(rest)?;
+                let (rest, type_) =
+                    preceded(multispace0, parse_type)(rest)?;
+
+                let result = constructor(identifier, type_);
+
+                Ok((rest, result))
+            }
+        }
+
+        preceded(
+            multispace0,
+            parse_parenthesis_enclosed(context(
+                context_name,
+                inner(keyword, &constructor),
+            )),
+        )(input)
+    }
 }
 
 fn is_acceptable_identifier_character(ch: char) -> bool {
