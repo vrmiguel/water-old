@@ -1,32 +1,33 @@
-use water::parser::{parse_function_import, parse_instruction};
+use water::parser::{
+    parse_function_import, parse_instruction, stringify_error,
+};
 
 fn main() {
-    dbg!(parse_instruction("i32.const 5").unwrap());
-
-    dbg!(parse_instruction("(i32.const 5)").unwrap());
-
-    dbg!(parse_instruction("(local.set $idx)").unwrap());
-    dbg!(
-        parse_instruction("(local.set $idx (i32.const 5))")
-            .unwrap()
-    );
+    for input in [
+        "i32.const 5",
+        "(i32.const 5)",
+        "(local.set $idx)",
+        "(local.set $idx (i32.const 5))",
+    ] {
+        match parse_instruction(input) {
+            Ok((rest, instr)) if rest.trim().is_empty() => {
+                dbg!(instr);
+            }
+            Ok((rest, instr)) => {
+                eprintln!(
+                    "warning: unconsumed input after parse: {rest:?}"
+                );
+                dbg!(instr);
+            }
+            Err(err) => {
+                eprintln!("{}", stringify_error(input, err));
+            }
+        }
+    }
 
     let import_wat = r#"(import "console" "log" (func $log (param i32) (param i32)))"#;
 
     if let Err(err) = parse_function_import(import_wat) {
         println!("{}", stringify_error(import_wat, err));
-    }
-
-    fn stringify_error(
-        input: &str,
-        error: nom::Err<nom::error::VerboseError<&str>>,
-    ) -> String {
-        match error {
-            nom::Err::Incomplete(_) => unreachable!(),
-            nom::Err::Error(error)
-            | nom::Err::Failure(error) => {
-                nom::error::convert_error(input, error)
-            }
-        }
     }
 }
