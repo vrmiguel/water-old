@@ -1,5 +1,5 @@
 //! A cheaply-clonable String type
-// Taken from github.com/vrmiguel/ceceio
+// Originally taken from github.com/vrmiguel/ceceio
 use std::{
     borrow::Borrow, fmt, hash::Hash, ops::Deref, rc::Rc, str,
 };
@@ -63,6 +63,7 @@ impl SmallString {
         }
     }
 
+    /// Checks if this SmallString is stored on the heap
     pub fn is_in_heap(&self) -> bool {
         matches!(self, Self::Heap(_))
     }

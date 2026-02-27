@@ -18,13 +18,14 @@ pub fn parse_string(input: &str) -> IResult<&str> {
     let esc = escaped(none_of("\\\""), '\\', tag("\""));
     let esc_or_empty = alt((esc, tag("")));
 
+    // Parse string delimited by double quotes
     delimited(tag("\""), esc_or_empty, tag("\""))(input)
 }
 
 /// Parses an identifier. WebAssembly Text Format identifiers
 /// always start with `$`.
 ///
-/// Does not eat leading whitespace.
+/// Note: Does not consume leading whitespace.
 ///
 /// ```
 /// use water::parser::parse_identifier;
