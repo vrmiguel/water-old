@@ -5,5 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "water"
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
 nom = "7.1.1"
+pyo3 = { version = "0.21", features = ["extension-module"] }
