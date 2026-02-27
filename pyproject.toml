@@ -1,0 +1,20 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "water"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dynamic = ["version"]
+
+[project.metadata]
+description = "Python bindings for the water WebAssembly Text Format parser"
+
+[tool.maturin]
+features = ["extension-module"]
+module-name = "_water"
