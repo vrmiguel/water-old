@@ -4,4 +4,6 @@
 
 ## Favorite Character
 
-My favorite character is Mario.
+My favorite character is Toad.
+
+**History:** Mario → Luigi → Toad
