@@ -26,4 +26,24 @@ mod tests {
     fn test_version_string() {
         assert_eq!(version_string("water"), "water v0.1.0");
     }
+
+    #[test]
+    fn test_constants() {
+        assert_eq!(MAJOR, 0);
+        assert_eq!(MINOR, 1);
+        assert_eq!(PATCH, 0);
+    }
+
+    #[test]
+    fn test_version_from_constants() {
+        let expected = format!("{}.{}.{}", MAJOR, MINOR, PATCH);
+        assert_eq!(version(), expected);
+    }
+
+    #[test]
+    fn test_version_string_with_different_names() {
+        assert_eq!(version_string(""), " v0.1.0");
+        assert_eq!(version_string("compiler"), "compiler v0.1.0");
+        assert_eq!(version_string("water compiler"), "water compiler v0.1.0");
+    }
 }
