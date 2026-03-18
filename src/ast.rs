@@ -241,7 +241,7 @@ pub enum ArithmeticInstruction {
     /// i32.div_s, i64.div_s
     SignedDivision,
     /// i32.div_u, i64.div_u
-    UnsignedDisivion,
+    UnsignedDivision,
     /// i32.rem_s or i64.rem_s
     SignedRemainder,
     /// i32.rem_u or i64.rem_u
