@@ -8,6 +8,17 @@ A lightweight and performant compiler for WebAssembly Text Format (WAT), written
 
 `water` is a minimal yet efficient parser and compiler for WebAssembly's human-readable text format. It provides a foundation for parsing WAT modules, instructions, imports, functions, and other WebAssembly components.
 
+## Table of Contents
+
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Example output](#example-output)
+- [Testing](#testing)
+- [Dependencies](#dependencies)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 
 - **Fast parsing** - Efficient WAT instruction and module parsing using `nom`
@@ -22,6 +33,8 @@ A lightweight and performant compiler for WebAssembly Text Format (WAT), written
 - `src/ast.rs` - Abstract Syntax Tree definitions
 - `src/leb128.rs` - LEB128 variable-length integer encoding
 - `src/opcode.rs` - WebAssembly opcode definitions
+
+The entry point `src/main.rs` includes small parsing examples so you can see `water` in action immediately after building.
 
 ## Getting Started
 
@@ -41,9 +54,25 @@ cargo build --release
 cargo run
 ```
 
+To explore the parser programmatically, inspect `src/lib.rs` and the modules under `src/parser/` to call functions such as `parse_instruction` and `parse_function_import` directly in your own tooling.
+
+## Example output
+
+Running `cargo run` prints parsing results for literal instructions and imports (see `src/main.rs`) so you can verify the parser handles both bare instructions and nested expressions before integrating further emitters.
+
+## Testing
+
+```bash
+cargo test
+```
+
 ## Dependencies
 
 - **nom** (7.1.1) - Parser combinators library
+
+## Contributing
+
+Contributions and improvements are welcome. Please open an issue or a pull request describing your idea before investing significant time so we can align on direction.
 
 ## License
 
