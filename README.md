@@ -2,53 +2,71 @@
 
 > **[Lire en français](README.fr.md)**
 
-A lightweight and performant compiler for WebAssembly Text Format (WAT), written in Rust.
+A lightweight and performant compiler toolkit for WebAssembly Text Format (WAT), written in Rust.
 
 ## Overview
 
-`water` is a minimal yet efficient parser and compiler for WebAssembly's human-readable text format. It provides a foundation for parsing WAT modules, instructions, imports, functions, and other WebAssembly components.
+`water` provides parser and emitter building blocks for WebAssembly's human-readable text format. It is focused on small, understandable modules for parsing instructions, functions, imports, and modules.
 
 ## Features
 
-- **Fast parsing** - Efficient WAT instruction and module parsing using `nom`
-- **Minimal dependencies** - Lightweight codebase with only essential dependencies
-- **Type-safe** - Leverages Rust's type system for safe AST representation
-- **Extensible** - Modular architecture supporting custom emitters and transformations
+- Fast WAT parsing powered by `nom`
+- Minimal dependency footprint
+- Type-safe AST representation in Rust
+- Modular design for parser and emitter experimentation
 
 ## Project Structure
 
 - `src/parser/` - WAT parsing logic for instructions, functions, imports, and modules
-- `src/emitter/` - Code emission and transformation utilities
-- `src/ast.rs` - Abstract Syntax Tree definitions
-- `src/leb128.rs` - LEB128 variable-length integer encoding
+- `src/emitter/` - Code emission utilities for WebAssembly elements
+- `src/ast.rs` - Abstract Syntax Tree (AST) definitions
+- `src/leb128.rs` - LEB128 variable-length integer encoding helpers
 - `src/opcode.rs` - WebAssembly opcode definitions
+- `src/main.rs` - Small executable showcasing parser usage
 
 ## Getting Started
 
 ### Prerequisites
 
-- Rust 1.56 or later
+- Rust 1.56+
 
-### Building
+### Build
 
 ```bash
 cargo build --release
 ```
 
-### Running
+### Run the example binary
 
 ```bash
 cargo run
 ```
 
+### Run tests
+
+```bash
+cargo test
+```
+
+## Library Usage
+
+```rust
+use water::parser::parse_instruction;
+
+fn main() {
+    let instruction = parse_instruction("i32.const 5").unwrap();
+    println!("{instruction:?}");
+}
+```
+
 ## Dependencies
 
-- **nom** (7.1.1) - Parser combinators library
-
-## License
-
-Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+- [`nom`](https://crates.io/crates/nom) - Parser combinators library
 
 ## Project Status
 
-This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+This project is experimental and primarily aimed at learning and exploring WAT parsing and compilation internals.
+
+## License
+
+Licensed under the MIT License. See [LICENSE](LICENSE).
