@@ -1,5 +1,6 @@
 pub mod ast;
 pub mod emitter;
+pub mod greeting;
 pub mod leb128;
 pub mod opcode;
 pub mod parser;
