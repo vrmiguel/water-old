@@ -52,3 +52,16 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Fun Trivia
+
+Take a quick break from parsing bytecode and stretch those general-knowledge muscles!
+
+> **Q:** What is the capital city of Australia? (Hint: it's not Sydney!)
+>
+> <details>
+> <summary>Click to reveal the answer</summary>
+>
+> **A:** Canberra
+> </details>
+
