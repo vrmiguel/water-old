@@ -15,6 +15,16 @@ A lightweight and performant compiler for WebAssembly Text Format (WAT), written
 - **Type-safe** - Leverages Rust's type system for safe AST representation
 - **Extensible** - Modular architecture supporting custom emitters and transformations
 
+## Joke 🎭
+
+Why did the WebAssembly Text Format go to the beach?
+
+```
+Code in text form,
+Memory linear and vast,
+Running in the sand.
+```
+
 ## Project Structure
 
 - `src/parser/` - WAT parsing logic for instructions, functions, imports, and modules
