@@ -45,6 +45,14 @@ cargo run
 
 - **nom** (7.1.1) - Parser combinators library
 
+## A Haiku for WAT Lovers
+
+```
+Stack grows ever tall
+Binary dreams in text form
+Rust makes it all safe
+```
+
 ## License
 
 Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
