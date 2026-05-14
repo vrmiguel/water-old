@@ -59,3 +59,7 @@ This is an experimental/educational project focused on understanding WebAssembly
 > dreams folded in spreadsheet cells,
 > coffee, then the meeting.
 
+> Inbox overflows—
+> a quick sync becomes an hour,
+> Friday slips away.
+
