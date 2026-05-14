@@ -63,3 +63,7 @@ This is an experimental/educational project focused on understanding WebAssembly
 > a quick sync becomes an hour,
 > Friday slips away.
 
+> Calendar blocks bloom—
+> "circling back" by quarter's end,
+> the deck reshuffles.
+
