@@ -52,3 +52,18 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## A Haiku for Corporate Life
+
+> Fluorescent dawn hums—
+> dreams folded in spreadsheet cells,
+> coffee, then the meeting.
+
+> Inbox overflows—
+> a quick sync becomes an hour,
+> Friday slips away.
+
+> Calendar blocks bloom—
+> "circling back" by quarter's end,
+> the deck reshuffles.
+
