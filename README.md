@@ -4,6 +4,10 @@
 
 A lightweight and performant compiler for WebAssembly Text Format (WAT), written in Rust.
 
+> *Quiet streams of text,*
+> *flowing into bytes that dream —*
+> *water becomes code.*
+
 ## Overview
 
 `water` is a minimal yet efficient parser and compiler for WebAssembly's human-readable text format. It provides a foundation for parsing WAT modules, instructions, imports, functions, and other WebAssembly components.
