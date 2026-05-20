@@ -11,7 +11,7 @@ use crate::{
     },
 };
 
-/// Parses a function import.
+/// Parses a function import declaration and its signature.
 ///
 /// ```
 /// use water::ast::{FunctionImport, Function, Parameter, Type, NumericalType};

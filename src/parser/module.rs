@@ -8,10 +8,10 @@ use crate::{
     ast::Module, parser::utils::parse_parenthesis_enclosed,
 };
 
-/// Parses a WebAssembly Text Format module.
+/// Parses a WebAssembly Text Format module form.
 ///
-/// Eats leading whitespace before and after the first
-/// parenthesis.
+/// Accepts leading whitespace before the opening parenthesis and
+/// before the `module` keyword.
 ///
 /// ```
 /// use water::parser::parse_module;

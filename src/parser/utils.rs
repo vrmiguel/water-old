@@ -21,8 +21,8 @@ pub fn parse_string(input: &str) -> IResult<&str> {
     delimited(tag("\""), esc_or_empty, tag("\""))(input)
 }
 
-/// Parses an identifier. WebAssembly Text Format identifiers
-/// always start with `$`.
+/// Parses a WebAssembly Text Format identifier and returns it without
+/// the leading `$` sigil.
 ///
 /// Does not eat leading whitespace.
 ///
@@ -45,7 +45,7 @@ pub fn parse_identifier(input: &str) -> IResult<SmallString> {
     Ok((rest, SmallString::new(identifier)))
 }
 
-/// Parses a WASM type.
+/// Parses any value type currently supported by this parser.
 ///
 /// Does not eat leading whitespace.
 pub fn parse_type(input: &str) -> IResult<Type> {
@@ -55,7 +55,7 @@ pub fn parse_type(input: &str) -> IResult<Type> {
     )(input)
 }
 
-/// Parses one of the four built-in numerical WASM types.
+/// Parses one of the four built-in numeric WebAssembly value types.
 ///
 /// Does not eat leading whitespace.
 pub fn parse_numerical_type(
@@ -69,7 +69,7 @@ pub fn parse_numerical_type(
     ))(input)
 }
 
-/// Parses an index, either numerical or as an identifier.
+/// Parses an index, accepting either a numeric literal or an identifier.
 ///
 /// Does not eat leading whitespace.
 ///

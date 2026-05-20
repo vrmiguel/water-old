@@ -1,4 +1,4 @@
-//! Parsing functions specific to instructions
+//! Parsers for WebAssembly instruction forms.
 
 use nom::{
     branch::alt,
@@ -76,8 +76,8 @@ pub fn parse_opcode(input: &str) -> IResult<Opcode> {
     ))(input)
 }
 
-/// Parses a `const` operation, such as `i32.const 20` or
-/// `f32.const 2.2`
+/// Parses a numeric `*.const` instruction, such as `i32.const 20` or
+/// `f32.const 2.2`.
 ///
 /// Does not eat leading whitespace.
 ///
@@ -128,7 +128,7 @@ pub fn parse_const(input: &str) -> IResult<NumericalValue> {
     }
 }
 
-/// Parses a `call` instruction alongside its index.
+/// Parses a `call` instruction and returns the target function index.
 ///
 /// Does not eat leading whitespace.
 ///
@@ -152,7 +152,8 @@ pub fn parse_call(input: &str) -> IResult<Index> {
     )(rest)
 }
 
-/// Parses an instruction for direct variable access.
+/// Parses a direct variable access instruction such as `local.get` or
+/// `global.set`.
 ///
 /// Does not eat leading whitespace.
 ///
