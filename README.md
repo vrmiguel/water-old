@@ -4,7 +4,7 @@ Un compilateur léger et performant pour le format texte de WebAssembly (WAT), �
 
 ## Aperçu
 
-`water` est un analyseur syntaxique et un compilateur minimal, mais efficace, pour le format texte de WebAssembly, lisible par l'humain. Il fournit une base pour analyser les modules WAT, les instructions, les importations, les fonctions et d'autres composants WebAssembly.
+`water` est un analyseur syntaxique et un compilateur minimal, mais efficace, pour le format texte de WebAssembly, lisible par les humains. Il fournit une base pour analyser les modules WAT, les instructions, les importations, les fonctions et d'autres composants WebAssembly.
 
 ## Fonctionnalités
 
