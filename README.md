@@ -1,54 +1,52 @@
-# water - WebAssembly Text Format Compiler
+# water - Compilateur de Format Texte WebAssembly
 
-> **[Lire en français](README.fr.md)**
+Un compilateur léger et performant pour le Format Texte WebAssembly (WAT), écrit en Rust.
 
-A lightweight and performant compiler for WebAssembly Text Format (WAT), written in Rust.
+## Aperçu
 
-## Overview
+`water` est un analyseur syntaxique et compilateur minimal mais efficace pour le format texte lisible par l'homme de WebAssembly. Il fournit une base pour analyser les modules WAT, les instructions, les imports, les fonctions et d'autres composants WebAssembly.
 
-`water` is a minimal yet efficient parser and compiler for WebAssembly's human-readable text format. It provides a foundation for parsing WAT modules, instructions, imports, functions, and other WebAssembly components.
+## Fonctionnalités
 
-## Features
+- **Analyse rapide** - Analyse efficace des instructions et modules WAT grâce à `nom`
+- **Dépendances minimales** - Base de code légère avec uniquement les dépendances essentielles
+- **Typage sûr** - Exploite le système de types de Rust pour une représentation sûre de l'AST
+- **Extensible** - Architecture modulaire prenant en charge des émetteurs et transformations personnalisés
 
-- **Fast parsing** - Efficient WAT instruction and module parsing using `nom`
-- **Minimal dependencies** - Lightweight codebase with only essential dependencies
-- **Type-safe** - Leverages Rust's type system for safe AST representation
-- **Extensible** - Modular architecture supporting custom emitters and transformations
+## Structure du Projet
 
-## Project Structure
+- `src/parser/` - Logique d'analyse WAT pour les instructions, fonctions, imports et modules
+- `src/emitter/` - Utilitaires d'émission et de transformation de code
+- `src/ast.rs` - Définitions de l'Arbre Syntaxique Abstrait (AST)
+- `src/leb128.rs` - Encodage d'entiers à longueur variable LEB128
+- `src/opcode.rs` - Définitions des opcodes WebAssembly
 
-- `src/parser/` - WAT parsing logic for instructions, functions, imports, and modules
-- `src/emitter/` - Code emission and transformation utilities
-- `src/ast.rs` - Abstract Syntax Tree definitions
-- `src/leb128.rs` - LEB128 variable-length integer encoding
-- `src/opcode.rs` - WebAssembly opcode definitions
+## Pour Commencer
 
-## Getting Started
+### Prérequis
 
-### Prerequisites
+- Rust 1.56 ou ultérieur
 
-- Rust 1.56 or later
-
-### Building
+### Compilation
 
 ```bash
 cargo build --release
 ```
 
-### Running
+### Exécution
 
 ```bash
 cargo run
 ```
 
-## Dependencies
+## Dépendances
 
-- **nom** (7.1.1) - Parser combinators library
+- **nom** (7.1.1) - Bibliothèque de combinateurs d'analyseurs syntaxiques
 
-## License
+## Licence
 
-Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
+Distribué sous la licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-## Project Status
+## État du Projet
 
-This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+Il s'agit d'un projet expérimental/éducatif axé sur la compréhension de l'analyse et de la compilation du Format Texte WebAssembly.
