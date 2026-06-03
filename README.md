@@ -52,3 +52,9 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## A quick joke
+
+Why do programmers prefer dark mode? Because light attracts bugs.
+
+I would tell you a UDP joke, but you might not get it.
