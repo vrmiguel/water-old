@@ -54,3 +54,4 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
 
 Dummy line one.
+Dummy line two.
