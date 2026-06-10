@@ -1,5 +1,7 @@
 # water - Compilateur de Format Texte WebAssembly
 
+> **Traductions :** [العربية](README.ar.md) | [English](README.md)
+
 Un compilateur léger et performant pour le Format Texte WebAssembly (WAT), écrit en Rust.
 
 ## Aperçu
