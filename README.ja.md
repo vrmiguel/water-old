@@ -1,6 +1,6 @@
 # water - WebAssembly Text Format コンパイラ
 
-> **翻訳:** [English](README.md) | [Français](README.fr.md)
+> **翻訳:** [English](README.md) | [Français](README.fr.md) | [Italiano](README.it.md)
 
 Rust で書かれた、軽量で高性能な WebAssembly Text Format (WAT) コンパイラです。
 
