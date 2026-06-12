@@ -43,6 +43,10 @@ cargo run
 
 - **nom** (7.1.1) - Bibliothèque de combinateurs d'analyseurs syntaxiques
 
+## Blague
+
+Pourquoi le compilateur est-il allé nager ? Parce qu'il voulait analyser `water` dans son habitat naturel.
+
 ## Licence
 
 Distribué sous la licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
