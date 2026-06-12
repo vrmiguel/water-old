@@ -45,6 +45,10 @@ cargo run
 
 - **nom** (7.1.1) - Parser combinators library
 
+## Joke
+
+Why did the compiler go for a swim? Because it wanted to parse `water` in its natural habitat.
+
 ## License
 
 Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
