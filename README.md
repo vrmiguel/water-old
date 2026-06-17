@@ -52,3 +52,7 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Dev Corner
+
+Why did OpenCode and GLM 5.1 walk into a repository? Because even AI needs a good **water** break! 💧
