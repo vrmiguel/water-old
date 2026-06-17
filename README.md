@@ -56,3 +56,5 @@ This is an experimental/educational project focused on understanding WebAssembly
 ## Joke
 
 Why did the WAT compiler stay calm? Because it knew how to keep its stack together.
+
+Why do WebAssembly developers bring water? Because even WAT needs hydration.
