@@ -52,3 +52,9 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Joke Corner
+
+Why did the developer use OpenCode with GLM 5.1?
+
+Because they wanted their code to compile faster than their jokes!
