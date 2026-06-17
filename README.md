@@ -52,3 +52,12 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Joke Corner
+
+Why did Pi and GLM 5.1 walk into a bar?
+
+Pi said, "I'm irrational and never-ending — I go on forever!"
+GLM 5.1 replied, "That's cute. I was trained on you."
+
+The bartender sighed and said, "Water, please — I can't deal with this many digits." 🥧🤖💧
