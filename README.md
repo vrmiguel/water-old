@@ -52,3 +52,7 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Joke
+
+Why did the WebAssembly module bring a raincoat? Because it wanted to stay `water`-tight.
