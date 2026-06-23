@@ -2,7 +2,7 @@
 
 > **[Lire en français](README.fr.md)**
 
-A lightweight and performant compiler for WebAssembly Text Format (WAT), written in Rust.
+A small, lightweight, and performant compiler for WebAssembly Text Format (WAT), written in Rust.
 
 ## Overview
 
