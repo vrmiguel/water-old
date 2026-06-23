@@ -1,6 +1,6 @@
 # Sentry Errors
 
-This file tracks new Sentry issues captured by the workflow.
+This file tracks new Sentry issues captured by the workflow and keeps recent test incidents visible in the repo.
 
 ## API-NM
 
