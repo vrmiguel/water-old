@@ -1,6 +1,7 @@
 # water - WebAssembly Text Format Compiler
 
 > **[Lire en français](README.fr.md)**
+> **Status:** Early work in progress.
 
 A lightweight and performant compiler for WebAssembly Text Format (WAT), written in Rust.
 

@@ -1,6 +1,7 @@
 # Sentry Errors
 
 This file tracks new Sentry issues captured by the workflow.
+This document currently includes a webhook verification sample issue.
 
 ## API-NM
 
