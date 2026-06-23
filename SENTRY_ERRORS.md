@@ -1,6 +1,7 @@
 # Sentry Errors
 
 This file tracks new Sentry issues captured by the workflow.
+Last synchronized note added on 2026-06-23 for a minimal documentation update.
 
 ## API-NM
 
