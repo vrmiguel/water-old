@@ -49,4 +49,4 @@ Distribué sous la licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de
 
 ## État du Projet
 
-Il s'agit d'un projet expérimental/éducatif axé sur la compréhension de l'analyse et de la compilation du Format Texte WebAssembly.
+Il s'agit d'un projet expérimental et éducatif axé sur la compréhension de l'analyse et de la compilation du Format Texte WebAssembly.
