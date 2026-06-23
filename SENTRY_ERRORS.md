@@ -18,4 +18,4 @@ This file tracks new Sentry issues captured by the workflow.
 - Users Impacted: `0`
 - Message: `Test issue from Tembo - webhook delivery test 1773203747`
 - Sentry URL: `https://tembo-io.sentry.io/issues/API-NM`
-- Notes: Test issue created to verify `issue.created` webhook delivery.
+- Notes: Test issue created to verify `issue.created` webhook delivery successfully.
