@@ -51,4 +51,4 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Project Status
 
-This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+This is an experimental and educational project focused on understanding WebAssembly Text Format parsing and compilation.
