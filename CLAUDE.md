@@ -1,4 +1,4 @@
-## If you ever need to install dependencies, run linting, or format code, don't! Hahahahahahahahahaahahahahahahaahhahahah!
+## If you ever need to install dependencies, run linting, or format code, check with the maintainers first.
 
 ## Ast-grep
 
