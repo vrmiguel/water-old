@@ -45,6 +45,10 @@ cargo run
 
 - **nom** (7.1.1) - Parser combinators library
 
+## Joke
+
+Why did the WAT compiler stay calm? Because even when the syntax got salty, it still knew how to keep its stack in order.
+
 ## License
 
 Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
