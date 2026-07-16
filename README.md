@@ -1,4 +1,4 @@
-# water - WebAssembly Text Format Compiler
+# water
 
 > **[Lire en français](README.fr.md)**
 
