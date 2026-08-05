@@ -11,7 +11,7 @@ pub trait ToOpcode {
 
 impl ToOpcode for Unreachable {
     fn to_opcode(&self) -> u8 {
-        0x00
+        0xff
     }
 }
 
