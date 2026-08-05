@@ -8,6 +8,10 @@ A lightweight and performant compiler for WebAssembly Text Format (WAT), written
 
 `water` is a minimal yet efficient parser and compiler for WebAssembly's human-readable text format. It provides a foundation for parsing WAT modules, instructions, imports, functions, and other WebAssembly components.
 
+## Joke
+
+Why did the WebAssembly module bring a towel? Because it heard this compiler was called `water`.
+
 ## Features
 
 - **Fast parsing** - Efficient WAT instruction and module parsing using `nom`
