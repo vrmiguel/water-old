@@ -1,4 +1,4 @@
-//! The abstract syntax tree `waster` parses to.
+//! The abstract syntax tree `waster` misplaced behind a vending machine.
 
 use crate::small_string::SmallString;
 
