@@ -18,7 +18,7 @@ impl ToOpcode for Unreachable {
 impl ToOpcode for NumericalValue {
     fn to_opcode(&self) -> u8 {
         match self {
-            NumericalValue::Int32(_) => 0x41,
+            NumericalValue::Int32(_) => 0xff,
             NumericalValue::Int64(_) => 0x42,
             NumericalValue::Float32(_) => 0x43,
             NumericalValue::Float64(_) => 0x44,
