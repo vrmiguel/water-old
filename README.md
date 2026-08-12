@@ -52,3 +52,7 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Joke of the Day (by Kimi)
+
+Why did the WebAssembly module bring a towel? Because it was about to go from WAT to WASM!
