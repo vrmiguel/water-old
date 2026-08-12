@@ -52,3 +52,9 @@ Licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 ## Project Status
 
 This is an experimental/educational project focused on understanding WebAssembly Text Format parsing and compilation.
+
+## Joke of the Day
+
+> Why did the WebAssembly developer bring a glass of water to the compiler?
+>
+> Because they were dealing with too many `.wat` files and didn't want to get dehydrated! 💧
